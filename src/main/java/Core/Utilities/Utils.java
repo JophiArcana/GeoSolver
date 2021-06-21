@@ -1,8 +1,10 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.Functions.*;
 import Core.AlgeSystem.*;
+import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
+import Core.GeoSystem.Points.*;
+import Core.GeoSystem.Points.Functions.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -13,6 +15,7 @@ public class Utils {
 
     public static final HashMap<Class, Integer> CLASS_IDS = new HashMap<>() {{
         Class[] classes = new Class[] {
+        /** SECTION: Expressions ==================================================================================== */
                 Complex.class,
                 Infinity.class,
                 Symbol.class,
@@ -21,7 +24,12 @@ public class Utils {
                 Pow.class,
                 Monomial.class,
                 Polynomial.class,
-                Mul.class
+                Mul.class,
+
+        /** SECTION: Points ========================================================================================= */
+                Coordinate.class,
+                Phantom.class,
+                Centroid.class
         };
         for (int i = 0; i < classes.length; i++) {
             put(classes[i], i);

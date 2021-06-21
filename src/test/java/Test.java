@@ -1,10 +1,13 @@
 
 import Core.AlgeSystem.*;
 import Core.AlgeSystem.Functions.*;
+import Core.GeoSystem.Points.Functions.Centroid;
 import Core.GeoSystem.Points.Phantom;
+import Core.Utilities.ASEngine;
 import Core.Utilities.Utils;
 
 import static Core.Utilities.ASEngine.*;
+import static Core.AlgeSystem.Constant.*;
 
 public class Test {
     public static void main(String[] args) {
@@ -26,8 +29,10 @@ public class Test {
         System.out.println(exp(add(mul(3, log(x)), mul(2, log(y)), 3)));
         System.out.println(add(imaginary(log(q)), mul(0.5, log(add(pow(real(k), 2), pow(imaginary(k), 2))))));
         System.out.println(log(q));
-        Phantom point = new Phantom("P");
-        Symbol px = new Symbol("P\u1D6A");
-        Symbol py = new Symbol("P\u1D67");
+        Phantom pointP = new Phantom("P");
+        Phantom pointQ = new Phantom("Q");
+        Centroid m = new Centroid(pointP, pointQ);
+        Centroid c = new Centroid(pointP, m);
+        System.out.println(c.expression());
     }
 }

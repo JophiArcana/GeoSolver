@@ -162,6 +162,10 @@ public class Complex extends Constant {
                     lower = remainder;
                 }
                 return (lower.re.doubleValue() < 0) ? (Constant) ASEngine.negate(lower) : lower;
+            } else if (((Complex) this.div(cpx)).gaussianInteger()) {
+                return (cpx.re.doubleValue() < 0) ? (Constant) ASEngine.negate(cpx) : cpx;
+            } else if (((Complex) cpx.div(this)).gaussianInteger()) {
+                return (this.re.doubleValue() < 0) ? (Constant) ASEngine.negate(this) : this;
             } else {
                 return Constant.ONE;
             }
