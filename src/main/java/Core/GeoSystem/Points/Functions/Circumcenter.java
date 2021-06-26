@@ -23,8 +23,12 @@ public class Circumcenter extends Center {
         return new ArrayList<>(Collections.singletonList(div(numerator, denominator)));
     };
 
+    public Circumcenter(String n, Point a, Point b, Point c) {
+        super(n, a, b, c);
+    }
+
     public Circumcenter(Point a, Point b, Point c) {
-        super(a, b, c);
+        super("", a, b, c);
     }
 
     public Entity simplify() {

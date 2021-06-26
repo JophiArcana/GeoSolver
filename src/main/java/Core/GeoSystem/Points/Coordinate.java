@@ -3,8 +3,7 @@ package Core.GeoSystem.Points;
 import Core.AlgeSystem.*;
 import Core.EntityTypes.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 public class Coordinate extends Immutable implements Point {
     public static final String[] inputTypes = new String[] {"Value"};

@@ -2,9 +2,9 @@
 import Core.AlgeSystem.*;
 import Core.AlgeSystem.Functions.*;
 import Core.GeoSystem.Points.*;
-import Core.GeoSystem.Points.Functions.*;
 
 import static Core.Utilities.AlgeEngine.*;
+import static Core.Utilities.GeoEngine.*;
 import static Core.AlgeSystem.Constant.*;
 
 import edu.jas.arith.*;
@@ -30,9 +30,9 @@ public class Test {
         Phantom pointP = new Phantom("P");
         Phantom pointQ = new Phantom("Q");
         Phantom pointR = new Phantom("R");
-        Centroid m = new Centroid(pointP, pointQ);
-        Centroid c = new Centroid(pointP, m);
-        Circumcenter o = new Circumcenter(pointP, pointQ, pointR);
+        Point m = centroid("M", pointP, pointQ);
+        Point c = centroid("C", pointP, m);
+        Point o = circumcenter(pointP, pointQ, pointR);
         System.out.println(c.expression());
         System.out.println(c);
         System.out.println(o.expression());

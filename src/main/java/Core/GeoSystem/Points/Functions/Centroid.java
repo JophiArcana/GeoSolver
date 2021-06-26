@@ -17,14 +17,18 @@ public class Centroid extends Center {
                 argTerms.size())));
     };
 
+    public Centroid(String n, Point ... args) {
+        super(n, args);
+    }
+
     public Centroid(Point ... args) {
-        super(args);
+        super("", args);
     }
 
     public Entity simplify() {
         if (this.inputs.get("Points").size() == 2) {
             TreeSet<Entity> pointSet = new TreeSet<>(this.inputs.get("Points").elementSet());
-            return new Midpoint((Point) pointSet.first(), (Point) pointSet.last());
+            return new Midpoint(this.name, (Point) pointSet.first(), (Point) pointSet.last());
         } else {
             return this;
         }

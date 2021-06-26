@@ -1,12 +1,12 @@
 package Core.GeoSystem.Points;
 
 import Core.AlgeSystem.*;
-import Core.GeoSystem.MultivariateMutable;
+import Core.GeoSystem.MutableMultivariate;
 import Core.Utilities.AlgeEngine;
 
 import java.util.*;
 
-public class Phantom extends MultivariateMutable implements Point {
+public class Phantom extends MutableMultivariate implements Point {
     public static final int naturalDegreesOfFreedom = 2;
 
     public Phantom(String n) {

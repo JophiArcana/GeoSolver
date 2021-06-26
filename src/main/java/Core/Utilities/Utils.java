@@ -13,28 +13,25 @@ public class Utils {
     public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
     public static final Comparator<Expression> GROWTH_COMPARATOR = new OrderOfGrowthComparator();
 
-    public static final HashMap<Class, Integer> CLASS_IDS = new HashMap<>() {{
-        Class[] classes = new Class[] {
+    public static final ArrayList<Class> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
-                Complex.class,
-                Infinity.class,
-                Univariate.class,
-                Log.class,
-                Add.class,
-                Pow.class,
-                Monomial.class,
-                Polynomial.class,
-                Mul.class,
+            Complex.class,
+            Infinity.class,
+            Univariate.class,
+            Log.class,
+            Add.class,
+            Pow.class,
+            Monomial.class,
+            Polynomial.class,
+            Mul.class,
 
         /** SECTION: Points ========================================================================================= */
-                Coordinate.class,
-                Phantom.class,
-                Centroid.class
-        };
-        for (int i = 0; i < classes.length; i++) {
-            put(classes[i], i);
-        }
-    }};
+            Coordinate.class,
+            Phantom.class,
+            Midpoint.class,
+            Centroid.class,
+            Circumcenter.class
+    ));
 
     public static final HashSet<Class> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Complex.class,
@@ -53,11 +50,7 @@ public class Utils {
     }
 
     public static int classCode(Object o) {
-        if (!(o instanceof Entity)) {
-            return -1;
-        } else {
-            return CLASS_IDS.get(o.getClass());
-        }
+        return Utils.CLASS_IDS.indexOf(o.getClass());
     }
 
     public static int compare(Entity e1, Entity e2) {
