@@ -21,7 +21,8 @@ public abstract class Mutable implements Entity {
     public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
     public String name;
 
-    public Mutable() {
+    public Mutable(String n) {
+        this.name = n;
         this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
         for (String inputType : getInputTypes()) {
             inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));

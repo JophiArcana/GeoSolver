@@ -9,8 +9,7 @@ public class Univariate extends Mutable implements Expression {
     public static final int naturalDegreesOfFreedom = 1;
 
     public Univariate(String n) {
-        super();
-        this.name = n;
+        super(n);
     }
 
     public Factorization normalize() {

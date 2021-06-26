@@ -130,6 +130,10 @@ public class Add extends DefinedEntity implements Expression {
         }
     }
 
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
     public Expression derivative(Univariate s) {
         ArrayList<Expression> derivativeTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
                 ((Expression) arg).derivative(s));

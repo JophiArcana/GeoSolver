@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class AlgeEngine {
+    public static final Univariate X = new Univariate("x");
     public static final double EPSILON = Math.pow(10, -9);
 
     /** SECTION: Order of Growth ==================================================================================== */

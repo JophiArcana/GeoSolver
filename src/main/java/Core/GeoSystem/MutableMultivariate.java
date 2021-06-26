@@ -7,10 +7,9 @@ import java.util.ArrayList;
 
 public abstract class MutableMultivariate extends Mutable implements Multivariate {
     public ArrayList<Univariate> vars = new ArrayList<>();
-    public String name;
 
     public MutableMultivariate(String n) {
-        this.name = n;
+        super(n);
         for (String varType : this.getVarTypes()) {
             this.vars.add(new Univariate(this.name + varType));
         }

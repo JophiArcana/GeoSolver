@@ -30,6 +30,7 @@ public class Test {
         Phantom pointP = new Phantom("P");
         Phantom pointQ = new Phantom("Q");
         Phantom pointR = new Phantom("R");
+        System.out.println(pointP.name);
         Point m = centroid("M", pointP, pointQ);
         Point c = centroid("C", pointP, m);
         Point o = circumcenter(pointP, pointQ, pointR);

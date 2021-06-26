@@ -36,6 +36,10 @@ public class Log extends DefinedEntity implements Expression {
         }
     }
 
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
     public Factorization normalize() {
         Expression simplified = (Expression) this.simplify();
         if (simplified instanceof Log logExpr) {

@@ -3,6 +3,7 @@ package Core.Utilities;
 import Core.AlgeSystem.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
+import Core.GeoSystem.Lines.*;
 import Core.GeoSystem.Points.*;
 import Core.GeoSystem.Points.Functions.*;
 
@@ -30,7 +31,10 @@ public class Utils {
             Phantom.class,
             Midpoint.class,
             Centroid.class,
-            Circumcenter.class
+            Circumcenter.class,
+
+        /** SECTION: Lines ========================================================================================== */
+            Linear.class
     ));
 
     public static final HashSet<Class> CLOSED_FORM = new HashSet<>(Arrays.asList(

@@ -14,7 +14,6 @@ public abstract class DefinedEntity implements Entity {
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
-    public String name;
 
     public DefinedEntity() {
         this.constrainedDegreesOfFreedom = DefinedEntity.naturalDegreesOfFreedom;
@@ -45,9 +44,5 @@ public abstract class DefinedEntity implements Entity {
 
     public HashMap<String, TreeMultiset<Entity>> getInputs() {
         return this.inputs;
-    }
-
-    public String getName() {
-        return this.name;
     }
 }
