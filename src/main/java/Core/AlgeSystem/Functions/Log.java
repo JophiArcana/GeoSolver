@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public class Log extends DefinedEntity implements Expression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
-            new ArrayList<>(Collections.singletonList(ASEngine.log(args.get("Input").get(0).get(0))));
+            new ArrayList<>(Collections.singletonList(AlgeEngine.log(args.get("Input").get(0).get(0))));
     public static final String[] inputTypes = new String[] {"Input"};
 
     public Expression input;
@@ -28,9 +28,9 @@ public class Log extends DefinedEntity implements Expression {
         if (this.input instanceof Constant) {
             return ((Constant) input).log();
         } else if (this.input instanceof Pow powInput) {
-            return ASEngine.mul(powInput.exponent, ASEngine.log(powInput.base));
+            return AlgeEngine.mul(powInput.exponent, AlgeEngine.log(powInput.base));
         } else if (this.input instanceof Mul mulInput && !mulInput.constant.equals(Constant.ONE)) {
-            return ASEngine.add(ASEngine.log(mulInput.constant), ASEngine.log(ASEngine.div(mulInput, mulInput.constant)));
+            return AlgeEngine.add(AlgeEngine.log(mulInput.constant), AlgeEngine.log(AlgeEngine.div(mulInput, mulInput.constant)));
         } else {
             return this;
         }
@@ -47,8 +47,8 @@ public class Log extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression derivative(Symbol s) {
-        return ASEngine.div(this.input.derivative(s), this.input);
+    public Expression derivative(Univariate s) {
+        return AlgeEngine.div(this.input.derivative(s), this.input);
     }
 
     public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {

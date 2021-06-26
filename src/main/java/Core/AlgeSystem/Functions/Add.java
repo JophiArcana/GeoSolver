@@ -10,13 +10,9 @@ import java.util.function.Function;
 
 public class Add extends DefinedEntity implements Expression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
-        ArrayList<ArrayList<Expression>> argTerms = args.get("Terms");
-        Expression[] terms = new Expression[argTerms.size() + 1];
-        for (int i = 0; i < argTerms.size(); i++) {
-            terms[i] = argTerms.get(i).get(0);
-        }
-        terms[argTerms.size()] = args.get("Constant").get(0).get(0);
-        return new ArrayList<>(Collections.singletonList(ASEngine.add((Object[]) terms)));
+        Expression sum = AlgeEngine.add(args.get("Constant").get(0).get(0),
+                AlgeEngine.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
+        return new ArrayList<>(Collections.singletonList(sum));
     };
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
@@ -29,7 +25,7 @@ public class Add extends DefinedEntity implements Expression {
         TreeMultiset<Entity> inputTerms = inputs.get("Terms");
         this.construct(args);
         for (Map.Entry<Expression, Constant> entry : terms.entrySet()) {
-            inputTerms.add(ASEngine.mul(entry.getKey(), entry.getValue()));
+            inputTerms.add(AlgeEngine.mul(entry.getKey(), entry.getValue()));
         }
         if (!this.logTerm.equals(Constant.ZERO)) {
             inputTerms.add(this.logTerm);
@@ -62,21 +58,21 @@ public class Add extends DefinedEntity implements Expression {
                 Constant baseConst = mulArg.constant;
                 if (baseExpr instanceof Add baseAdd) {
                     for (Entity ent : baseAdd.inputs.get("Terms")) {
-                        this.construct(ASEngine.mul(baseConst, ent));
+                        this.construct(AlgeEngine.mul(baseConst, ent));
                     }
-                    constant = constant.add((Constant) ASEngine.mul(baseConst, baseAdd.constant));
+                    constant = constant.add((Constant) AlgeEngine.mul(baseConst, baseAdd.constant));
                 } else if (baseExpr instanceof Log) {
-                    logTerm = ASEngine.log(ASEngine.mul(ASEngine.exp(logTerm), ASEngine.exp(mulArg)));
+                    logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(mulArg)));
                 } else {
-                    terms.put(baseExpr, (Constant) ASEngine.add(mulArg.constant, terms.get(baseExpr)));
+                    terms.put(baseExpr, (Constant) AlgeEngine.add(mulArg.constant, terms.get(baseExpr)));
                     if (terms.get(baseExpr).equals(Constant.ZERO)) {
                         terms.remove(baseExpr);
                     }
                 }
             } else if (arg instanceof Log logArg) {
-                logTerm = ASEngine.log(ASEngine.mul(ASEngine.exp(logTerm), ASEngine.exp(logArg)));
+                logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(logArg)));
             } else {
-                terms.put(arg, (Constant) ASEngine.add(terms.get(arg), Constant.ONE));
+                terms.put(arg, (Constant) AlgeEngine.add(terms.get(arg), Constant.ONE));
                 if (terms.get(arg).equals(Constant.ZERO)) {
                     terms.remove(arg);
                 }
@@ -90,13 +86,13 @@ public class Add extends DefinedEntity implements Expression {
         } else if (constant.equals(Constant.ZERO) && inputs.get("Terms").size() == 1) {
             return inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
-            Expression gcd = ASEngine.greatestCommonDivisor(this.constant,
-                    ASEngine.greatestCommonDivisor(this.inputs.get("Terms").toArray(new Expression[0])));
+            Expression gcd = AlgeEngine.greatestCommonDivisor(this.constant,
+                    AlgeEngine.greatestCommonDivisor(this.inputs.get("Terms").toArray(new Expression[0])));
             if (gcd.equals(Constant.ONE)) {
                 ArrayList<Monomial> monomials = new ArrayList<>();
                 for (Entity ent : this.inputs.get("Terms")) {
-                    if (ent instanceof Symbol s) {
-                        HashMap<Symbol, Integer> factor = new HashMap<>() {{
+                    if (ent instanceof Univariate s) {
+                        HashMap<Univariate, Integer> factor = new HashMap<>() {{
                             put(s, 1);
                         }};
                         monomials.add(new Monomial(Constant.ONE, factor));
@@ -109,9 +105,9 @@ public class Add extends DefinedEntity implements Expression {
                 return new Polynomial(this.constant, monomials.toArray(new Monomial[0]));
             } else {
                 ArrayList<Expression> normalizedTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
-                        ASEngine.div(arg, gcd));
-                return ASEngine.mul(gcd, ASEngine.add(ASEngine.div(this.constant, gcd),
-                        ASEngine.add(normalizedTerms.toArray())));
+                        AlgeEngine.div(arg, gcd));
+                return AlgeEngine.mul(gcd, AlgeEngine.add(AlgeEngine.div(this.constant, gcd),
+                        AlgeEngine.add(normalizedTerms.toArray())));
             }
         }
     }
@@ -125,8 +121,8 @@ public class Add extends DefinedEntity implements Expression {
                 return new Factorization(Constant.ONE, factors);
             } else {
                 ArrayList<Expression> normalizedTerms = Utils.map(new ArrayList<>(addExpr.inputs.get("Terms")), arg ->
-                        ASEngine.div(arg, addExpr.constant));
-                factors.put(ASEngine.add(Constant.ONE, ASEngine.add(normalizedTerms.toArray())), Constant.ONE);
+                        AlgeEngine.div(arg, addExpr.constant));
+                factors.put(AlgeEngine.add(Constant.ONE, AlgeEngine.add(normalizedTerms.toArray())), Constant.ONE);
                 return new Factorization(addExpr.constant, factors);
             }
         } else {
@@ -134,10 +130,10 @@ public class Add extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression derivative(Symbol s) {
+    public Expression derivative(Univariate s) {
         ArrayList<Expression> derivativeTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
                 ((Expression) arg).derivative(s));
-        return ASEngine.add(derivativeTerms.toArray());
+        return AlgeEngine.add(derivativeTerms.toArray());
     }
 
     public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {

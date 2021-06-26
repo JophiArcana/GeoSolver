@@ -7,9 +7,9 @@ import Core.EntityTypes.Mutable;
 import java.util.*;
 
 public class OrderOfGrowthComparator implements Comparator<Expression> {
-    public Symbol base;
+    public Univariate base;
 
-    public OrderOfGrowthComparator(Symbol x) {
+    public OrderOfGrowthComparator(Univariate x) {
         this.base = x;
     }
 
@@ -30,13 +30,13 @@ public class OrderOfGrowthComparator implements Comparator<Expression> {
             if (commonVars.size() == 0) {
                 return 0;
             } else {
-                return baseCompare(e1, e2, (Symbol) (new ArrayList<>(commonVars)).get(0));
+                return baseCompare(e1, e2, (Univariate) (new ArrayList<>(commonVars)).get(0));
             }
         }
     }
 
-    private int baseCompare(Expression e1, Expression e2, Symbol var) {
-        Expression comparison = ASEngine.div(ASEngine.orderOfGrowth(e1, var), ASEngine.orderOfGrowth(e2, var));
+    private int baseCompare(Expression e1, Expression e2, Univariate var) {
+        Expression comparison = AlgeEngine.div(AlgeEngine.orderOfGrowth(e1, var), AlgeEngine.orderOfGrowth(e2, var));
         //System.out.println(String.format("Terms: %s and %s", e1, e2));
         //System.out.println("Comparison: " + comparison);
         if (comparison instanceof Constant) {
@@ -45,11 +45,11 @@ public class OrderOfGrowthComparator implements Comparator<Expression> {
             return 0;
         } else {
             Expression logDerivative = comparison.logarithmicDerivative(var);
-            Expression logOrder = ASEngine.orderOfGrowth(logDerivative, var);
+            Expression logOrder = AlgeEngine.orderOfGrowth(logDerivative, var);
             //System.out.println("Logarithmic Derivative: " + logDerivative);
             //System.out.println("Order: " + logOrder);
             //System.out.println("Sign: " + logOrder.signum(var));
-            if (logOrder instanceof Pow || logOrder instanceof Log || logOrder instanceof Symbol) {
+            if (logOrder instanceof Pow || logOrder instanceof Log || logOrder instanceof Univariate) {
                 return 1;
             } else if (logOrder instanceof Mul mulExpr) {
                 return mulExpr.constant.compareTo(Constant.ZERO);

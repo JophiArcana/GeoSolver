@@ -10,13 +10,9 @@ import java.util.function.Function;
 
 public class Mul extends DefinedEntity implements Expression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
-        ArrayList<ArrayList<Expression>> argTerms = args.get("Terms");
-        Expression[] terms = new Expression[argTerms.size() + 1];
-        for (int i = 0; i < argTerms.size(); i++) {
-            terms[i] = argTerms.get(i).get(0);
-        }
-        terms[argTerms.size()] = args.get("Constant").get(0).get(0);
-        return new ArrayList<>(Collections.singletonList(ASEngine.mul((Object[]) terms)));
+        Expression product = AlgeEngine.mul(args.get("Constant").get(0).get(0),
+                AlgeEngine.mul(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
+        return new ArrayList<>(Collections.singletonList(product));
     };
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
@@ -28,7 +24,7 @@ public class Mul extends DefinedEntity implements Expression {
         TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
         this.construct(args);
         for (Map.Entry<Expression, Expression> entry : this.terms.entrySet()) {
-            inputTerms.add(ASEngine.pow(entry.getKey(), entry.getValue()));
+            inputTerms.add(AlgeEngine.pow(entry.getKey(), entry.getValue()));
         }
         this.inputs.get("Constant").add(this.constant);
     }
@@ -57,7 +53,7 @@ public class Mul extends DefinedEntity implements Expression {
             Factorization argFactor = ((Expression) arg.simplify()).normalize();
             constant = constant.mul(argFactor.constant);
             for (Map.Entry<Expression, Expression> entry : argFactor.terms.entrySet()) {
-                terms.put(entry.getKey(), ASEngine.add(entry.getValue(), terms.get(entry.getKey())));
+                terms.put(entry.getKey(), AlgeEngine.add(entry.getValue(), terms.get(entry.getKey())));
             }
         }
         ArrayList<Map.Entry<Expression, Expression>> entrySet = new ArrayList<>(terms.entrySet());
@@ -76,17 +72,17 @@ public class Mul extends DefinedEntity implements Expression {
         } else if (constant.equals(Constant.ONE) && inputs.get("Terms").size() == 1) {
             return inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
-            if (!ASEngine.imaginary(this.constant).equals(Constant.ZERO)) {
+            if (!AlgeEngine.imaginary(this.constant).equals(Constant.ZERO)) {
                 return this;
             } else {
-                TreeMap<Symbol, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+                TreeMap<Univariate, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
                 for (Map.Entry<Expression, Expression> entry : this.terms.entrySet()) {
-                    if (!(entry.getKey() instanceof Symbol)) {
+                    if (!(entry.getKey() instanceof Univariate)) {
                         return this;
                     } else if (!(entry.getValue() instanceof Complex cpxExp && cpxExp.integer())) {
                         return this;
                     }
-                    factors.put((Symbol) entry.getKey(), ((Complex) entry.getValue()).re.intValue());
+                    factors.put((Univariate) entry.getKey(), ((Complex) entry.getValue()).re.intValue());
                 }
                 return new Monomial(this.constant, factors);
             }
@@ -100,9 +96,9 @@ public class Mul extends DefinedEntity implements Expression {
             TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
             for (Entity ent : mulExpr.inputs.get("Terms")) {
                 Factorization entFactor = ((Expression) ent).normalize();
-                coefficient = (Constant) ASEngine.mul(coefficient, entFactor.constant);
+                coefficient = (Constant) AlgeEngine.mul(coefficient, entFactor.constant);
                 for (Map.Entry<Expression, Expression> entry : entFactor.terms.entrySet()) {
-                    factors.put(entry.getKey(), ASEngine.add(factors.get(entry.getKey()), entry.getValue()));
+                    factors.put(entry.getKey(), AlgeEngine.add(factors.get(entry.getKey()), entry.getValue()));
                     if (factors.get(entry.getKey()).equals(Constant.ZERO)) {
                         factors.remove(entry.getKey());
                     }
@@ -114,13 +110,13 @@ public class Mul extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression derivative(Symbol s) {
+    public Expression derivative(Univariate s) {
         if (!this.variables().contains(s)) {
             return Constant.ZERO;
         } else {
             ArrayList<Expression> derivativeTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
-                    ASEngine.mul(this, ((Expression) arg).logarithmicDerivative(s)));
-            return ASEngine.add(derivativeTerms.toArray());
+                    AlgeEngine.mul(this, ((Expression) arg).logarithmicDerivative(s)));
+            return AlgeEngine.add(derivativeTerms.toArray());
         }
     }
 

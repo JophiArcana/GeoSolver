@@ -27,7 +27,7 @@ public interface Expression extends Entity {
             }
             ArrayList<String> stringTerms = new ArrayList<>();
             for (Map.Entry<Expression, Expression> entry : terms.entrySet()) {
-                Expression factor = ASEngine.pow(entry.getKey(), entry.getValue());
+                Expression factor = AlgeEngine.pow(entry.getKey(), entry.getValue());
                 if (Utils.CLOSED_FORM.contains(factor.getClass())) {
                     stringTerms.add(factor.toString());
                 } else {
@@ -43,26 +43,26 @@ public interface Expression extends Entity {
     }
 
     Factorization normalize();
-    Expression derivative(Symbol s);
+    Expression derivative(Univariate s);
 
     default Expression derivative() {
         if (this instanceof Constant) {
             return Constant.ZERO;
         } else {
             ArrayList<Mutable> vars = new ArrayList<>(this.variables());
-            return this.derivative((Symbol) vars.get(0));
+            return this.derivative((Univariate) vars.get(0));
         }
     }
 
-    default Expression logarithmicDerivative(Symbol s) {
-        return ASEngine.div(this.derivative(s), this);
+    default Expression logarithmicDerivative(Univariate s) {
+        return AlgeEngine.div(this.derivative(s), this);
     }
 
     default Expression logarithmicDerivative() {
-        return ASEngine.div(this.derivative(), this);
+        return AlgeEngine.div(this.derivative(), this);
     }
 
-    default int signum(Symbol s) {
+    default int signum(Univariate s) {
         Expression expr = (Expression) this.simplify();
         if (expr instanceof Complex cpx) {
             if (Math.signum(cpx.re.doubleValue()) != 0) {
@@ -71,10 +71,10 @@ public interface Expression extends Entity {
                 return (int) Math.signum(cpx.im.doubleValue());
             }
         } else if (expr instanceof Infinity inf) {
-            return inf.expression.signum(ASEngine.X);
+            return inf.expression.signum(AlgeEngine.X);
         } else {
-            Expression order = ASEngine.orderOfGrowth(expr, s);
-            if (order instanceof Pow || null instanceof Log || order instanceof Symbol) {
+            Expression order = AlgeEngine.orderOfGrowth(expr, s);
+            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
                 return 1;
             } else {
                 Complex constant = (Complex) ((Mul) order).constant;
@@ -92,11 +92,11 @@ public interface Expression extends Entity {
                 return (int) Math.signum(cpx.im.doubleValue());
             }
         } else if (expr instanceof Infinity inf) {
-            return inf.expression.signum(ASEngine.X);
+            return inf.expression.signum(AlgeEngine.X);
         } else {
             ArrayList<Mutable> vars = new ArrayList<>(this.variables());
-            Expression order = ASEngine.orderOfGrowth(expr, (Symbol) vars.get(0));
-            if (order instanceof Pow || null instanceof Log || order instanceof Symbol) {
+            Expression order = AlgeEngine.orderOfGrowth(expr, (Univariate) vars.get(0));
+            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
                 return 1;
             } else {
                 Complex constant = (Complex) ((Mul) order).constant;

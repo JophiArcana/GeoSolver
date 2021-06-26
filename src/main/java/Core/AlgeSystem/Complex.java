@@ -50,7 +50,7 @@ public class Complex extends Constant {
                     im.doubleValue() + cpx.im.doubleValue());
             return new Complex(set[0], set[1]);
         } else if (x instanceof Infinity inf) {
-            return new Infinity(ASEngine.add(inf.expression, this));
+            return new Infinity(AlgeEngine.add(inf.expression, this));
         } else {
             return this;
         }
@@ -64,7 +64,7 @@ public class Complex extends Constant {
                     im.doubleValue() - cpx.im.doubleValue());
             return new Complex(set[0], set[1]);
         } else if (x instanceof Infinity inf) {
-            return new Infinity(ASEngine.sub(this, inf.expression));
+            return new Infinity(AlgeEngine.sub(this, inf.expression));
         } else {
             return this;
         }
@@ -78,7 +78,7 @@ public class Complex extends Constant {
                     re.doubleValue() * cpx.im.doubleValue() + im.doubleValue() * cpx.re.doubleValue());
             return new Complex(set[0], set[1]);
         } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(ASEngine.mul(this, inf.expression))).simplify();
+            return (Constant) (new Infinity(AlgeEngine.mul(this, inf.expression))).simplify();
         } else {
             return this;
         }
@@ -119,7 +119,7 @@ public class Complex extends Constant {
         if (x instanceof Complex) {
             return this.log().mul(x).exp();
         } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(ASEngine.pow(this, inf.expression))).simplify();
+            return (Constant) (new Infinity(AlgeEngine.pow(this, inf.expression))).simplify();
         } else {
             return this;
         }
@@ -161,11 +161,11 @@ public class Complex extends Constant {
                     upper = lower;
                     lower = remainder;
                 }
-                return (lower.re.doubleValue() < 0) ? (Constant) ASEngine.negate(lower) : lower;
+                return (lower.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(lower) : lower;
             } else if (((Complex) this.div(cpx)).gaussianInteger()) {
-                return (cpx.re.doubleValue() < 0) ? (Constant) ASEngine.negate(cpx) : cpx;
+                return (cpx.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(cpx) : cpx;
             } else if (((Complex) cpx.div(this)).gaussianInteger()) {
-                return (this.re.doubleValue() < 0) ? (Constant) ASEngine.negate(this) : this;
+                return (this.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(this) : this;
             } else {
                 return Constant.ONE;
             }
@@ -191,10 +191,10 @@ public class Complex extends Constant {
             return Integer.MIN_VALUE;
         } else {
             Complex scriptEnt = (Complex) this.sub((Complex) ent);
-            if (scriptEnt.abs() < ASEngine.EPSILON) {
+            if (scriptEnt.abs() < AlgeEngine.EPSILON) {
                 return 0;
             } else {
-                if (Math.abs(scriptEnt.re.doubleValue()) > ASEngine.EPSILON) {
+                if (Math.abs(scriptEnt.re.doubleValue()) > AlgeEngine.EPSILON) {
                     return (int) Math.signum(scriptEnt.re.doubleValue());
                 } else {
                     return (int) Math.signum(scriptEnt.im.doubleValue());

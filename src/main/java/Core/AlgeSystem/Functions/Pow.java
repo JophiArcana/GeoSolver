@@ -9,18 +9,17 @@ import java.util.function.Function;
 
 public class Pow extends DefinedEntity implements Expression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
-            new ArrayList<>(Collections.singletonList(ASEngine.pow(args.get("Base").get(0).get(0),
+            new ArrayList<>(Collections.singletonList(AlgeEngine.pow(args.get("Base").get(0).get(0),
                     args.get("Exponent").get(0).get(0))));
     public static final String[] inputTypes = new String[] {"Base", "Exponent"};
 
-    public Expression base;
-    public Expression exponent;
+    public Expression base, exponent;
 
     public Pow(Expression base, Expression exponent) {
         super();
         if (base instanceof Pow) {
             this.base = ((Pow) base).base;
-            this.exponent = ASEngine.mul(((Pow) base).exponent, exponent);
+            this.exponent = AlgeEngine.mul(((Pow) base).exponent, exponent);
         } else if (base instanceof Constant && exponent instanceof Log logExp) {
             this.base = logExp.input;
             this.exponent = ((Constant) base).log();
@@ -49,21 +48,21 @@ public class Pow extends DefinedEntity implements Expression {
             return this.base;
         } else if (this.base instanceof Mul mulBase) {
             ArrayList<Expression> powTerms = Utils.map(new ArrayList<>(mulBase.inputs.get("Terms")), arg ->
-                    ASEngine.pow(arg, this.exponent));
-            return ASEngine.mul(ASEngine.pow(mulBase.constant, this.exponent),
-                    ASEngine.mul(powTerms.toArray()));
+                    AlgeEngine.pow(arg, this.exponent));
+            return AlgeEngine.mul(AlgeEngine.pow(mulBase.constant, this.exponent),
+                    AlgeEngine.mul(powTerms.toArray()));
         } else if (this.base instanceof Constant baseConst) {
             if (this.exponent instanceof Constant expConst) {
                 return baseConst.pow(expConst);
             } else if (this.exponent instanceof Log expLog) {
-                return ASEngine.pow(expLog.input, ASEngine.log(baseConst));
+                return AlgeEngine.pow(expLog.input, AlgeEngine.log(baseConst));
             } else if (this.exponent instanceof Mul expMul && expMul.baseForm() instanceof Log baseLog) {
-                return ASEngine.pow(baseLog.input, ASEngine.mul(expMul.constant, ASEngine.log(baseConst)));
+                return AlgeEngine.pow(baseLog.input, AlgeEngine.mul(expMul.constant, AlgeEngine.log(baseConst)));
             } else if (this.exponent instanceof Add expAdd
                     && (!expAdd.constant.equals(Constant.ZERO) || !expAdd.logTerm.equals(Constant.ZERO))) {
-                Expression expBase = ASEngine.sub(expAdd, ASEngine.add(expAdd.constant, expAdd.logTerm));
-                return ASEngine.mul(ASEngine.pow(baseConst, expAdd.constant), ASEngine.pow(baseConst, expAdd.logTerm),
-                        ASEngine.pow(baseConst, expBase));
+                Expression expBase = AlgeEngine.sub(expAdd, AlgeEngine.add(expAdd.constant, expAdd.logTerm));
+                return AlgeEngine.mul(AlgeEngine.pow(baseConst, expAdd.constant), AlgeEngine.pow(baseConst, expAdd.logTerm),
+                        AlgeEngine.pow(baseConst, expBase));
             } else {
                 return this;
             }
@@ -83,12 +82,12 @@ public class Pow extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression derivative(Symbol s) {
+    public Expression derivative(Univariate s) {
         if (!this.variables().contains(s)) {
             return Constant.ZERO;
         } else {
-            return ASEngine.mul(this, ASEngine.add(ASEngine.mul(this.exponent.derivative(s), ASEngine.log(this.base)),
-                    ASEngine.mul(this.exponent, this.base.derivative(s), ASEngine.pow(this.base, Constant.NONE))));
+            return AlgeEngine.mul(this, AlgeEngine.add(AlgeEngine.mul(this.exponent.derivative(s), AlgeEngine.log(this.base)),
+                    AlgeEngine.mul(this.exponent, this.base.derivative(s), AlgeEngine.pow(this.base, Constant.NONE))));
         }
     }
 

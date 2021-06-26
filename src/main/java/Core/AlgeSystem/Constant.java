@@ -20,7 +20,7 @@ public abstract class Constant extends Immutable implements Expression {
         return new Factorization(this, new TreeMap<>(Utils.PRIORITY_COMPARATOR));
     }
 
-    public Expression derivative(Symbol s) {
+    public Expression derivative(Univariate s) {
         return Constant.ZERO;
     }
 

@@ -1,10 +1,8 @@
 package Core.GeoSystem.Points;
 
-import Core.EntityTypes.DefinedEntity;
-
 import java.util.Arrays;
 
-public abstract class Center extends DefinedEntity implements Point {
+public abstract class Center extends DefinedPoint {
     public static final String[] inputTypes = new String[] {"Points"};
 
     public Center(Point ... args) {

@@ -18,7 +18,7 @@ public class Utils {
         /** SECTION: Expressions ==================================================================================== */
                 Complex.class,
                 Infinity.class,
-                Symbol.class,
+                Univariate.class,
                 Log.class,
                 Add.class,
                 Pow.class,
@@ -39,7 +39,7 @@ public class Utils {
     public static final HashSet<Class> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Complex.class,
             Infinity.class,
-            Symbol.class,
+            Univariate.class,
             Log.class
     ));
 
@@ -71,7 +71,7 @@ public class Utils {
     }
 
     public static Number integerize(Number arg) {
-        if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < ASEngine.EPSILON) {
+        if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < AlgeEngine.EPSILON) {
             return (int) Math.round(arg.doubleValue());
         } else {
             return arg;
