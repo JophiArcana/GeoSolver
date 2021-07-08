@@ -11,6 +11,46 @@ public class AlgeEngine {
     public static final Univariate X = new Univariate("x");
     public static final double EPSILON = Math.pow(10, -9);
 
+    /** SECTION: Simplification Optimization ======================================================================== */
+
+    public static int numberOfOperations(Expression expr) {
+        if (expr instanceof Add addExpr) {
+            int operations = 0;
+            for (Entity ent : addExpr.inputs.get("Terms")) {
+                operations += AlgeEngine.numberOfOperations((Expression) ent);
+            }
+            operations += (addExpr.inputs.get("Terms").size() - 1);
+            if (!addExpr.constant.equals(Constant.ZERO)) {
+                operations += 1;
+            }
+            return operations;
+        } else if (expr instanceof Mul mulExpr) {
+            int operations = 0;
+            for (Entity ent : mulExpr.inputs.get("Terms")) {
+                operations += AlgeEngine.numberOfOperations((Expression) ent);
+            }
+            operations += (mulExpr.inputs.get("Terms").size() - 1);
+            if (!mulExpr.constant.equals(Constant.ONE)) {
+                operations += 1;
+            }
+            return operations;
+        } else if (expr instanceof Pow powExpr) {
+            return AlgeEngine.numberOfOperations(powExpr.base) + AlgeEngine.numberOfOperations(powExpr.exponent) + 1;
+        } else if (expr instanceof Log logExpr) {
+            return AlgeEngine.numberOfOperations(logExpr.input) + 1;
+        } else if (expr instanceof Constant || expr instanceof Univariate) {
+            return 0;
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    public static Expression expand(Expression expr) {
+        if (expr instanceof Add addExpr) {
+
+        }
+    }
+
     /** SECTION: Order of Growth ==================================================================================== */
 
     public static Expression orderOfGrowth(Expression expr, Univariate s) {

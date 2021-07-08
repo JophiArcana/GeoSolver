@@ -19,6 +19,7 @@ public class Add extends DefinedEntity implements Expression {
     public TreeMap<Expression, Constant> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Expression logTerm = Constant.ZERO;
     public Constant constant = Constant.ZERO;
+    public Expression expansion;
 
     public Add(Expression ... args) {
         super();
@@ -31,6 +32,7 @@ public class Add extends DefinedEntity implements Expression {
             inputTerms.add(this.logTerm);
         }
         inputs.get("Constant").add(this.constant);
+        this.expansion = AlgeEngine.expand(this);
     }
 
     public String toString() {
@@ -112,6 +114,14 @@ public class Add extends DefinedEntity implements Expression {
         }
     }
 
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
+    public Expression expand() {
+        return this.expansion;
+    }
+
     public Factorization normalize() {
         Expression simplified = (Expression) this.simplify();
         if (simplified instanceof Add addExpr) {
@@ -128,10 +138,6 @@ public class Add extends DefinedEntity implements Expression {
         } else {
             return simplified.normalize();
         }
-    }
-
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
     }
 
     public Expression derivative(Univariate s) {

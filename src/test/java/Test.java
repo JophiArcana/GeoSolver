@@ -1,14 +1,13 @@
 
 import Core.AlgeSystem.*;
 import Core.AlgeSystem.Functions.*;
+import Core.GeoSystem.Lines.Linear;
+import Core.GeoSystem.Multivariate;
 import Core.GeoSystem.Points.*;
 
 import static Core.Utilities.AlgeEngine.*;
 import static Core.Utilities.GeoEngine.*;
 import static Core.AlgeSystem.Constant.*;
-
-import edu.jas.arith.*;
-import edu.jas.poly.*;
 
 public class Test {
     public static void main(String[] args) {
@@ -36,9 +35,8 @@ public class Test {
         Point o = circumcenter(pointP, pointQ, pointR);
         System.out.println(c.expression());
         System.out.println(c);
-        System.out.println(o.expression());
-        String[] vars = new String[] {"z", "y", "x", "w"};
-        GenPolynomialRing<BigComplex> ring = new GenPolynomialRing<>(new BigComplex(), 4, vars);
-        System.out.println(ring.parse("x ^ 2 + 2 * x * y + y^2"));
+        System.out.println(o.expression(Multivariate.X));
+        Linear l = new Linear("l");
+        System.out.println(numberOfOperations(o.expression(Multivariate.X)));
     }
 }

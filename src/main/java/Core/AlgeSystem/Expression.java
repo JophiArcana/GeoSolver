@@ -42,6 +42,8 @@ public interface Expression extends Entity {
         return new ArrayList<>(Collections.singletonList((Expression) this.simplify()));
     }
 
+    Expression expand();
+
     Factorization normalize();
     Expression derivative(Univariate s);
 
