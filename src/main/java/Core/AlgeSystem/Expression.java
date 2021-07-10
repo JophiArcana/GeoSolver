@@ -38,10 +38,20 @@ public interface Expression extends Entity {
         }
     }
 
+    default Entity simplify() {
+        Expression reducedExpr = this.reduction();
+        if (AlgeEngine.numberOfOperations(reducedExpr) - 2 <= AlgeEngine.numberOfOperations(reducedExpr.expand())) {
+            return reducedExpr;
+        } else {
+            return reducedExpr.expand();
+        }
+    }
+
     default ArrayList<Expression> expression() {
         return new ArrayList<>(Collections.singletonList((Expression) this.simplify()));
     }
 
+    Expression reduction();
     Expression expand();
 
     Factorization normalize();

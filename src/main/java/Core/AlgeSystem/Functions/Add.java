@@ -31,8 +31,7 @@ public class Add extends DefinedEntity implements Expression {
         if (!this.logTerm.equals(Constant.ZERO)) {
             inputTerms.add(this.logTerm);
         }
-        inputs.get("Constant").add(this.constant);
-        this.expansion = AlgeEngine.expand(this);
+        this.inputs.get("Constant").add(this.constant);
     }
 
     public String toString() {
@@ -66,7 +65,7 @@ public class Add extends DefinedEntity implements Expression {
                 } else if (baseExpr instanceof Log) {
                     logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(mulArg)));
                 } else {
-                    terms.put(baseExpr, (Constant) AlgeEngine.add(mulArg.constant, terms.get(baseExpr)));
+                    terms.put(baseExpr, (Constant) AlgeEngine.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO)));
                     if (terms.get(baseExpr).equals(Constant.ZERO)) {
                         terms.remove(baseExpr);
                     }
@@ -74,7 +73,7 @@ public class Add extends DefinedEntity implements Expression {
             } else if (arg instanceof Log logArg) {
                 logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(logArg)));
             } else {
-                terms.put(arg, (Constant) AlgeEngine.add(terms.get(arg), Constant.ONE));
+                terms.put(arg, (Constant) AlgeEngine.add(terms.getOrDefault(arg, Constant.ZERO), Constant.ONE));
                 if (terms.get(arg).equals(Constant.ZERO)) {
                     terms.remove(arg);
                 }
@@ -82,11 +81,15 @@ public class Add extends DefinedEntity implements Expression {
         }
     }
 
-    public Entity simplify() {
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
+    public Expression reduction() {
         if (inputs.get("Terms").size() == 0) {
             return constant;
         } else if (constant.equals(Constant.ZERO) && inputs.get("Terms").size() == 1) {
-            return inputs.get("Terms").firstEntry().getElement().simplify();
+            return (Expression) inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
             Expression gcd = AlgeEngine.greatestCommonDivisor(this.constant,
                     AlgeEngine.greatestCommonDivisor(this.inputs.get("Terms").toArray(new Expression[0])));
@@ -106,33 +109,39 @@ public class Add extends DefinedEntity implements Expression {
                 }
                 return new Polynomial(this.constant, monomials.toArray(new Monomial[0]));
             } else {
-                ArrayList<Expression> normalizedTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
+                ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
                         AlgeEngine.div(arg, gcd));
-                return AlgeEngine.mul(gcd, AlgeEngine.add(AlgeEngine.div(this.constant, gcd),
-                        AlgeEngine.add(normalizedTerms.toArray())));
+                normalizedTerms.add(AlgeEngine.div(this.constant, gcd));
+                // System.out.println(this + " normalized terms: " + normalizedTerms);
+                Expression k = new Add(normalizedTerms.toArray(new Expression[0])).reduction();
+                // System.out.println("Sum: " + (new Mul(gcd, AlgeEngine.add(normalizedTerms.toArray()))).reduction());
+                // System.out.println(this + " Sum: " + k);
+                // System.out.println("GCD: " + gcd);
+                // System.out.println(this + " Product: " + (new Mul(gcd, k)).reduction());
+                return new Mul(gcd, k).reduction();
             }
         }
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
-    }
-
     public Expression expand() {
+        if (this.expansion == null) {
+            this.expansion = AlgeEngine.expand(this.reduction());
+        }
         return this.expansion;
     }
 
     public Factorization normalize() {
-        Expression simplified = (Expression) this.simplify();
+        Expression simplified = this.reduction();
         if (simplified instanceof Add addExpr) {
             TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
             if (addExpr.constant.equals(Constant.ZERO)) {
                 factors.put(addExpr, Constant.ONE);
                 return new Factorization(Constant.ONE, factors);
             } else {
-                ArrayList<Expression> normalizedTerms = Utils.map(new ArrayList<>(addExpr.inputs.get("Terms")), arg ->
+                ArrayList<Expression> normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg ->
                         AlgeEngine.div(arg, addExpr.constant));
-                factors.put(AlgeEngine.add(Constant.ONE, AlgeEngine.add(normalizedTerms.toArray())), Constant.ONE);
+                normalizedTerms.add(Constant.ONE);
+                factors.put(AlgeEngine.add(normalizedTerms.toArray()), Constant.ONE);
                 return new Factorization(addExpr.constant, factors);
             }
         } else {
@@ -141,7 +150,7 @@ public class Add extends DefinedEntity implements Expression {
     }
 
     public Expression derivative(Univariate s) {
-        ArrayList<Expression> derivativeTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
+        ArrayList<Expression> derivativeTerms = Utils.map(this.inputs.get("Terms"), arg ->
                 ((Expression) arg).derivative(s));
         return AlgeEngine.add(derivativeTerms.toArray());
     }

@@ -14,6 +14,7 @@ public class Pow extends DefinedEntity implements Expression {
     public static final String[] inputTypes = new String[] {"Base", "Exponent"};
 
     public Expression base, exponent;
+    public Expression expansion;
 
     public Pow(Expression base, Expression exponent) {
         super();
@@ -39,15 +40,19 @@ public class Pow extends DefinedEntity implements Expression {
         return baseString + " ** " + this.exponent;
     }
 
-    public Entity simplify() {
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
+    public Expression reduction() {
         if (this.exponent.equals(Constant.ONE)) {
-            return this.base.simplify();
+            return (Expression) this.base.simplify();
         } else if (this.exponent.equals(Constant.ZERO)) {
             return Constant.ONE;
         } else if (this.base.equals(Constant.ZERO) || this.base.equals(Constant.ONE)) {
             return this.base;
         } else if (this.base instanceof Mul mulBase) {
-            ArrayList<Expression> powTerms = Utils.map(new ArrayList<>(mulBase.inputs.get("Terms")), arg ->
+            ArrayList<Expression> powTerms = Utils.map(mulBase.inputs.get("Terms"), arg ->
                     AlgeEngine.pow(arg, this.exponent));
             return AlgeEngine.mul(AlgeEngine.pow(mulBase.constant, this.exponent),
                     AlgeEngine.mul(powTerms.toArray()));
@@ -71,12 +76,15 @@ public class Pow extends DefinedEntity implements Expression {
         }
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
+    public Expression expand() {
+        if (this.expansion == null) {
+            this.expansion = AlgeEngine.expand(this.reduction());
+        }
+        return this.expansion;
     }
 
     public Factorization normalize() {
-        Expression simplified = (Expression) this.simplify();
+        Expression simplified = this.reduction();
         if (simplified instanceof Pow powExpr) {
             TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
             factors.put(powExpr.base, powExpr.exponent);

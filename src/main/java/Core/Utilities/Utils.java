@@ -58,10 +58,10 @@ public class Utils {
     }
 
     public static int compare(Entity e1, Entity e2) {
-        return Utils.PRIORITY_COMPARATOR.compare(e1.simplify(), e2.simplify());
+        return Utils.PRIORITY_COMPARATOR.compare(e1, e2);
     }
 
-    public static <T, S> ArrayList<S> map(ArrayList<T> list, Function<T, S> function) {
+    public static <T, S> ArrayList<S> map(Iterable<T> list, Function<T, S> function) {
         ArrayList<S> result = new ArrayList<>();
         list.forEach(arg -> result.add(function.apply(arg)));
         return result;
@@ -81,5 +81,30 @@ public class Utils {
             rounded[i] = Utils.integerize(args[i]);
         }
         return rounded;
+    }
+
+    public static Expression objectConversion(Object obj) {
+        if (obj instanceof Number n) {
+            return new Complex(n, 0);
+        } else if (obj instanceof Expression expr) {
+            return expr;
+        } else if (obj == null) {
+            return Constant.ZERO;
+        } else {
+            return null;
+        }
+    }
+
+    public static ArrayList<Expression> additiveTerms(Expression expr) {
+        ArrayList<Expression> expansionTerms = new ArrayList<>();
+        if (expr instanceof Add addExpr) {
+            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression) arg));
+            if (!addExpr.constant.equals(Constant.ZERO)) {
+                expansionTerms.add(addExpr.constant);
+            }
+        } else {
+            expansionTerms.add(expr);
+        }
+        return expansionTerms;
     }
 }

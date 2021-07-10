@@ -16,6 +16,14 @@ public abstract class Constant extends Immutable implements Expression {
     public static final Constant E = new Complex(Math.E, 0);
     public static final Constant PI = new Complex(Math.PI, 0);
 
+    public Expression reduction() {
+        return this;
+    }
+
+    public Expression expand() {
+        return this;
+    }
+
     public Factorization normalize() {
         return new Factorization(this, new TreeMap<>(Utils.PRIORITY_COMPARATOR));
     }

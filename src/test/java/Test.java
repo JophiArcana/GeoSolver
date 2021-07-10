@@ -4,6 +4,7 @@ import Core.AlgeSystem.Functions.*;
 import Core.GeoSystem.Lines.Linear;
 import Core.GeoSystem.Multivariate;
 import Core.GeoSystem.Points.*;
+import Core.Utilities.AlgeEngine;
 
 import static Core.Utilities.AlgeEngine.*;
 import static Core.Utilities.GeoEngine.*;
@@ -14,13 +15,19 @@ public class Test {
         Univariate x = new Univariate("x");
         Univariate y = new Univariate("y");
         Univariate z = new Univariate("z");
-        Expression expr1 = mul(x, y, y, x, log(x));
+        // System.out.println(mul(x, add(1, pow(x, 2))));
+        // Expression expr1 = add(x, mul(I, pow(x, 3)));
+        // System.out.println(new Mul(new Complex(0, -1), expr1));
+        // Expression expr = pow(add(x, y), 2);
+        // System.out.println(greatestCommonDivisor(x, mul(x, add(x, 1))));
+        /**Expression expr1 = mul(x, y, y, x, log(x));
         Expression expr2 = pow(x, 2);
         Expression expr3 = exp(x);
         Expression expr4 = exp(mul(x, 2));
-        Expression p = pow(mul(x, I), complex(0, -2));
-        Expression q = add(mul(I, pow(x, 3)), x, I);
-        Expression r = mul(x, I, -1);
+        Expression p = pow(mul(x, I), complex(0, -2));*/
+        System.out.println(mul(I, pow(x, 3)));
+        System.out.println(new Add(pow(x, 3), mul(x, I, NONE)).expand());
+        /**Expression r = mul(x, I, -1);
         System.out.println(add(expr1, expr2));
         Expression k = ((Log) log(q).getInputs().get("Terms").firstEntry().getElement()).input;
         System.out.println(exp(add(mul(3, log(x)), mul(2, log(y)), 3)));
@@ -37,6 +44,6 @@ public class Test {
         System.out.println(c);
         System.out.println(o.expression(Multivariate.X));
         Linear l = new Linear("l");
-        System.out.println(numberOfOperations(o.expression(Multivariate.X)));
+        System.out.println(numberOfOperations(o.expression(Multivariate.X)));*/
     }
 }

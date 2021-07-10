@@ -25,7 +25,7 @@ public abstract class DefinedEntity implements Entity {
     public ArrayList<Expression> expression() {
         HashMap<String, ArrayList<ArrayList<Expression>>> expressionInputs = new HashMap<>();
         for (String inputType : this.getInputTypes()) {
-            expressionInputs.put(inputType, Utils.map(new ArrayList<>(this.getInputs().get(inputType)), Entity::expression));
+            expressionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), Entity::expression));
         }
         return this.getFormula().apply(expressionInputs);
     }

@@ -13,6 +13,7 @@ public class Log extends DefinedEntity implements Expression {
     public static final String[] inputTypes = new String[] {"Input"};
 
     public Expression input;
+    public Expression expansion;
 
     public Log(Expression expr) {
         super();
@@ -24,7 +25,11 @@ public class Log extends DefinedEntity implements Expression {
         return "ln(" + this.input + ")";
     }
 
-    public Entity simplify() {
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
+    public Expression reduction() {
         if (this.input instanceof Constant) {
             return ((Constant) input).log();
         } else if (this.input instanceof Pow powInput) {
@@ -36,12 +41,15 @@ public class Log extends DefinedEntity implements Expression {
         }
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
+    public Expression expand() {
+        if (this.expansion == null) {
+            this.expansion = AlgeEngine.expand(this.reduction());
+        }
+        return this.expansion;
     }
 
     public Factorization normalize() {
-        Expression simplified = (Expression) this.simplify();
+        Expression simplified = this.reduction();
         if (simplified instanceof Log logExpr) {
             TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
             factors.put(logExpr, Constant.ONE);

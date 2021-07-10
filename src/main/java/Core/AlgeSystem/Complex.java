@@ -42,10 +42,6 @@ public class Complex extends Constant {
         }
     }
 
-    public Expression expand() {
-        return this;
-    }
-
     public Constant add(Constant x) {
         x = (Constant) x.simplify();
         if (x instanceof Complex cpx) {

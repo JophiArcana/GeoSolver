@@ -21,11 +21,6 @@ public class Monomial extends Mul {
     }
 
     public Factorization normalize() {
-        Expression simplified = (Expression) this.simplify();
-        if (simplified instanceof Monomial) {
-            return new Factorization(this.constant, this.terms);
-        } else {
-            return simplified.normalize();
-        }
+        return new Factorization(this.constant, this.terms);
     }
 }

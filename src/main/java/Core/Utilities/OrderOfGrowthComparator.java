@@ -28,7 +28,11 @@ public class OrderOfGrowthComparator implements Comparator<Expression> {
             HashSet<Mutable> commonVars = e1.variables();
             commonVars.retainAll(e2.variables());
             if (commonVars.size() == 0) {
-                return 0;
+                if (e1 instanceof Constant const1 && e2 instanceof Constant const2) {
+                    return const1.compareTo(const2);
+                } else {
+                    return 0;
+                }
             } else {
                 return baseCompare(e1, e2, (Univariate) (new ArrayList<>(commonVars)).get(0));
             }

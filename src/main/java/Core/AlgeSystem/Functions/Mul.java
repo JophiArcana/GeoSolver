@@ -18,6 +18,7 @@ public class Mul extends DefinedEntity implements Expression {
 
     public TreeMap<Expression, Expression> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant constant = Constant.ONE;
+    public Expression expansion;
 
     public Mul(Expression ... args) {
         super();
@@ -50,10 +51,10 @@ public class Mul extends DefinedEntity implements Expression {
 
     private void construct(Expression ... args) {
         for (Expression arg : args) {
-            Factorization argFactor = ((Expression) arg.simplify()).normalize();
+            Factorization argFactor = arg.normalize();
             constant = constant.mul(argFactor.constant);
             for (Map.Entry<Expression, Expression> entry : argFactor.terms.entrySet()) {
-                terms.put(entry.getKey(), AlgeEngine.add(entry.getValue(), terms.get(entry.getKey())));
+                terms.put(entry.getKey(), AlgeEngine.add(entry.getValue(), terms.getOrDefault(entry.getKey(), Constant.ZERO)));
             }
         }
         ArrayList<Map.Entry<Expression, Expression>> entrySet = new ArrayList<>(terms.entrySet());
@@ -64,13 +65,17 @@ public class Mul extends DefinedEntity implements Expression {
         }
     }
 
-    public Entity simplify() {
+    public ArrayList<Expression> expression() {
+        return Expression.super.expression();
+    }
+
+    public Expression reduction() {
         if (inputs.get("Terms").size() == 0) {
             return constant;
         } else if (constant.equals(Constant.ZERO)) {
             return Constant.ZERO;
         } else if (constant.equals(Constant.ONE) && inputs.get("Terms").size() == 1) {
-            return inputs.get("Terms").firstEntry().getElement().simplify();
+            return (Expression) inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
             if (!AlgeEngine.imaginary(this.constant).equals(Constant.ZERO)) {
                 return this;
@@ -89,12 +94,15 @@ public class Mul extends DefinedEntity implements Expression {
         }
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
+    public Expression expand() {
+        if (this.expansion == null) {
+            this.expansion = AlgeEngine.expand(this.reduction());
+        }
+        return this.expansion;
     }
 
     public Factorization normalize() {
-        Expression simplified = (Expression) this.simplify();
+        Expression simplified = this.reduction();
         if (simplified instanceof Mul mulExpr) {
             Constant coefficient = mulExpr.constant;
             TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
@@ -118,7 +126,7 @@ public class Mul extends DefinedEntity implements Expression {
         if (!this.variables().contains(s)) {
             return Constant.ZERO;
         } else {
-            ArrayList<Expression> derivativeTerms = Utils.map(new ArrayList<>(this.inputs.get("Terms")), arg ->
+            ArrayList<Expression> derivativeTerms = Utils.map(this.inputs.get("Terms"), arg ->
                     AlgeEngine.mul(this, ((Expression) arg).logarithmicDerivative(s)));
             return AlgeEngine.add(derivativeTerms.toArray());
         }
@@ -133,6 +141,6 @@ public class Mul extends DefinedEntity implements Expression {
     }
 
     public Expression baseForm() {
-        return (Expression) (new Mul(this, this.constant.inverse())).simplify();
+        return (new Mul(this.inputs.get("Terms").toArray(new Expression[0]))).reduction();
     }
 }

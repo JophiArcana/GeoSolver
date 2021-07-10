@@ -12,6 +12,14 @@ public class Univariate extends Mutable implements Expression {
         super(n);
     }
 
+    public Expression reduction() {
+        return this;
+    }
+
+    public Expression expand() {
+        return this;
+    }
+
     public Factorization normalize() {
         TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         factors.put(this, Constant.ONE);
