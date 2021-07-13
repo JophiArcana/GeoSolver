@@ -1,10 +1,10 @@
 package Core.GeoSystem.Points.PointTypes;
 
-import Core.GeoSystem.MultiCardinalTypes.DefinedMultiCardinal;
+import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
 
 import java.util.Arrays;
 
-public abstract class Center extends DefinedMultiCardinal implements Point {
+public abstract class Center extends DefinedMulticardinal implements Point {
     public static final String[] inputTypes = new String[] {"Points"};
 
     public Center(String n, Point ... args) {

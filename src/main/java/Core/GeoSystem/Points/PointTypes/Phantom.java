@@ -3,7 +3,7 @@ package Core.GeoSystem.Points.PointTypes;
 import Core.AlgeSystem.ExpressionTypes.Constant;
 import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.AlgeSystem.ExpressionTypes.Univariate;
-import Core.GeoSystem.MultiCardinalTypes.Multivariate;
+import Core.GeoSystem.MulticardinalTypes.Multivariate;
 import Core.Utilities.AlgeEngine;
 
 import java.util.*;

@@ -1,6 +1,6 @@
 
 import Core.AlgeSystem.ExpressionTypes.*;
-import Core.GeoSystem.MultiCardinalTypes.MultiCardinal;
+import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.GeoSystem.Points.PointTypes.Phantom;
 import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.Utils;
@@ -31,7 +31,7 @@ public class Test {
         Point o = circumcenter(p, q, r);
         System.out.println(c.expression());
         System.out.println(c);
-        Expression expr = o.expression(MultiCardinal.X);
+        Expression expr = o.expression(Multicardinal.X);
         System.out.println(expr);
         System.out.println(numberOfOperations(expr));
         expr = mul(expr, 2);

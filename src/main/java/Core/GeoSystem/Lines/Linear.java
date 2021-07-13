@@ -1,7 +1,7 @@
 package Core.GeoSystem.Lines;
 
 import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.GeoSystem.MultiCardinalTypes.Multivariate;
+import Core.GeoSystem.MulticardinalTypes.Multivariate;
 
 import java.util.*;
 

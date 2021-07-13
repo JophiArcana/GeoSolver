@@ -1,11 +1,11 @@
-package Core.GeoSystem.MultiCardinalTypes;
+package Core.GeoSystem.MulticardinalTypes;
 
 import Core.AlgeSystem.ExpressionTypes.Univariate;
 import Core.EntityTypes.Mutable;
 
 import java.util.ArrayList;
 
-public abstract class Multivariate extends Mutable implements MultiCardinal {
+public abstract class Multivariate extends Mutable implements Multicardinal {
     public ArrayList<Univariate> vars = new ArrayList<>();
 
     public Multivariate(String n) {

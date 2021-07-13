@@ -1,12 +1,12 @@
 package Core.GeoSystem.Points.PointTypes;
 
 import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.GeoSystem.MultiCardinalTypes.MultiCardinal;
+import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.Utilities.AlgeEngine;
 
 import java.util.Arrays;
 
-public interface Point extends MultiCardinal {
+public interface Point extends Multicardinal {
     String[] varTypes = new String[] {"\u1D6A", "\u1D67"};
 
     default Expression expression(String varType) {
