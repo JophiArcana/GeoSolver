@@ -1,11 +1,11 @@
 package Core.GeoSystem.Lines;
 
-import Core.AlgeSystem.*;
-import Core.GeoSystem.MutableMultivariate;
+import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.GeoSystem.MultiCardinalTypes.Multivariate;
 
 import java.util.*;
 
-public class Linear extends MutableMultivariate implements Line {
+public class Linear extends Multivariate implements Line {
     public static final int naturalDegreesOfFreedom = 2;
 
     public Linear(String n) {

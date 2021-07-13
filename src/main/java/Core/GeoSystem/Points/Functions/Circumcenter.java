@@ -1,15 +1,16 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Points.*;
+import Core.GeoSystem.Points.PointTypes.Center;
+import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.*;
 
 import java.util.*;
 import java.util.function.Function;
 
 import static Core.Utilities.AlgeEngine.*;
-import static Core.AlgeSystem.Constant.*;
+import static Core.AlgeSystem.ExpressionTypes.Constant.*;
 
 public class Circumcenter extends Center {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {

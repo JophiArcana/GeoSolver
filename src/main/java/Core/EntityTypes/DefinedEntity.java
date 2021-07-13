@@ -1,6 +1,6 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.Expression;
+import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;

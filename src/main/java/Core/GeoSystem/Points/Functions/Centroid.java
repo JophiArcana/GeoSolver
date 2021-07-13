@@ -1,8 +1,9 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Points.*;
+import Core.GeoSystem.Points.PointTypes.Center;
+import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.*;
 
 import java.util.*;
@@ -17,7 +18,7 @@ public class Centroid extends Center {
                 argTerms.size())));
     };
 
-    public Centroid(String n, Point ... args) {
+    public Centroid(String n, Point... args) {
         super(n, args);
     }
 

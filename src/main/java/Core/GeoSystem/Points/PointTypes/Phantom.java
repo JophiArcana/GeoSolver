@@ -1,16 +1,22 @@
-package Core.GeoSystem.Points;
+package Core.GeoSystem.Points.PointTypes;
 
-import Core.AlgeSystem.*;
-import Core.GeoSystem.MutableMultivariate;
+import Core.AlgeSystem.ExpressionTypes.Constant;
+import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.ExpressionTypes.Univariate;
+import Core.GeoSystem.MultiCardinalTypes.Multivariate;
 import Core.Utilities.AlgeEngine;
 
 import java.util.*;
 
-public class Phantom extends MutableMultivariate implements Point {
+public class Phantom extends Multivariate implements Point {
     public static final int naturalDegreesOfFreedom = 2;
+
+    public Univariate var_x, var_y;
 
     public Phantom(String n) {
         super(n);
+        this.var_x = this.vars.get(0);
+        this.var_y = this.vars.get(1);
     }
 
     public ArrayList<Expression> expression() {

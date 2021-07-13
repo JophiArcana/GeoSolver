@@ -1,6 +1,10 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.Constants.Complex;
+import Core.AlgeSystem.Constants.Infinity;
+import Core.AlgeSystem.ExpressionTypes.Constant;
+import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.ExpressionTypes.Univariate;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
@@ -50,10 +54,7 @@ public class AlgeEngine {
         if (expr instanceof Add addExpr) {
             ArrayList<Expression> expansions = Utils.map(addExpr.inputs.get("Terms"), arg -> ((Expression) arg).expand());
             expansions.add(addExpr.constant);
-            System.out.println("Expression: " + expr + "\nTerms: " + expansions +
-                    "\nWithout reduction: " + new Add(expansions.toArray(new Expression[0])).reduction());
-            System.out.println("Calculated");
-            return (new Add(expansions.toArray(new Expression[0]))).reduction();
+            return new Add(expansions.toArray(new Expression[0])).reduction();
         } else if (expr instanceof Mul mulExpr) {
             TreeMultiset<Entity> inputTerms = mulExpr.inputs.get("Terms");
             if (inputTerms.size() == 1) {
@@ -76,29 +77,19 @@ public class AlgeEngine {
                                 ((Expression) inputTerms.firstEntry().getElement()).expand());
                         ArrayList<Expression> expansion2Terms = Utils.additiveTerms(
                                 ((Expression) inputTerms.lastEntry().getElement()).expand());
-                        System.out.println(expansion1Terms + " " + expansion2Terms);
                         ArrayList<Expression> expandedTerms = new ArrayList<>();
                         for (Expression term1 : expansion1Terms) {
                             for (Expression term2 : expansion2Terms) {
-                                expandedTerms.add((new Mul(term1, term2)).reduction());
+                                expandedTerms.add(new Mul(term1, term2).reduction());
                             }
                         }
-                        System.out.println(expandedTerms);
                         Expression sum = new Add(expandedTerms.toArray(new Expression[0]));
-                        System.out.println("Sum of expanded terms: " + sum.reduction());
-                        System.out.println("Normalized: " + sum.normalize());
-                        /**System.out.println("Addition: " + sum);
-                        // System.out.println("Addition: " + AlgeEngine.add(expandedTerms.toArray()));
-                        System.out.println("Constant: " + mulExpr.constant);
-                        System.out.println("Reduced Product: " + new Mul(sum, mulExpr.constant).reduction());
-                        System.out.println("Expanded Product: " + new Mul(sum, mulExpr.constant).expand());
-                        System.out.println("Product: " + AlgeEngine.mul(sum, mulExpr.constant));*/
                         return AlgeEngine.mul(sum, mulExpr.constant);
                     }
                     default -> {
                         Expression product = mulExpr.constant;
                         for (Entity ent : inputTerms) {
-                            product = AlgeEngine.expand((new Mul(product, (Expression) ent)).reduction());
+                            product = AlgeEngine.expand(new Mul(product, (Expression) ent).reduction());
                         }
                         return product;
                     }
@@ -107,7 +98,8 @@ public class AlgeEngine {
                 return mulExpr;
             }
         } else if (expr instanceof Pow powExpr) {
-            if (powExpr.base instanceof Add addExpr && powExpr.exponent instanceof Complex cpx && cpx.integer()) {
+            if (powExpr.base instanceof Add addExpr && powExpr.exponent instanceof Complex cpx
+                    && cpx.integer() && cpx.re.intValue() > 0) {
                 int n = cpx.re.intValue();
                 if (n == 2) {
                     ArrayList<Expression> expansion = Utils.additiveTerms(addExpr);

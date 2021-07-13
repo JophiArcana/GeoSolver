@@ -1,7 +1,8 @@
-package Core.AlgeSystem;
+package Core.AlgeSystem.ExpressionTypes;
 
-import Core.EntityTypes.Immutable;
-import Core.Utilities.Utils;
+import Core.AlgeSystem.Constants.*;
+import Core.EntityTypes.*;
+import Core.Utilities.*;
 
 import java.util.TreeMap;
 

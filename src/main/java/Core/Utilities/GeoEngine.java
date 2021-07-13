@@ -1,7 +1,7 @@
 package Core.Utilities;
 
-import Core.GeoSystem.Points.*;
 import Core.GeoSystem.Points.Functions.*;
+import Core.GeoSystem.Points.PointTypes.Point;
 
 public class GeoEngine {
     /** SECTION: Core Functions ===================================================================================== */

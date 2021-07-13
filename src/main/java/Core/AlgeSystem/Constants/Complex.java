@@ -1,6 +1,7 @@
-package Core.AlgeSystem;
+package Core.AlgeSystem.Constants;
 
-import Core.EntityTypes.Entity;
+import Core.AlgeSystem.ExpressionTypes.*;
+import Core.EntityTypes.*;
 import Core.Utilities.*;
 
 public class Complex extends Constant {

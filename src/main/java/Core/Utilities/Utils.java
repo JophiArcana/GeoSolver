@@ -1,11 +1,16 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.Constants.Complex;
+import Core.AlgeSystem.Constants.Infinity;
+import Core.AlgeSystem.ExpressionTypes.Constant;
+import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.ExpressionTypes.Univariate;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.*;
-import Core.GeoSystem.Points.*;
 import Core.GeoSystem.Points.Functions.*;
+import Core.GeoSystem.Points.PointTypes.Coordinate;
+import Core.GeoSystem.Points.PointTypes.Phantom;
 
 import java.util.*;
 import java.util.function.Function;

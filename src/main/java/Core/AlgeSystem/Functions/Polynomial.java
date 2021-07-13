@@ -1,6 +1,6 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.Constant;
+import Core.AlgeSystem.ExpressionTypes.*;
 import Core.Utilities.AlgeEngine;
 
 public class Polynomial extends Add {

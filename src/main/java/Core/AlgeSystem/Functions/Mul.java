@@ -1,6 +1,7 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.ExpressionTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
@@ -8,7 +9,7 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 import java.util.function.Function;
 
-public class Mul extends DefinedEntity implements Expression {
+public class Mul extends DefinedExpression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
         Expression product = AlgeEngine.mul(args.get("Constant").get(0).get(0),
                 AlgeEngine.mul(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
@@ -18,7 +19,6 @@ public class Mul extends DefinedEntity implements Expression {
 
     public TreeMap<Expression, Expression> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant constant = Constant.ONE;
-    public Expression expansion;
 
     public Mul(Expression ... args) {
         super();
@@ -50,8 +50,10 @@ public class Mul extends DefinedEntity implements Expression {
     }
 
     private void construct(Expression ... args) {
+        // ystem.out.println("Mul args: " + Arrays.toString(args));
         for (Expression arg : args) {
             Factorization argFactor = arg.normalize();
+            // System.out.println("Arg " + arg + " normalized: " + argFactor);
             constant = constant.mul(argFactor.constant);
             for (Map.Entry<Expression, Expression> entry : argFactor.terms.entrySet()) {
                 terms.put(entry.getKey(), AlgeEngine.add(entry.getValue(), terms.getOrDefault(entry.getKey(), Constant.ZERO)));
@@ -63,10 +65,6 @@ public class Mul extends DefinedEntity implements Expression {
                 terms.remove(entry.getKey());
             }
         }
-    }
-
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
     }
 
     public Expression reduction() {
@@ -94,32 +92,20 @@ public class Mul extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression expand() {
-        if (this.expansion == null) {
-            this.expansion = AlgeEngine.expand(this.reduction());
-        }
-        return this.expansion;
-    }
-
     public Factorization normalize() {
-        Expression simplified = this.reduction();
-        if (simplified instanceof Mul mulExpr) {
-            Constant coefficient = mulExpr.constant;
-            TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-            for (Entity ent : mulExpr.inputs.get("Terms")) {
-                Factorization entFactor = ((Expression) ent).normalize();
-                coefficient = (Constant) AlgeEngine.mul(coefficient, entFactor.constant);
-                for (Map.Entry<Expression, Expression> entry : entFactor.terms.entrySet()) {
-                    factors.put(entry.getKey(), AlgeEngine.add(factors.get(entry.getKey()), entry.getValue()));
-                    if (factors.get(entry.getKey()).equals(Constant.ZERO)) {
-                        factors.remove(entry.getKey());
-                    }
+        Constant coefficient = this.constant;
+        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        for (Entity ent : this.inputs.get("Terms")) {
+            Factorization entFactor = ((Expression) ent).normalize();
+            coefficient = (Constant) AlgeEngine.mul(coefficient, entFactor.constant);
+            for (Map.Entry<Expression, Expression> entry : entFactor.terms.entrySet()) {
+                factors.put(entry.getKey(), AlgeEngine.add(factors.get(entry.getKey()), entry.getValue()));
+                if (factors.get(entry.getKey()).equals(Constant.ZERO)) {
+                    factors.remove(entry.getKey());
                 }
             }
-            return new Factorization(coefficient, factors);
-        } else {
-            return simplified.normalize();
         }
+        return new Factorization(coefficient, factors);
     }
 
     public Expression derivative(Univariate s) {

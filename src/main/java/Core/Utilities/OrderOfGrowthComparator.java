@@ -1,6 +1,8 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.ExpressionTypes.Constant;
+import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.ExpressionTypes.Univariate;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Mutable;
 

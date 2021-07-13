@@ -1,6 +1,6 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.ExpressionTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
@@ -8,7 +8,7 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 import java.util.function.Function;
 
-public class Add extends DefinedEntity implements Expression {
+public class Add extends DefinedExpression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
         Expression sum = AlgeEngine.add(args.get("Constant").get(0).get(0),
                 AlgeEngine.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
@@ -19,7 +19,6 @@ public class Add extends DefinedEntity implements Expression {
     public TreeMap<Expression, Constant> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Expression logTerm = Constant.ZERO;
     public Constant constant = Constant.ZERO;
-    public Expression expansion;
 
     public Add(Expression ... args) {
         super();
@@ -81,10 +80,6 @@ public class Add extends DefinedEntity implements Expression {
         }
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
-    }
-
     public Expression reduction() {
         if (inputs.get("Terms").size() == 0) {
             return constant;
@@ -112,40 +107,29 @@ public class Add extends DefinedEntity implements Expression {
                 ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
                         AlgeEngine.div(arg, gcd));
                 normalizedTerms.add(AlgeEngine.div(this.constant, gcd));
+                // System.out.println("GCD: " + gcd);
                 // System.out.println(this + " normalized terms: " + normalizedTerms);
-                Expression k = new Add(normalizedTerms.toArray(new Expression[0])).reduction();
+                // Expression k = new Add(normalizedTerms.toArray(new Expression[0])).reduction();
                 // System.out.println("Sum: " + (new Mul(gcd, AlgeEngine.add(normalizedTerms.toArray()))).reduction());
                 // System.out.println(this + " Sum: " + k);
-                // System.out.println("GCD: " + gcd);
                 // System.out.println(this + " Product: " + (new Mul(gcd, k)).reduction());
-                return new Mul(gcd, k).reduction();
+                return new Mul(gcd, new Add(normalizedTerms.toArray(new Expression[0])).reduction()).reduction();
             }
         }
-    }
-
-    public Expression expand() {
-        if (this.expansion == null) {
-            this.expansion = AlgeEngine.expand(this.reduction());
-        }
-        return this.expansion;
     }
 
     public Factorization normalize() {
-        Expression simplified = this.reduction();
-        if (simplified instanceof Add addExpr) {
-            TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-            if (addExpr.constant.equals(Constant.ZERO)) {
-                factors.put(addExpr, Constant.ONE);
-                return new Factorization(Constant.ONE, factors);
-            } else {
-                ArrayList<Expression> normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg ->
-                        AlgeEngine.div(arg, addExpr.constant));
-                normalizedTerms.add(Constant.ONE);
-                factors.put(AlgeEngine.add(normalizedTerms.toArray()), Constant.ONE);
-                return new Factorization(addExpr.constant, factors);
-            }
+        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        if (this.constant.equals(Constant.ZERO)) {
+            factors.put(this, Constant.ONE);
+            Factorization f = new Factorization(Constant.ONE, factors);
+            return new Factorization(Constant.ONE, factors);
         } else {
-            return simplified.normalize();
+            ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
+                    AlgeEngine.div(arg, this.constant));
+            normalizedTerms.add(Constant.ONE);
+            factors.put(AlgeEngine.add(normalizedTerms.toArray()), Constant.ONE);
+            return new Factorization(this.constant, factors);
         }
     }
 
@@ -156,7 +140,7 @@ public class Add extends DefinedEntity implements Expression {
     }
 
     public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
-        return formula;
+        return Add.formula;
     }
 
     public String[] getInputTypes() {

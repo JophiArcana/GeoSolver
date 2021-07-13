@@ -1,13 +1,12 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.Expression;
+import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.function.Function;
 
 public abstract class Mutable implements Entity {

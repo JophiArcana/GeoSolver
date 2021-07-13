@@ -1,5 +1,6 @@
-package Core.AlgeSystem;
+package Core.AlgeSystem.ExpressionTypes;
 
+import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
@@ -27,7 +28,7 @@ public interface Expression extends Entity {
             }
             ArrayList<String> stringTerms = new ArrayList<>();
             for (Map.Entry<Expression, Expression> entry : terms.entrySet()) {
-                Expression factor = AlgeEngine.pow(entry.getKey(), entry.getValue());
+                Expression factor = new Pow(entry.getKey(), entry.getValue()).reduction();
                 if (Utils.CLOSED_FORM.contains(factor.getClass())) {
                     stringTerms.add(factor.toString());
                 } else {

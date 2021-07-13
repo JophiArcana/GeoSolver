@@ -1,20 +1,18 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.*;
-import Core.EntityTypes.*;
+import Core.AlgeSystem.ExpressionTypes.*;
 import Core.Utilities.*;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class Pow extends DefinedEntity implements Expression {
+public class Pow extends DefinedExpression {
     public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
             new ArrayList<>(Collections.singletonList(AlgeEngine.pow(args.get("Base").get(0).get(0),
                     args.get("Exponent").get(0).get(0))));
     public static final String[] inputTypes = new String[] {"Base", "Exponent"};
 
     public Expression base, exponent;
-    public Expression expansion;
 
     public Pow(Expression base, Expression exponent) {
         super();
@@ -40,13 +38,9 @@ public class Pow extends DefinedEntity implements Expression {
         return baseString + " ** " + this.exponent;
     }
 
-    public ArrayList<Expression> expression() {
-        return Expression.super.expression();
-    }
-
     public Expression reduction() {
         if (this.exponent.equals(Constant.ONE)) {
-            return (Expression) this.base.simplify();
+            return this.base;
         } else if (this.exponent.equals(Constant.ZERO)) {
             return Constant.ONE;
         } else if (this.base.equals(Constant.ZERO) || this.base.equals(Constant.ONE)) {
@@ -76,22 +70,10 @@ public class Pow extends DefinedEntity implements Expression {
         }
     }
 
-    public Expression expand() {
-        if (this.expansion == null) {
-            this.expansion = AlgeEngine.expand(this.reduction());
-        }
-        return this.expansion;
-    }
-
     public Factorization normalize() {
-        Expression simplified = this.reduction();
-        if (simplified instanceof Pow powExpr) {
-            TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-            factors.put(powExpr.base, powExpr.exponent);
-            return new Factorization(Constant.ONE, factors);
-        } else {
-            return simplified.normalize();
-        }
+        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        factors.put(this.base, this.exponent);
+        return new Factorization(Constant.ONE, factors);
     }
 
     public Expression derivative(Univariate s) {

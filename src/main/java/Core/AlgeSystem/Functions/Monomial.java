@@ -1,6 +1,7 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.ExpressionTypes.*;
 import Core.EntityTypes.Entity;
 import Core.Utilities.AlgeEngine;
 import com.google.common.collect.TreeMultiset;

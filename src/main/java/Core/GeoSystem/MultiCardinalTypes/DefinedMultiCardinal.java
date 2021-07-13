@@ -1,4 +1,4 @@
-package Core.GeoSystem;
+package Core.GeoSystem.MultiCardinalTypes;
 
 import Core.EntityTypes.DefinedEntity;
 import Core.EntityTypes.Entity;
@@ -6,10 +6,10 @@ import Core.Utilities.Utils;
 
 import java.util.ArrayList;
 
-public abstract class DefinedMultivariate extends DefinedEntity implements Multivariate {
+public abstract class DefinedMultiCardinal extends DefinedEntity implements MultiCardinal {
     public String name;
 
-    public DefinedMultivariate(String n) {
+    public DefinedMultiCardinal(String n) {
         this.name = n;
     }
 

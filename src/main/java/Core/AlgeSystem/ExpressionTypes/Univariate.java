@@ -1,4 +1,4 @@
-package Core.AlgeSystem;
+package Core.AlgeSystem.ExpressionTypes;
 
 import Core.EntityTypes.Mutable;
 import Core.Utilities.Utils;

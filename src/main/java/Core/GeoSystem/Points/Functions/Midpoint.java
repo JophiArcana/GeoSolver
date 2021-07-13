@@ -1,7 +1,6 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.EntityTypes.Entity;
-import Core.GeoSystem.Points.Point;
+import Core.GeoSystem.Points.PointTypes.Point;
 
 public class Midpoint extends Centroid {
     public Midpoint(String n, Point a, Point b) {

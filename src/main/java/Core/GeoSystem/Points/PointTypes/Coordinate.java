@@ -1,6 +1,7 @@
-package Core.GeoSystem.Points;
+package Core.GeoSystem.Points.PointTypes;
 
-import Core.AlgeSystem.*;
+import Core.AlgeSystem.ExpressionTypes.Constant;
+import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.EntityTypes.*;
 
 import java.util.*;
