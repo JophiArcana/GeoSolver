@@ -41,7 +41,7 @@ public class Log extends DefinedExpression {
         return new Factorization(Constant.ONE, factors);
     }
 
-    public Expression derivative(Univariate s) {
+    public Expression derivative(Symbol s) {
         return AlgeEngine.div(this.input.derivative(s), this.input);
     }
 

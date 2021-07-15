@@ -1,12 +1,12 @@
 package Core.GeoSystem.Lines;
 
 import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.GeoSystem.MulticardinalTypes.Multicardinal;
+import Core.EntityTypes.Cardinals.MulticardinalTypes.Multicardinal;
 
 import java.util.Arrays;
 
 public interface Line extends Multicardinal {
-    String[] varTypes = new String[] {"\u1D63", "\u1D69"};
+    String[] varTypes = new String[] {Multicardinal.R, Multicardinal.PHI};
 
     default Expression expression(String varType) {
         return switch (Arrays.asList(Line.varTypes).indexOf(varType)) {

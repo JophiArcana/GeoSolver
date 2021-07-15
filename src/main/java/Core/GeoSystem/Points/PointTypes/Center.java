@@ -1,6 +1,6 @@
 package Core.GeoSystem.Points.PointTypes;
 
-import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
+import Core.EntityTypes.Cardinals.MulticardinalTypes.DefinedMulticardinal;
 
 import java.util.Arrays;
 

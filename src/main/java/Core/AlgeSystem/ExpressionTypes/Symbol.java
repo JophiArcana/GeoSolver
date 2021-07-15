@@ -1,14 +1,13 @@
 package Core.AlgeSystem.ExpressionTypes;
 
-import Core.EntityTypes.Mutable;
+import Core.EntityTypes.Cardinals.UnicardinalTypes.Univariate;
 import Core.Utilities.Utils;
 
 import java.util.TreeMap;
 
-public class Univariate extends Mutable implements Expression {
-    public static final int naturalDegreesOfFreedom = 1;
+public class Symbol extends Univariate implements Expression {
 
-    public Univariate(String n) {
+    public Symbol(String n) {
         super(n);
     }
 
@@ -26,15 +25,11 @@ public class Univariate extends Mutable implements Expression {
         return new Factorization(Constant.ONE, factors);
     }
 
-    public Expression derivative(Univariate s) {
+    public Expression derivative(Symbol s) {
         if (this.name.equals(s.name)) {
             return Constant.ONE;
         } else {
             return Constant.ZERO;
         }
-    }
-
-    public int getNaturalDegreesOfFreedom() {
-        return Univariate.naturalDegreesOfFreedom;
     }
 }

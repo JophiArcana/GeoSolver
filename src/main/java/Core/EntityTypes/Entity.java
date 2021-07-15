@@ -11,6 +11,7 @@ import java.util.function.Function;
 public interface Entity {
     Entity simplify();
     ArrayList<Expression> expression();
+    Expression expression(String varType);
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();
@@ -19,9 +20,9 @@ public interface Entity {
     HashMap<String, TreeMultiset<Entity>> getInputs();
     String[] getInputTypes();
 
-    default HashSet<Mutable> variables() {
+    default TreeSet<Mutable> variables() {
         Entity simplified = this.simplify();
-        HashSet<Mutable> vars = new HashSet<>();
+        TreeSet<Mutable> vars = new TreeSet<>(Utils.PRIORITY_COMPARATOR);
         if (simplified instanceof Mutable) {
             vars.add((Mutable) this);
         } else if (simplified instanceof DefinedEntity) {

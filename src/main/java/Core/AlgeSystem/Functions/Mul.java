@@ -50,10 +50,8 @@ public class Mul extends DefinedExpression {
     }
 
     private void construct(Expression ... args) {
-        // ystem.out.println("Mul args: " + Arrays.toString(args));
         for (Expression arg : args) {
             Factorization argFactor = arg.normalize();
-            // System.out.println("Arg " + arg + " normalized: " + argFactor);
             constant = constant.mul(argFactor.constant);
             for (Map.Entry<Expression, Expression> entry : argFactor.terms.entrySet()) {
                 terms.put(entry.getKey(), AlgeEngine.add(entry.getValue(), terms.getOrDefault(entry.getKey(), Constant.ZERO)));
@@ -78,14 +76,14 @@ public class Mul extends DefinedExpression {
             if (!AlgeEngine.imaginary(this.constant).equals(Constant.ZERO)) {
                 return this;
             } else {
-                TreeMap<Univariate, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+                TreeMap<Symbol, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
                 for (Map.Entry<Expression, Expression> entry : this.terms.entrySet()) {
-                    if (!(entry.getKey() instanceof Univariate)) {
+                    if (!(entry.getKey() instanceof Symbol)) {
                         return this;
                     } else if (!(entry.getValue() instanceof Complex cpxExp && cpxExp.integer())) {
                         return this;
                     }
-                    factors.put((Univariate) entry.getKey(), ((Complex) entry.getValue()).re.intValue());
+                    factors.put((Symbol) entry.getKey(), ((Complex) entry.getValue()).re.intValue());
                 }
                 return new Monomial(this.constant, factors);
             }
@@ -108,7 +106,7 @@ public class Mul extends DefinedExpression {
         return new Factorization(coefficient, factors);
     }
 
-    public Expression derivative(Univariate s) {
+    public Expression derivative(Symbol s) {
         if (!this.variables().contains(s)) {
             return Constant.ZERO;
         } else {

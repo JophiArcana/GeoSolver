@@ -1,7 +1,7 @@
 package Core.AlgeSystem.Constants;
 
 import Core.AlgeSystem.ExpressionTypes.*;
-import Core.AlgeSystem.ExpressionTypes.Univariate;
+import Core.AlgeSystem.ExpressionTypes.Symbol;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
@@ -19,20 +19,19 @@ public class Infinity extends Constant {
     }
 
     public String toString() {
-        return String.format("Infinity(%s)", this.expression.toString());
+        return "Infinity(" + this.expression + ")";
     }
 
     @Override
     public Entity simplify() {
-        if (this.expression == null) {
-            return null;
+        if (this.expression instanceof Constant) {
+            return this.expression;
         } else {
-            return new Infinity((Expression) this.expression.simplify());
+            return this;
         }
     }
 
     public Constant add(Constant x) {
-        x = (Constant) x.simplify();
         if (x instanceof Complex cpx) {
             return new Infinity(AlgeEngine.add(this.expression, cpx));
         } else if (x instanceof Infinity inf) {
@@ -43,7 +42,6 @@ public class Infinity extends Constant {
     }
 
     public Constant sub(Constant x) {
-        x = (Constant) x.simplify();
         if (x instanceof Complex cpx) {
             return new Infinity(AlgeEngine.sub(this.expression, cpx));
         } else if (x instanceof Infinity inf) {
@@ -54,7 +52,6 @@ public class Infinity extends Constant {
     }
 
     public Constant mul(Constant x) {
-        x = (Constant) x.simplify();
         if (x instanceof Complex cpx) {
             return new Infinity(AlgeEngine.mul(this.expression, cpx));
         } else if (x instanceof Infinity inf) {
@@ -65,7 +62,6 @@ public class Infinity extends Constant {
     }
 
     public Constant div(Constant x) {
-        x = (Constant) x.simplify();
         return this.mul(x.inverse());
     }
 
@@ -108,7 +104,7 @@ public class Infinity extends Constant {
 
     public double abs() {
         ArrayList<Mutable> vars = new ArrayList<>(this.expression.variables());
-        Expression order = AlgeEngine.orderOfGrowth(this.expression, (Univariate) vars.get(0));
+        Expression order = AlgeEngine.orderOfGrowth(this.expression, (Symbol) vars.get(0));
         return switch ((int) Math.signum(Utils.GROWTH_COMPARATOR.compare(order, Constant.ONE))) {
             case 1 -> Integer.MAX_VALUE;
             case 0 -> ((Constant) order).abs();
@@ -130,12 +126,11 @@ public class Infinity extends Constant {
         return Double.MAX_VALUE;
     }
 
-    /** TODO: Implement compareTo function (Order of Growth Comparator) */
     public int compareTo(Entity ent) {
-        if (ent == null || this.getClass() != ent.getClass()) {
-            return Integer.MIN_VALUE;
+        if (ent instanceof Infinity inf) {
+            return Utils.GROWTH_COMPARATOR.compare(this.expression, inf.expression);
         } else {
-            return 0;
+            return Integer.MIN_VALUE;
         }
     }
 }

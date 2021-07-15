@@ -91,8 +91,8 @@ public class Add extends DefinedExpression {
             if (gcd.equals(Constant.ONE)) {
                 ArrayList<Monomial> monomials = new ArrayList<>();
                 for (Entity ent : this.inputs.get("Terms")) {
-                    if (ent instanceof Univariate s) {
-                        HashMap<Univariate, Integer> factor = new HashMap<>() {{
+                    if (ent instanceof Symbol s) {
+                        HashMap<Symbol, Integer> factor = new HashMap<>() {{
                             put(s, 1);
                         }};
                         monomials.add(new Monomial(Constant.ONE, factor));
@@ -107,12 +107,6 @@ public class Add extends DefinedExpression {
                 ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
                         AlgeEngine.div(arg, gcd));
                 normalizedTerms.add(AlgeEngine.div(this.constant, gcd));
-                // System.out.println("GCD: " + gcd);
-                // System.out.println(this + " normalized terms: " + normalizedTerms);
-                // Expression k = new Add(normalizedTerms.toArray(new Expression[0])).reduction();
-                // System.out.println("Sum: " + (new Mul(gcd, AlgeEngine.add(normalizedTerms.toArray()))).reduction());
-                // System.out.println(this + " Sum: " + k);
-                // System.out.println(this + " Product: " + (new Mul(gcd, k)).reduction());
                 return new Mul(gcd, new Add(normalizedTerms.toArray(new Expression[0])).reduction()).reduction();
             }
         }
@@ -122,7 +116,6 @@ public class Add extends DefinedExpression {
         TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         if (this.constant.equals(Constant.ZERO)) {
             factors.put(this, Constant.ONE);
-            Factorization f = new Factorization(Constant.ONE, factors);
             return new Factorization(Constant.ONE, factors);
         } else {
             ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
@@ -133,7 +126,7 @@ public class Add extends DefinedExpression {
         }
     }
 
-    public Expression derivative(Univariate s) {
+    public Expression derivative(Symbol s) {
         ArrayList<Expression> derivativeTerms = Utils.map(this.inputs.get("Terms"), arg ->
                 ((Expression) arg).derivative(s));
         return AlgeEngine.add(derivativeTerms.toArray());

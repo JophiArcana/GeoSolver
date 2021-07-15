@@ -1,6 +1,6 @@
 
 import Core.AlgeSystem.ExpressionTypes.*;
-import Core.GeoSystem.MulticardinalTypes.Multicardinal;
+import Core.EntityTypes.Cardinals.MulticardinalTypes.Multicardinal;
 import Core.GeoSystem.Points.PointTypes.Phantom;
 import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.Utils;
@@ -12,9 +12,9 @@ import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
-        Univariate x = new Univariate("x");
-        Univariate y = new Univariate("y");
-        Univariate z = new Univariate("z");
+        Symbol x = new Symbol("x");
+        Symbol y = new Symbol("y");
+        Symbol z = new Symbol("z");
         System.out.println(mul(x, add(1, pow(x, 2))));
         Expression expr1 = mul(x, y, y, x, log(x));
         Expression expr2 = pow(x, 2);

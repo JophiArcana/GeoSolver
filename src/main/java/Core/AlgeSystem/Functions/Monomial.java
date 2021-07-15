@@ -9,9 +9,9 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 
 public class Monomial extends Mul {
-    public Monomial(Constant c, Map<Univariate, Integer> m) {
+    public Monomial(Constant c, Map<Symbol, Integer> m) {
         TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
-        for (Map.Entry<Univariate, Integer> entry : m.entrySet()) {
+        for (Map.Entry<Symbol, Integer> entry : m.entrySet()) {
             if (entry.getValue() != 0) {
                 inputTerms.add(AlgeEngine.pow(entry.getKey(), entry.getValue()));
                 this.terms.put(entry.getKey(), new Complex(entry.getValue(), 0));

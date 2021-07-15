@@ -1,6 +1,5 @@
-package Core.GeoSystem.MulticardinalTypes;
+package Core.EntityTypes.Cardinals.MulticardinalTypes;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
 import Core.EntityTypes.Entity;
 
 public interface Multicardinal extends Entity {
@@ -10,6 +9,4 @@ public interface Multicardinal extends Entity {
     String PHI = "\u1D69";
 
     String[] getVarTypes();
-
-    Expression expression(String varType);
 }

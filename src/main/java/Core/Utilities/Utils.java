@@ -4,7 +4,7 @@ import Core.AlgeSystem.Constants.Complex;
 import Core.AlgeSystem.Constants.Infinity;
 import Core.AlgeSystem.ExpressionTypes.Constant;
 import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.AlgeSystem.ExpressionTypes.Univariate;
+import Core.AlgeSystem.ExpressionTypes.Symbol;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.*;
@@ -23,7 +23,7 @@ public class Utils {
         /** SECTION: Expressions ==================================================================================== */
             Complex.class,
             Infinity.class,
-            Univariate.class,
+            Symbol.class,
             Log.class,
             Add.class,
             Pow.class,
@@ -45,7 +45,7 @@ public class Utils {
     public static final HashSet<Class> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Complex.class,
             Infinity.class,
-            Univariate.class,
+            Symbol.class,
             Log.class
     ));
 

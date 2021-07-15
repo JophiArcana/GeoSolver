@@ -3,11 +3,14 @@ package Core.AlgeSystem.ExpressionTypes;
 import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
+import Core.EntityTypes.Cardinals.UnicardinalTypes.Unicardinal;
 import Core.Utilities.*;
 
 import java.util.*;
 
-public interface Expression extends Entity {
+public interface Expression extends Unicardinal {
+    String varType = Unicardinal.V;
+
     class Factorization {
         public Constant constant;
         public TreeMap<Expression, Expression> terms;
@@ -49,33 +52,28 @@ public interface Expression extends Entity {
     }
 
     default ArrayList<Expression> expression() {
-        return new ArrayList<>(Collections.singletonList((Expression) this.simplify()));
+        return new ArrayList<>(Collections.singletonList(this));
+    }
+
+    default Expression expression(String varType) {
+        return (varType.equals(Expression.varType)) ? this : null;
     }
 
     Expression reduction();
     Expression expand();
 
     Factorization normalize();
-    Expression derivative(Univariate s);
+    Expression derivative(Symbol s);
 
     default Expression derivative() {
-        if (this instanceof Constant) {
-            return Constant.ZERO;
-        } else {
-            ArrayList<Mutable> vars = new ArrayList<>(this.variables());
-            return this.derivative((Univariate) vars.get(0));
-        }
+        return (this instanceof Constant) ? Constant.ZERO : this.derivative((Symbol) this.variables().first());
     }
 
-    default Expression logarithmicDerivative(Univariate s) {
+    default Expression logarithmicDerivative(Symbol s) {
         return AlgeEngine.div(this.derivative(s), this);
     }
 
-    default Expression logarithmicDerivative() {
-        return AlgeEngine.div(this.derivative(), this);
-    }
-
-    default int signum(Univariate s) {
+    default int signum(Symbol s) {
         Expression expr = (Expression) this.simplify();
         if (expr instanceof Complex cpx) {
             if (Math.signum(cpx.re.doubleValue()) != 0) {
@@ -87,7 +85,7 @@ public interface Expression extends Entity {
             return inf.expression.signum(AlgeEngine.X);
         } else {
             Expression order = AlgeEngine.orderOfGrowth(expr, s);
-            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
+            if (order instanceof Pow || null instanceof Log || order instanceof Symbol) {
                 return 1;
             } else {
                 Complex constant = (Complex) ((Mul) order).constant;
@@ -107,14 +105,17 @@ public interface Expression extends Entity {
         } else if (expr instanceof Infinity inf) {
             return inf.expression.signum(AlgeEngine.X);
         } else {
-            ArrayList<Mutable> vars = new ArrayList<>(this.variables());
-            Expression order = AlgeEngine.orderOfGrowth(expr, (Univariate) vars.get(0));
-            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
+            Expression order = AlgeEngine.orderOfGrowth(expr, (Symbol) this.variables().first());
+            if (order instanceof Pow || null instanceof Log || order instanceof Symbol) {
                 return 1;
             } else {
                 Complex constant = (Complex) ((Mul) order).constant;
                 return (int) Math.signum(constant.re.doubleValue());
             }
         }
+    }
+
+    default String getVarType() {
+        return Expression.varType;
     }
 }

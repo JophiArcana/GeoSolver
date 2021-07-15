@@ -76,7 +76,7 @@ public class Pow extends DefinedExpression {
         return new Factorization(Constant.ONE, factors);
     }
 
-    public Expression derivative(Univariate s) {
+    public Expression derivative(Symbol s) {
         if (!this.variables().contains(s)) {
             return Constant.ZERO;
         } else {

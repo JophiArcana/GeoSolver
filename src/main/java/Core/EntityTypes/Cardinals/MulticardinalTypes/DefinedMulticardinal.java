@@ -1,4 +1,4 @@
-package Core.GeoSystem.MulticardinalTypes;
+package Core.EntityTypes.Cardinals.MulticardinalTypes;
 
 import Core.EntityTypes.DefinedEntity;
 import Core.EntityTypes.Entity;
