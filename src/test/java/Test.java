@@ -1,27 +1,31 @@
 
-import Core.AlgeSystem.ExpressionTypes.*;
-import Core.EntityTypes.Cardinals.MulticardinalTypes.Multicardinal;
+import Core.AlgeSystem.UnicardinalRings.Distance;
+import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.GeoSystem.Lines.Linear;
+import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.GeoSystem.Points.PointTypes.Phantom;
 import Core.GeoSystem.Points.PointTypes.Point;
+import Core.Utilities.AlgeEngine;
 import Core.Utilities.Utils;
 
 import java.util.ArrayList;
 
-import static Core.Utilities.AlgeEngine.*;
 import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
-        Symbol x = new Symbol("x");
-        Symbol y = new Symbol("y");
-        Symbol z = new Symbol("z");
-        System.out.println(mul(x, add(1, pow(x, 2))));
-        Expression expr1 = mul(x, y, y, x, log(x));
-        Expression expr2 = pow(x, 2);
-        Expression expr3 = exp(x);
-        Expression expr4 = exp(mul(x, 2));
-        System.out.println(add(expr1, expr2));
-        System.out.println(exp(add(mul(3, log(x)), mul(2, log(y)), 3)));
+        AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
+        Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
+        Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
+        Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
+        System.out.println(e1.mul(x, e1.add(1, e1.pow(x, 2))));
+        Expression<Symbolic> expr1 = e1.mul(x, y, y, x, e1.log(x));
+        Expression<Symbolic> expr2 = e1.pow(x, 2);
+        Expression<Symbolic> expr3 = e1.exp(x);
+        Expression<Symbolic> expr4 = e1.exp(e1.mul(x, 2));
+        System.out.println(e1.add(expr1, expr2));
+        System.out.println(e1.exp(e1.add(e1.mul(3, e1.log(x)), e1.mul(2, e1.log(y)), 3)));
         Phantom p = new Phantom("P");
         Phantom q = new Phantom("Q");
         Phantom r = new Phantom("R");
@@ -31,14 +35,19 @@ public class Test {
         Point o = circumcenter(p, q, r);
         System.out.println(c.expression());
         System.out.println(c);
-        Expression expr = o.expression(Multicardinal.X);
+
+        AlgeEngine<Distance> e2 = Utils.getEngine(Distance.class);
+        Expression<Distance> expr = (Expression<Distance>) o.expression(Multicardinal.X);
         System.out.println(expr);
-        System.out.println(numberOfOperations(expr));
-        expr = mul(expr, 2);
+        System.out.println(e2.numberOfOperations(expr));
+        expr = e2.mul(expr, 2);
         System.out.println(expr);
-        ArrayList<Expression> exprInputs = Utils.map(expr.getInputs().get("Terms"), Expression.class::cast);
-        exprInputs = Utils.map(exprInputs.get(1).getInputs().get("Terms"), Expression.class::cast);
+        ArrayList<Expression<Distance>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
+        exprInputs = Utils.cast(exprInputs.get(1).getInputs().get("Terms"));
         System.out.println(exprInputs);
-        System.out.println(numberOfOperations(o.expression().get(0)));
+        System.out.println(e2.numberOfOperations((Expression<Distance>) o.expression(Multicardinal.VALUE)));
+
+        Linear l = new Linear("L");
+        System.out.println(l.expression());
     }
 }

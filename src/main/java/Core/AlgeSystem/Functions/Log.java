@@ -1,20 +1,23 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.ExpressionTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Utilities.*;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class Log extends DefinedExpression {
-    public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
-            new ArrayList<>(Collections.singletonList(AlgeEngine.log(args.get("Input").get(0).get(0))));
+public class Log<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Input"};
 
-    public Expression input;
+    public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
+        return new ArrayList<>(Collections.singletonList(ENGINE.log(args.get("Input").get(0).get(0))));
+    }
 
-    public Log(Expression expr) {
-        super();
+    public Expression<T> input;
+
+    public Log(Expression<T> expr, Class<T> type) {
+        super(type);
         this.input = expr;
         this.inputs.get("Input").add(this.input);
     }
@@ -23,30 +26,30 @@ public class Log extends DefinedExpression {
         return "ln(" + this.input + ")";
     }
 
-    public Expression reduction() {
+    public Expression<T> reduction() {
         if (this.input instanceof Constant) {
-            return ((Constant) input).log();
-        } else if (this.input instanceof Pow powInput) {
-            return AlgeEngine.mul(powInput.exponent, AlgeEngine.log(powInput.base));
-        } else if (this.input instanceof Mul mulInput && !mulInput.constant.equals(Constant.ONE)) {
-            return AlgeEngine.add(AlgeEngine.log(mulInput.constant), AlgeEngine.log(AlgeEngine.div(mulInput, mulInput.constant)));
+            return ((Constant<T>) input).log();
+        } else if (this.input instanceof Pow<T> powInput) {
+            return ENGINE.mul(powInput.exponent, ENGINE.log(powInput.base));
+        } else if (this.input instanceof Mul<T> mulInput && !mulInput.constant.equals(Constant.ONE(TYPE))) {
+            return ENGINE.add(ENGINE.log(mulInput.constant), ENGINE.log(ENGINE.div(mulInput, mulInput.constant)));
         } else {
             return this;
         }
     }
 
-    public Factorization normalize() {
-        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        factors.put(this, Constant.ONE);
-        return new Factorization(Constant.ONE, factors);
+    public Factorization<T> normalize() {
+        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        factors.put(this, Constant.ONE(TYPE));
+        return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
     }
 
-    public Expression derivative(Symbol s) {
-        return AlgeEngine.div(this.input.derivative(s), this.input);
+    public Expression<T> derivative(Univariate<T> s) {
+        return ENGINE.div(this.input.derivative(s), this.input);
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
-        return Log.formula;
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
+        return this::formula;
     }
 
     public String[] getInputTypes() {

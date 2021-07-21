@@ -1,21 +1,20 @@
 package Core.AlgeSystem.Constants;
 
-import Core.AlgeSystem.ExpressionTypes.*;
-import Core.AlgeSystem.ExpressionTypes.Symbol;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
-import java.util.ArrayList;
+public class Infinity<T extends Expression<T>> extends Constant<T> {
+    public Expression<T> expression;
 
-public class Infinity extends Constant {
-    public Expression expression;
-
-    public Infinity(Expression expr) {
-        this.expression = (expr == null) ? null : (Expression) expr.simplify();
+    public Infinity(Expression<T> expr, Class<T> type) {
+        super(type);
+        this.expression = (expr == null) ? null : (Expression<T>) expr.simplify();
     }
 
-    public Infinity() {
-        this.expression = AlgeEngine.X;
+    public Infinity(Class<T> type) {
+        super(type);
+        this.expression = ENGINE.X();
     }
 
     public String toString() {
@@ -31,91 +30,90 @@ public class Infinity extends Constant {
         }
     }
 
-    public Constant add(Constant x) {
-        if (x instanceof Complex cpx) {
-            return new Infinity(AlgeEngine.add(this.expression, cpx));
-        } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(AlgeEngine.add(this.expression, inf.expression))).simplify();
+    public Constant<T> add(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
+            return new Infinity<>(ENGINE.add(this.expression, cpx), TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return ENGINE.infinity(ENGINE.add(this.expression, inf.expression));
         } else {
             return this;
         }
     }
 
-    public Constant sub(Constant x) {
-        if (x instanceof Complex cpx) {
-            return new Infinity(AlgeEngine.sub(this.expression, cpx));
-        } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(AlgeEngine.sub(this.expression, inf.expression))).simplify();
+    public Constant<T> sub(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
+            return new Infinity<>(ENGINE.sub(this.expression, cpx), TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return ENGINE.infinity(ENGINE.sub(this.expression, inf.expression));
         } else {
             return this;
         }
     }
 
-    public Constant mul(Constant x) {
-        if (x instanceof Complex cpx) {
-            return new Infinity(AlgeEngine.mul(this.expression, cpx));
-        } else if (x instanceof Infinity inf) {
-            return new Infinity(AlgeEngine.mul(this.expression, inf.expression));
+    public Constant<T> mul(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
+            return new Infinity<>(ENGINE.mul(this.expression, cpx), TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return ENGINE.infinity(ENGINE.mul(this.expression, inf.expression));
         } else {
             return this;
         }
     }
 
-    public Constant div(Constant x) {
+    public Constant<T> div(Constant<T> x) {
         return this.mul(x.inverse());
     }
 
-    public Constant inverse() {
-        return new Infinity(AlgeEngine.div(Constant.ONE, this.expression));
+    public Constant<T> inverse() {
+        return new Infinity<T>(ENGINE.div(Constant.ONE(TYPE), this.expression), TYPE);
     }
 
-    public Constant conjugate() {
-        return new Infinity(AlgeEngine.conjugate(this.expression));
+    public Constant<T> conjugate() {
+        return new Infinity<T>(ENGINE.conjugate(this.expression), TYPE);
     }
 
-    public Constant exp() {
-        return new Infinity(AlgeEngine.pow(Constant.E, this.expression));
+    public Constant<T> exp() {
+        return new Infinity<T>(ENGINE.pow(Constant.E(TYPE), this.expression), TYPE);
     }
 
-    public Constant log() {
-        return new Infinity(AlgeEngine.log(this.expression));
+    public Constant<T> log() {
+        return new Infinity<>(ENGINE.log(this.expression), TYPE);
     }
 
-    public Constant pow(Constant x) {
-        return new Infinity(AlgeEngine.pow(this.expression, x));
+    public Constant<T> pow(Constant<T> x) {
+        return ENGINE.infinity(ENGINE.pow(this.expression, x));
     }
 
     /** TODO: Implement sine function */
-    public Constant sin() {
+    public Constant<T> sin() {
         return null;
     }
 
     /** TODO: Implement cosine function */
-    public Constant cos() {
+    public Constant<T> cos() {
         return null;
     }
 
     /** TODO: Implement tangent function */
-    public Constant tan() {
+    public Constant<T> tan() {
         return null;
     }
 
     /** TODO: Fix after implementing normalize */
 
     public double abs() {
-        ArrayList<Mutable> vars = new ArrayList<>(this.expression.variables());
-        Expression order = AlgeEngine.orderOfGrowth(this.expression, (Symbol) vars.get(0));
-        return switch ((int) Math.signum(Utils.GROWTH_COMPARATOR.compare(order, Constant.ONE))) {
+        Expression<T> order = ENGINE.orderOfGrowth(this.expression, ENGINE.X());
+        return switch ((int) Math.signum(Utils.getGrowthComparator(TYPE).compare(order, Constant.ONE(TYPE)))) {
             case 1 -> Integer.MAX_VALUE;
-            case 0 -> ((Constant) order).abs();
+            case 0 -> ((Constant<T>) order).abs();
             case -1 -> 0;
             default -> Integer.MIN_VALUE;
         };
     }
 
-    public Constant gcd(Constant c) {
-        if (c instanceof Infinity inf) {
-            return new Infinity(AlgeEngine.greatestCommonDivisor(this.expression, inf.expression));
+    public Constant<T> gcd(Constant<T> c) {
+        if (c instanceof Infinity<T> inf) {
+            return ENGINE.infinity(ENGINE.greatestCommonDivisor(this.expression, inf.expression));
         } else {
             return c;
         }
@@ -127,8 +125,8 @@ public class Infinity extends Constant {
     }
 
     public int compareTo(Entity ent) {
-        if (ent instanceof Infinity inf) {
-            return Utils.GROWTH_COMPARATOR.compare(this.expression, inf.expression);
+        if (ent instanceof Infinity) {
+            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) ent).expression);
         } else {
             return Integer.MIN_VALUE;
         }

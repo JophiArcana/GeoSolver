@@ -1,6 +1,6 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public abstract class Mutable implements Entity {
     public static final String[] inputTypes = new String[] {"Variable"};
-    public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
+    public static final Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula = args ->
             args.get("Variable").get(0);
     public abstract int getNaturalDegreesOfFreedom();
 
@@ -52,7 +52,7 @@ public abstract class Mutable implements Entity {
         return constraints;
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
         return formula;
     }
 

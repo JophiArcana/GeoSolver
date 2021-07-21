@@ -1,24 +1,23 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Points.PointTypes.Center;
-import Core.GeoSystem.Points.PointTypes.Point;
+import Core.AlgeSystem.UnicardinalRings.Distance;
+import Core.GeoSystem.Points.PointTypes.*;
 import Core.Utilities.*;
 
 import java.util.*;
 import java.util.function.Function;
 
-import static Core.Utilities.AlgeEngine.*;
-
 public class Centroid extends Center {
-    public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
-        ArrayList<Expression> argTerms = Utils.map(args.get("Points"), arg -> arg.get(0));
-        return new ArrayList<>(Collections.singletonList(div(add(argTerms.toArray()),
+    public static ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
+        final AlgeEngine<Distance> ENGINE = Utils.getEngine(Distance.class);
+        ArrayList<Unicardinal> argTerms = Utils.map(args.get("Points"), arg -> arg.get(0));
+        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()),
                 argTerms.size())));
-    };
+    }
 
-    public Centroid(String n, Point... args) {
+    public Centroid(String n, Point ... args) {
         super(n, args);
     }
 
@@ -35,7 +34,7 @@ public class Centroid extends Center {
         }
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
-        return Centroid.formula;
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
+        return Centroid::formula;
     }
 }

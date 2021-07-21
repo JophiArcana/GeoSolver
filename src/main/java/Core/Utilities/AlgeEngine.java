@@ -2,60 +2,70 @@ package Core.Utilities;
 
 import Core.AlgeSystem.Constants.Complex;
 import Core.AlgeSystem.Constants.Infinity;
-import Core.AlgeSystem.ExpressionTypes.Constant;
-import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.AlgeSystem.ExpressionTypes.Symbol;
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.AlgeSystem.UnicardinalTypes.Constant;
+import Core.AlgeSystem.UnicardinalTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Univariate;
 import Core.AlgeSystem.Functions.*;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class AlgeEngine {
-    public static final Symbol X = new Symbol("x");
+public class AlgeEngine<T extends Expression<T>> {
+    public final Class<T> TYPE;
+    
+    public AlgeEngine(Class<T> type) {
+        this.TYPE = type;
+    }
+    
+    public Univariate<T> X() {
+        return new Univariate<>("x", TYPE);
+    }
     public static final double EPSILON = Math.pow(10, -9);
 
     /** SECTION: Simplification Optimization ======================================================================== */
 
-    public static int numberOfOperations(Expression expr) {
-        if (expr instanceof Add addExpr) {
+    public int numberOfOperations(Expression<T> expr) {
+        if (expr instanceof Add<T> addExpr) {
             int operations = 0;
             for (Entity ent : addExpr.inputs.get("Terms")) {
-                operations += AlgeEngine.numberOfOperations((Expression) ent);
+                operations += this.numberOfOperations((Expression<T>) ent);
             }
             operations += (addExpr.inputs.get("Terms").size() - 1);
-            if (!addExpr.constant.equals(Constant.ZERO)) {
+            if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
                 operations += 1;
             }
             return operations;
-        } else if (expr instanceof Mul mulExpr) {
+        } else if (expr instanceof Mul<T> mulExpr) {
             int operations = 0;
             for (Entity ent : mulExpr.inputs.get("Terms")) {
-                operations += AlgeEngine.numberOfOperations((Expression) ent);
+                operations += this.numberOfOperations((Expression<T>) ent);
             }
             operations += (mulExpr.inputs.get("Terms").size() - 1);
-            if (!mulExpr.constant.equals(Constant.ONE)) {
+            if (!mulExpr.constant.equals(Constant.ONE(TYPE))) {
                 operations += 1;
             }
             return operations;
-        } else if (expr instanceof Pow powExpr) {
-            return AlgeEngine.numberOfOperations(powExpr.base) + AlgeEngine.numberOfOperations(powExpr.exponent) + 1;
-        } else if (expr instanceof Log logExpr) {
-            return AlgeEngine.numberOfOperations(logExpr.input) + 1;
-        } else if (expr instanceof Constant || expr instanceof Symbol) {
+        } else if (expr instanceof Pow<T> powExpr) {
+            return this.numberOfOperations(powExpr.base) + this.numberOfOperations(powExpr.exponent) + 1;
+        } else if (expr instanceof Log<T> logExpr) {
+            return this.numberOfOperations(logExpr.input) + 1;
+        } else if (expr instanceof Constant || expr instanceof Univariate) {
             return 0;
         } else {
             return Integer.MAX_VALUE;
         }
     }
 
-    public static Expression expand(Expression expr) {
-        if (expr instanceof Add addExpr) {
-            ArrayList<Expression> expansions = Utils.map(addExpr.inputs.get("Terms"), arg -> ((Expression) arg).expand());
+    public Expression<T> expand(Expression<T> expr) {
+        if (expr instanceof Add<T> addExpr) {
+            ArrayList<Expression<T>> expansions = Utils.map(addExpr.inputs.get("Terms"), arg -> ((Expression<T>) arg).expand());
             expansions.add(addExpr.constant);
-            return new Add(expansions.toArray(new Expression[0])).reduction();
-        } else if (expr instanceof Mul mulExpr) {
+            return new Add<>(expansions, TYPE).reduction();
+        } else if (expr instanceof Mul<T> mulExpr) {
             TreeMultiset<Entity> inputTerms = mulExpr.inputs.get("Terms");
             if (inputTerms.size() == 1) {
                 return mulExpr;
@@ -69,56 +79,56 @@ public class AlgeEngine {
             }
             if (containsAddTerm) {
                 if (inputTerms.size() == 2) {
-                    ArrayList<Expression> expansion1Terms = Utils.additiveTerms(
-                            ((Expression) inputTerms.firstEntry().getElement()).expand());
-                    ArrayList<Expression> expansion2Terms = Utils.additiveTerms(
-                            ((Expression) inputTerms.lastEntry().getElement()).expand());
-                    ArrayList<Expression> expandedTerms = new ArrayList<>();
-                    for (Expression term1 : expansion1Terms) {
-                        for (Expression term2 : expansion2Terms) {
-                            expandedTerms.add(new Mul(term1, term2).reduction());
+                    ArrayList<Expression<T>> expansion1Terms = Utils.additiveTerms(
+                            ((Expression<T>) inputTerms.firstEntry().getElement()).expand());
+                    ArrayList<Expression<T>> expansion2Terms = Utils.additiveTerms(
+                            ((Expression<T>) inputTerms.lastEntry().getElement()).expand());
+                    ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
+                    for (Expression<T> term1 : expansion1Terms) {
+                        for (Expression<T> term2 : expansion2Terms) {
+                            expandedTerms.add(new Mul<>(Arrays.asList(term1, term2), TYPE).reduction());
                         }
                     }
-                    Expression sum = new Add(expandedTerms.toArray(new Expression[0]));
-                    return AlgeEngine.mul(sum, mulExpr.constant);
+                    Expression<T> sum = new Add<>(expandedTerms, TYPE);
+                    return this.mul(sum, mulExpr.constant);
                 } else {
-                    Expression product = mulExpr.constant;
+                    Expression<T> product = mulExpr.constant;
                     for (Entity ent : inputTerms) {
-                        product = AlgeEngine.expand(new Mul(product, (Expression) ent).reduction());
+                        product = this.expand(new Mul<>(Arrays.asList(product, (Expression<T>) ent), TYPE).reduction());
                     }
                     return product;
                 }
             } else {
                 return mulExpr;
             }
-        } else if (expr instanceof Pow powExpr) {
-            if (powExpr.base instanceof Add addExpr && powExpr.exponent instanceof Complex cpx
+        } else if (expr instanceof Pow<T> powExpr) {
+            if (powExpr.base instanceof Add<T> addExpr && powExpr.exponent instanceof Complex<T> cpx
                     && cpx.integer() && cpx.re.intValue() > 0) {
                 int n = cpx.re.intValue();
                 if (n == 2) {
-                    ArrayList<Expression> expansion = Utils.additiveTerms(addExpr);
-                    ArrayList<Expression> expandedTerms = new ArrayList<>();
+                    ArrayList<Expression<T>> expansion = Utils.additiveTerms(addExpr);
+                    ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
                     for (int i = 0; i < expansion.size(); i++) {
                         for (int j = 0; j < i; j++) {
-                            Expression product = AlgeEngine.mul(expansion.get(i), expansion.get(j));
+                            Expression<T> product = this.mul(expansion.get(i), expansion.get(j));
                             expandedTerms.add(product);
                             expandedTerms.add(product);
                         }
-                        expandedTerms.add(AlgeEngine.pow(expansion.get(i), 2));
+                        expandedTerms.add(this.pow(expansion.get(i), 2));
                     }
-                    return AlgeEngine.add(expandedTerms.toArray());
+                    return this.add(expandedTerms.toArray());
                 } else {
-                    Expression sqrt = AlgeEngine.pow(powExpr.base, n / 2).expand();
-                    Expression product = AlgeEngine.pow(sqrt, 2).expand();
+                    Expression<T> sqrt = this.pow(powExpr.base, n / 2).expand();
+                    Expression<T> product = this.pow(sqrt, 2).expand();
                     if (n % 2 == 1) {
-                        product = AlgeEngine.mul(product, powExpr.base).expand();
+                        product = this.mul(product, powExpr.base).expand();
                     }
                     return product;
                 }
             } else {
                 return powExpr;
             }
-        } else if (expr instanceof Log || expr instanceof Constant || expr instanceof Symbol) {
+        } else if (expr instanceof Log || expr instanceof Constant || expr instanceof Univariate) {
             return expr;
         } else {
             return null;
@@ -127,40 +137,38 @@ public class AlgeEngine {
 
     /** SECTION: Order of Growth ==================================================================================== */
 
-    public static Expression orderOfGrowth(Expression expr, Symbol s) {
+    public Expression<T> orderOfGrowth(Expression<T> expr, Univariate<T> s) {
         if (expr == null) {
             return null;
-        }
-        expr = (Expression) expr.simplify();
-        if (expr instanceof Add addExpr) {
-            TreeMap<Expression, Constant> orders = new TreeMap<>(new OrderOfGrowthComparator(s));
-            if (!addExpr.constant.equals(Constant.ZERO)) {
-                orders.put(Constant.ONE, addExpr.constant);
+        } else if (expr instanceof Add<T> addExpr) {
+            TreeMap<Expression<T>, Constant<T>> orders = new TreeMap<>(new OrderOfGrowthComparator<>(s, TYPE));
+            if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
+                orders.put(Constant.ONE(TYPE), addExpr.constant);
             }
             for (Entity ent : addExpr.inputs.get("Terms")) {
-                Expression termOrder = AlgeEngine.orderOfGrowth((Expression) ent, s);
-                Expression baseOrder = termOrder;
-                if (termOrder instanceof Mul mulOrder) {
+                Expression<T> termOrder = this.orderOfGrowth((Expression<T>) ent, s);
+                Expression<T> baseOrder = termOrder;
+                if (termOrder instanceof Mul<T> mulOrder) {
                     baseOrder = mulOrder.baseForm();
-                    orders.put(baseOrder, (Constant) AlgeEngine.add(orders.get(baseOrder), mulOrder.constant));
+                    orders.put(baseOrder, orders.get(baseOrder).add(mulOrder.constant));
                 } else {
-                    orders.put(termOrder, (Constant) AlgeEngine.add(orders.get(termOrder), Constant.ONE));
+                    orders.put(termOrder, orders.get(termOrder).add(Constant.ONE(TYPE)));
                 }
-                if (orders.get(baseOrder).equals(Constant.ZERO)) {
+                if (orders.get(baseOrder).equals(Constant.ZERO(TYPE))) {
                     orders.remove(baseOrder);
                 }
             }
-            Map.Entry<Expression, Constant> greatestOrder = orders.lastEntry();
-            return AlgeEngine.mul(greatestOrder.getValue(), greatestOrder.getKey());
-        } else if (expr instanceof Mul mulExpr) {
-            ArrayList<Expression> termOrders = Utils.map(mulExpr.inputs.get("Terms"), arg ->
-                    AlgeEngine.orderOfGrowth((Expression) arg, s));
-            return AlgeEngine.mul(mulExpr.constant, AlgeEngine.mul(termOrders.toArray()));
-        } else if (expr instanceof Pow powExpr) {
-            return AlgeEngine.pow(AlgeEngine.orderOfGrowth(powExpr.base, s), powExpr.exponent);
-        } else if (expr instanceof Log logExpr) {
-            return AlgeEngine.log(AlgeEngine.orderOfGrowth(logExpr.input, s));
-        } else if (expr instanceof Symbol || expr instanceof Constant) {
+            Map.Entry<Expression<T>, Constant<T>> greatestOrder = orders.lastEntry();
+            return this.mul(greatestOrder.getValue(), greatestOrder.getKey());
+        } else if (expr instanceof Mul<T> mulExpr) {
+            ArrayList<Expression<T>> termOrders = Utils.map(mulExpr.inputs.get("Terms"), arg ->
+                    this.orderOfGrowth((Expression<T>) arg, s));
+            return this.mul(mulExpr.constant, this.mul(termOrders.toArray()));
+        } else if (expr instanceof Pow<T> powExpr) {
+            return this.pow(this.orderOfGrowth(powExpr.base, s), powExpr.exponent);
+        } else if (expr instanceof Log<T> logExpr) {
+            return this.log(this.orderOfGrowth(logExpr.input, s));
+        } else if (expr instanceof Univariate || expr instanceof Constant) {
             return expr;
         } else {
             /** TODO: Implement Order of Growth for other Functions */
@@ -168,251 +176,261 @@ public class AlgeEngine {
         }
     }
 
-    public static Expression orderOfGrowth(Expression expr) {
+    public Expression<T> orderOfGrowth(Expression<T> expr) {
         if (expr == null) {
             return null;
+        } else {
+            ArrayList<Mutable> variables = new ArrayList<>(expr.variables());
+            return this.orderOfGrowth(expr, (Univariate<T>) variables.get(0));
         }
-        ArrayList<Mutable> variables = new ArrayList<>(expr.variables());
-        return AlgeEngine.orderOfGrowth(expr, (Symbol) variables.get(0));
     }
 
     /** SECTION: Greatest Common Divisor ============================================================================ */
 
-    public static Expression greatestCommonDivisor(Expression e1, Expression e2) {
-        if (e1.equals(Constant.ZERO)) {
+    public Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
+        if (e1.equals(Constant.ZERO(TYPE))) {
             return e2;
-        } else if (e2.equals(Constant.ZERO)) {
+        } else if (e2.equals(Constant.ZERO(TYPE))) {
             return e1;
         } else {
-            Expression.Factorization e1Norm = e1.normalize();
-            Expression.Factorization e2Norm = e2.normalize();
-            Constant constant = e1Norm.constant.gcd(e2Norm.constant);
-            Expression product = Constant.ONE;
-            TreeSet<Expression> terms = new TreeSet<>(Utils.PRIORITY_COMPARATOR);
+            Expression.Factorization<T> e1Norm = e1.normalize();
+            Expression.Factorization<T> e2Norm = e2.normalize();
+            Constant<T> constant = e1Norm.constant.gcd(e2Norm.constant);
+            Expression<T> product = Constant.ONE(TYPE);
+            TreeSet<Expression<T>> terms = new TreeSet<>(Utils.PRIORITY_COMPARATOR);
             terms.addAll(e1Norm.terms.keySet());
             terms.addAll(e2Norm.terms.keySet());
-            for (Expression term : terms) {
-                Expression e1Exponent = e1Norm.terms.get(term);
-                Expression e2Exponent = e2Norm.terms.get(term);
-                Expression exponent = (Utils.GROWTH_COMPARATOR.compare(e1Exponent, e2Exponent) < 0) ? e1Exponent : e2Exponent;
-                if (exponent != null && !exponent.equals(Constant.ZERO)) {
-                    product = AlgeEngine.mul(product, AlgeEngine.pow(term, exponent));
+            for (Expression<T> term : terms) {
+                Expression<T> e1Exponent = e1Norm.terms.get(term);
+                Expression<T> e2Exponent = e2Norm.terms.get(term);
+                Expression<T> exponent = (Utils.getGrowthComparator(TYPE).compare(e1Exponent, e2Exponent) < 0) ? e1Exponent : e2Exponent;
+                if (exponent != null && !exponent.equals(Constant.ZERO(TYPE))) {
+                    product = this.mul(product, this.pow(term, exponent));
                 }
             }
-            return AlgeEngine.mul(constant, product);
+            return this.mul(constant, product);
         }
     }
 
-    public static Expression greatestCommonDivisor(Expression ... args) {
-        if (args.length == 1) {
-            return args[0];
-        } else if (args.length == 2) {
-            return AlgeEngine.greatestCommonDivisor(args[0], args[1]);
+    public Expression<T> greatestCommonDivisor(List<Expression<T>> args) {
+        if (args.size() == 1) {
+            return args.get(0);
+        } else if (args.size() == 2) {
+            return this.greatestCommonDivisor(args.get(0), args.get(1));
         } else {
-            Expression[] rest = new Expression[args.length - 1];
-            System.arraycopy(args, 1, rest, 0, args.length - 1);
-            return AlgeEngine.greatestCommonDivisor(args[0], AlgeEngine.greatestCommonDivisor(rest));
+            return this.greatestCommonDivisor(args.get(0), this.greatestCommonDivisor(args.subList(1, args.size())));
         }
     }
 
     /** SECTION: Basic operations =================================================================================== */
 
-    public static Constant complex(Number re, Number im) {
-        return new Complex(re, im);
+    public Constant<T> complex(Number re, Number im) {
+        return new Complex<>(re, im, TYPE);
     }
 
-    public static Constant infinity(Expression expr) {
-        return (Constant) new Infinity(expr).simplify();
+    public Constant<T> infinity(Expression<T> expr) {
+        return (Constant<T>) new Infinity<>(expr, TYPE).simplify();
     }
 
-    public static Expression add(Object ... args) {
-        ArrayList<Expression> exprArgs = new ArrayList<>();
+    public Expression<T> add(Object ... args) {
+        ArrayList<Expression<T>> exprArgs = new ArrayList<>();
         for (Object obj : args) {
-            Expression exprArg = Utils.objectConversion(obj);
-            if (!exprArg.equals(Constant.ZERO)) {
+            Expression<T> exprArg = this.objectConversion(obj);
+            if (!exprArg.equals(Constant.ZERO(TYPE))) {
                 exprArgs.add(exprArg);
             }
         }
         return switch (exprArgs.size()) {
-            case 0 -> Constant.ZERO;
+            case 0 -> Constant.ZERO(TYPE);
             case 1 -> exprArgs.get(0);
-            default -> (Expression) (new Add(exprArgs.toArray(new Expression[0]))).simplify();
+            default -> (Expression<T>) new Add<>(exprArgs, TYPE).simplify();
         };
     }
 
-    public static Expression sub(Object o1, Object o2) {
-        Expression expr1 = Utils.objectConversion(o1);
-        Expression expr2 = Utils.objectConversion(o2);
-        if (expr1.equals(Constant.ZERO)) {
-            return AlgeEngine.negate(expr2);
-        } else if (expr2.equals(Constant.ZERO)) {
+    public Expression<T> sub(Object o1, Object o2) {
+        Expression<T> expr1 = this.objectConversion(o1);
+        Expression<T> expr2 = this.objectConversion(o2);
+        if (expr1.equals(Constant.ZERO(TYPE))) {
+            return this.negate(expr2);
+        } else if (expr2.equals(Constant.ZERO(TYPE))) {
             return expr1;
-        } else if (expr1 instanceof Constant const1 && expr2 instanceof Constant const2) {
+        } else if (expr1 instanceof Constant<T> const1 && expr2 instanceof Constant<T> const2) {
             return const1.sub(const2);
         } else {
-            return (Expression) (new Add(expr1, AlgeEngine.negate(expr2))).simplify();
+            return (Expression<T>) new Add<>(Arrays.asList(expr1, this.negate(expr2)), TYPE).simplify();
         }
     }
 
-    public static Expression mul(Object ... args) {
-        ArrayList<Expression> exprArgs = new ArrayList<>();
+    public Expression<T> mul(Object ... args) {
+        ArrayList<Expression<T>> exprArgs = new ArrayList<>();
         for (Object obj : args) {
-            Expression exprArg = Utils.objectConversion(obj);
-            if (exprArg.equals(Constant.ZERO)) {
-                return Constant.ZERO;
-            } else if (!exprArg.equals(Constant.ONE)) {
+            Expression<T> exprArg = this.objectConversion(obj);
+            if (exprArg.equals(Constant.ZERO(TYPE))) {
+                return Constant.ZERO(TYPE);
+            } else if (!exprArg.equals(Constant.ONE(TYPE))) {
                 exprArgs.add(exprArg);
             }
         }
         return switch (exprArgs.size()) {
-            case 0 -> Constant.ONE;
+            case 0 -> Constant.ONE(TYPE);
             case 1 -> exprArgs.get(0);
-            default -> (Expression) (new Mul(exprArgs.toArray(new Expression[0]))).simplify();
+            default -> (Expression<T>) new Mul<>(exprArgs, TYPE).simplify();
         };
     }
 
-    public static Expression div(Object o1, Object o2) {
-        Expression expr1 = Utils.objectConversion(o1);
-        Expression expr2 = Utils.objectConversion(o2);
-        if (expr1.equals(Constant.ONE)) {
-            return AlgeEngine.invert(expr2);
-        } else if (expr2.equals(Constant.ONE)) {
+    public Expression<T> div(Object o1, Object o2) {
+        Expression<T> expr1 = this.objectConversion(o1);
+        Expression<T> expr2 = this.objectConversion(o2);
+        if (expr1.equals(Constant.ONE(TYPE))) {
+            return this.invert(expr2);
+        } else if (expr2.equals(Constant.ONE(TYPE))) {
             return expr1;
-        } else if (expr1 instanceof Constant const1 && expr2 instanceof Constant const2) {
+        } else if (expr1 instanceof Constant<T> const1 && expr2 instanceof Constant<T> const2) {
             return const1.div(const2);
         } else {
-            return (Expression) (new Mul(expr1, AlgeEngine.invert(expr2))).simplify();
+            return (Expression<T>) new Mul<>(Arrays.asList(expr1, this.invert(expr2)), TYPE).simplify();
         }
     }
 
-    public static Expression negate(Object obj) {
-        return AlgeEngine.mul(Utils.objectConversion(obj), Constant.NONE);
+    public Expression<T> negate(Object obj) {
+        return this.mul(this.objectConversion(obj), Constant.NONE(TYPE));
     }
 
-    public static Expression invert(Object obj) {
-        return AlgeEngine.pow(Utils.objectConversion(obj), Constant.NONE);
+    public Expression<T> invert(Object obj) {
+        return this.pow(this.objectConversion(obj), Constant.NONE(TYPE));
     }
 
     /** SECTION: Cyclic Sum ========================================================================================= */
 
-    public static Expression cyclicSum(Function<ArrayList<Expression>, Expression> func, ArrayList<Expression> args) {
-        ArrayList<Expression> terms = new ArrayList<>();
+    public Expression<T> cyclicSum(Function<ArrayList<Expression<T>>, Expression<T>> func, ArrayList<Expression<T>> args) {
+        ArrayList<Expression<T>> terms = new ArrayList<>();
         for (int i = 0; i < args.size(); i++) {
             terms.add(func.apply(args));
             args.add(0, args.remove(args.size() - 1));
         }
-        return AlgeEngine.add(terms.toArray());
+        return this.add(terms.toArray());
     }
 
     /** SECTION: Exponential Functions ============================================================================== */
 
-    public static Expression pow(Object base, Object exponent) {
-        Expression baseExpr = Utils.objectConversion(base);
-        Expression exponentExpr = Utils.objectConversion(exponent);
-        if (baseExpr instanceof Constant baseConst && exponentExpr instanceof Constant expConst) {
+    public Expression<T> pow(Object base, Object exponent) {
+        Expression<T> baseExpr = this.objectConversion(base);
+        Expression<T> exponentExpr = this.objectConversion(exponent);
+        if (baseExpr instanceof Constant<T> baseConst && exponentExpr instanceof Constant<T> expConst) {
             return baseConst.pow(expConst);
         } else {
-            return (Expression) (new Pow(baseExpr, exponentExpr)).simplify();
+            return (Expression<T>) new Pow<>(baseExpr, exponentExpr, TYPE).simplify();
         }
     }
 
-    public static Expression exp(Object obj) {
-        return AlgeEngine.pow(Constant.E, obj);
+    public Expression<T> exp(Object obj) {
+        return this.pow(Constant.E(TYPE), obj);
     }
 
-    public static Expression log(Object obj) {
-        Expression expr = Utils.objectConversion(obj);
-        if (expr instanceof Constant constExpr) {
+    public Expression<T> log(Object obj) {
+        Expression<T> expr = this.objectConversion(obj);
+        if (expr instanceof Constant<T> constExpr) {
             return constExpr.log();
         } else {
-            return (Expression) (new Log(expr)).simplify();
+            return (Expression<T>) new Log<>(expr, TYPE).simplify();
         }
     }
 
     /** SECTION: Real, Imaginary, Conjugate ========================================================================= */
 
-    public static Expression real(Object obj) {
+    public Expression<T> real(Object obj) {
         if (obj instanceof Number n) {
-            return new Complex(n, 0);
+            return new Complex<>(n, 0, TYPE);
         } else {
-            Expression expr = (Expression) obj;
-            if (expr == null || expr instanceof Symbol) {
+            Expression<T> expr = (Expression<T>) obj;
+            if (expr == null || expr instanceof Univariate) {
                 return expr;
-            } else if (expr instanceof Complex cpx) {
-                return AlgeEngine.complex(cpx.re, 0);
-            } else if (expr instanceof Infinity inf) {
-                return AlgeEngine.infinity(AlgeEngine.real(inf.expression));
-            } else if (expr instanceof Add addExpr) {
-                return AlgeEngine.add(AlgeEngine.real(addExpr.constant),
-                        AlgeEngine.add(Utils.map(addExpr.inputs.get("Terms"), AlgeEngine::real).toArray()));
-            } else if (expr instanceof Log logExpr) {
-                Expression re = AlgeEngine.real(logExpr.input);
-                Expression im = AlgeEngine.imaginary(logExpr.input);
-                return AlgeEngine.mul(0.5, AlgeEngine.log(AlgeEngine.add(AlgeEngine.pow(re, 2), AlgeEngine.pow(im, 2))));
+            } else if (expr instanceof Complex<T> cpx) {
+                return this.complex(cpx.re, 0);
+            } else if (expr instanceof Infinity<T> inf) {
+                return this.infinity(this.real(inf.expression));
+            } else if (expr instanceof Add<T> addExpr) {
+                return this.add(this.real(addExpr.constant),
+                        this.add(Utils.map(addExpr.inputs.get("Terms"), this::real).toArray()));
+            } else if (expr instanceof Log<T> logExpr) {
+                Expression<T> re = this.real(logExpr.input);
+                Expression<T> im = this.imaginary(logExpr.input);
+                return this.mul(0.5, this.log(this.add(this.pow(re, 2), this.pow(im, 2))));
             } else {
-                return AlgeEngine.mul(0.5, AlgeEngine.add(expr, AlgeEngine.conjugate(expr)));
+                return this.mul(0.5, this.add(expr, this.conjugate(expr)));
             }
         }
     }
 
-    public static Expression imaginary(Object obj) {
+    public Expression<T> imaginary(Object obj) {
         if (obj instanceof Number) {
-            return Constant.ZERO;
+            return Constant.ZERO(TYPE);
         } else {
-            Expression expr = (Expression) obj;
+            Expression<T> expr = (Expression<T>) obj;
             if (expr == null) {
                 return null;
-            } else if (expr instanceof Complex cpx) {
-                return AlgeEngine.complex(cpx.im, 0);
-            } else if (expr instanceof Infinity inf) {
-                return AlgeEngine.infinity(AlgeEngine.imaginary(inf.expression));
-            } else if (expr instanceof Symbol) {
-                return Constant.ZERO;
-            } else if (expr instanceof Add addExpr) {
-                return AlgeEngine.add(AlgeEngine.imaginary(addExpr.constant),
-                        AlgeEngine.add(Utils.map(addExpr.inputs.get("Terms"), AlgeEngine::imaginary).toArray()));
-            } else if (expr instanceof Log logExpr) {
-                Expression re = AlgeEngine.real(logExpr.input);
-                Expression im = AlgeEngine.imaginary(logExpr.input);
-                return AlgeEngine.log(AlgeEngine.div(logExpr.input,
-                        AlgeEngine.pow(AlgeEngine.add(AlgeEngine.pow(re, 2), AlgeEngine.pow(im, 2)), 0.5)));
+            } else if (expr instanceof Complex<T> cpx) {
+                return this.complex(cpx.im, 0);
+            } else if (expr instanceof Infinity<T> inf) {
+                return this.infinity(this.imaginary(inf.expression));
+            } else if (expr instanceof Univariate<T>) {
+                return Constant.ZERO(TYPE);
+            } else if (expr instanceof Add<T> addExpr) {
+                return this.add(this.imaginary(addExpr.constant),
+                        this.add(Utils.map(addExpr.inputs.get("Terms"), this::imaginary).toArray()));
+            } else if (expr instanceof Log<T> logExpr) {
+                Expression<T> re = this.real(logExpr.input);
+                Expression<T> im = this.imaginary(logExpr.input);
+                return this.log(this.div(logExpr.input, this.pow(this.add(this.pow(re, 2), this.pow(im, 2)), 0.5)));
             } else {
-                return AlgeEngine.mul(-0.5, Constant.I, AlgeEngine.sub(expr, AlgeEngine.conjugate(expr)));
+                return this.mul(-0.5, Constant.I(TYPE), this.sub(expr, this.conjugate(expr)));
             }
         }
     }
 
-    public static Expression conjugate(Object obj) {
+    public Expression<T> conjugate(Object obj) {
         if (obj instanceof Number n) {
-            return new Complex(n, 0);
+            return new Complex<>(n, 0, TYPE);
         } else {
-            Expression expr = (Expression) obj;
-            if (expr == null || expr instanceof Symbol) {
+            Expression<T> expr = (Expression<T>) obj;
+            if (expr == null || expr instanceof Univariate) {
                 return expr;
-            } else if (expr instanceof Constant constExpr) {
+            } else if (expr instanceof Constant<T> constExpr) {
                 return constExpr.conjugate();
             } else {
-                HashMap<String, ArrayList<ArrayList<Expression>>> conjugateInputs = new HashMap<>();
+                HashMap<String, ArrayList<ArrayList<Unicardinal>>> conjugateInputs = new HashMap<>();
                 for (String inputType : expr.getInputTypes()) {
-                    ArrayList<ArrayList<Expression>> inputList = new ArrayList<>();
+                    ArrayList<ArrayList<Unicardinal>> inputList = new ArrayList<>();
                     for (Entity ent : expr.getInputs().get(inputType)) {
-                        inputList.add(new ArrayList<>(Collections.singletonList(AlgeEngine.conjugate(ent))));
+                        inputList.add(new ArrayList<>(Collections.singletonList(this.conjugate(ent))));
                     }
                     conjugateInputs.put(inputType, inputList);
                 }
-                return expr.getFormula().apply(conjugateInputs).get(0);
+                return (Expression<T>) expr.getFormula().apply(conjugateInputs).get(0);
             }
         }
     }
 
-    public static Expression abs(Object obj) {
+    public Expression<T> abs(Object obj) {
         if (obj instanceof Number n) {
-            return AlgeEngine.complex(n, 0);
+            return this.complex(n, 0);
         } else if (obj instanceof Expression) {
-            return AlgeEngine.pow(AlgeEngine.add(AlgeEngine.pow(AlgeEngine.real(obj), 2),
-                    AlgeEngine.pow(AlgeEngine.imaginary(obj), 2)), 0.5);
+            return this.pow(this.add(this.pow(this.real(obj), 2), this.pow(this.imaginary(obj), 2)), 0.5);
         } else {
             return null;
+        }
+    }
+
+    /** SECTION: Object Conversion ================================================================================== */
+    
+    public Expression<T> objectConversion(Object obj) {
+        assert obj instanceof Number || obj instanceof Expression || obj == null;
+        if (obj instanceof Number n) {
+            return new Complex<>(n, 0, TYPE);
+        } else if (obj != null) {
+            return (Expression<T>) obj;
+        } else {
+            return Constant.ZERO(TYPE);
         }
     }
 }

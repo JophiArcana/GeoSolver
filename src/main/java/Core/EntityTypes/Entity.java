@@ -1,6 +1,6 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -10,13 +10,13 @@ import java.util.function.Function;
 
 public interface Entity {
     Entity simplify();
-    ArrayList<Expression> expression();
-    Expression expression(String varType);
+    ArrayList<Unicardinal> expression();
+    Unicardinal expression(String varType);
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();
     ArrayList<Function<Entity, Property>> getConstraints();
-    Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula();
+    Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula();
     HashMap<String, TreeMultiset<Entity>> getInputs();
     String[] getInputTypes();
 

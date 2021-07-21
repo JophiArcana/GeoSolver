@@ -1,15 +1,15 @@
 package Core.AlgeSystem.Constants;
 
-import Core.AlgeSystem.ExpressionTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
-public class Complex extends Constant {
+public class Complex<T extends Expression<T>> extends Constant<T> {
     public final Number re;
     public final Number im;
 
-    public Complex(Number real, Number imag) {
-        super();
+    public Complex(Number real, Number imag, Class<T> type) {
+        super(type);
         re = real;
         im = imag;
     }
@@ -43,104 +43,99 @@ public class Complex extends Constant {
         }
     }
 
-    public Constant add(Constant x) {
-        x = (Constant) x.simplify();
-        if (x instanceof Complex cpx) {
+    public Constant<T> add(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
             Number[] set = Utils.integerize(
                     re.doubleValue() + cpx.re.doubleValue(),
                     im.doubleValue() + cpx.im.doubleValue());
-            return new Complex(set[0], set[1]);
-        } else if (x instanceof Infinity inf) {
-            return new Infinity(AlgeEngine.add(inf.expression, this));
+            return new Complex<>(set[0], set[1], TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return new Infinity<T>(ENGINE.add(inf.expression, this), TYPE);
         } else {
             return this;
         }
     }
 
-    public Constant sub(Constant x) {
-        x = (Constant) x.simplify();
-        if (x instanceof Complex cpx) {
+    public Constant<T> sub(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
             Number[] set = Utils.integerize(
                     re.doubleValue() - cpx.re.doubleValue(),
                     im.doubleValue() - cpx.im.doubleValue());
-            return new Complex(set[0], set[1]);
-        } else if (x instanceof Infinity inf) {
-            return new Infinity(AlgeEngine.sub(this, inf.expression));
+            return new Complex<>(set[0], set[1], TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return new Infinity<T>(ENGINE.sub(this, inf.expression), TYPE);
         } else {
             return this;
         }
     }
 
-    public Constant mul(Constant x) {
-        x = (Constant) x.simplify();
-        if (x instanceof Complex cpx) {
+    public Constant<T> mul(Constant<T> x) {
+        if (x instanceof Complex<T> cpx) {
             Number[] set = Utils.integerize(
                     re.doubleValue() * cpx.re.doubleValue() - im.doubleValue() * cpx.im.doubleValue(),
                     re.doubleValue() * cpx.im.doubleValue() + im.doubleValue() * cpx.re.doubleValue());
-            return new Complex(set[0], set[1]);
-        } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(AlgeEngine.mul(this, inf.expression))).simplify();
+            return new Complex<>(set[0], set[1], TYPE);
+        } else if (x instanceof Infinity<T> inf) {
+            return ENGINE.infinity(ENGINE.mul(this, inf.expression));
         } else {
             return this;
         }
     }
 
-    public Constant div(Constant x) {
-        x = (Constant) x.simplify();
+    public Constant<T> div(Constant<T> x) {
         return this.mul(x.inverse());
     }
 
-    public Constant inverse() {
+    public Constant<T> inverse() {
         double k = Math.pow(re.doubleValue(), 2) + Math.pow(im.doubleValue(), 2);
         Number[] set = Utils.integerize(re.doubleValue() / k, -im.doubleValue() / k);
-        return new Complex(set[0], set[1]);
+        return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant conjugate() {
+    public Constant<T> conjugate() {
         if (im.getClass() == Integer.class) {
-            return new Complex(re, -im.intValue());
+            return new Complex<>(re, -im.intValue(), TYPE);
         } else {
-            return new Complex(re, -im.doubleValue());
+            return new Complex<>(re, -im.doubleValue(), TYPE);
         }
     }
 
-    public Constant exp() {
+    public Constant<T> exp() {
         double k = Math.exp(re.doubleValue());
         Number[] set = Utils.integerize(k * Math.cos(im.doubleValue()), k * Math.sin(im.doubleValue()));
-        return new Complex(set[0], set[1]);
+        return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant log() {
+    public Constant<T> log() {
         Number[] set = Utils.integerize(Math.log(this.abs()), this.phase());
-        return new Complex(set[0], set[1]);
+        return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant pow(Constant x) {
-        x = (Constant) x.simplify();
+    public Constant<T> pow(Constant<T> x) {
         if (x instanceof Complex) {
             return this.log().mul(x).exp();
-        } else if (x instanceof Infinity inf) {
-            return (Constant) (new Infinity(AlgeEngine.pow(this, inf.expression))).simplify();
+        } else if (x instanceof Infinity<T> inf) {
+            return ENGINE.<T>infinity(ENGINE.pow(this, inf.expression));
         } else {
             return this;
         }
     }
 
-    public Constant sin() {
+    public Constant<T> sin() {
         Number[] set = Utils.integerize(
                 Math.sin(re.doubleValue()) * Math.cosh(im.doubleValue()),
                 Math.cos(re.doubleValue()) * Math.sinh(im.doubleValue()));
-        return new Complex(set[0], set[1]);
+        return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant cos() {
+    public Constant<T> cos() {
         Number[] set = Utils.integerize(
                 Math.cos(re.doubleValue()) * Math.cosh(im.doubleValue()),
                 -Math.sin(re.doubleValue()) * Math.sinh(im.doubleValue()));
-        return new Complex(set[0], set[1]);
+        return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant tan() {
+    public Constant<T> tan() {
         return sin().div(cos());
     }
 
@@ -152,23 +147,23 @@ public class Complex extends Constant {
         return Utils.integerize(Math.atan2(im.doubleValue(), re.doubleValue())).doubleValue();
     }
 
-    public Constant gcd(Constant c) {
-        if (c instanceof Complex cpx) {
+    public Constant<T> gcd(Constant<T> c) {
+        if (c instanceof Complex<T> cpx) {
             if (this.gaussianInteger() && cpx.gaussianInteger()) {
-                Complex upper = (this.abs() > c.abs()) ? this : cpx;
-                Complex lower = (this.abs() > c.abs()) ? cpx : this;
-                while (!((Complex) upper.div(lower)).gaussianInteger()) {
-                    Complex remainder = (Complex) upper.sub(lower.mul(((Complex) upper.div(lower)).round()));
+                Complex<T> upper = (this.abs() > c.abs()) ? this : cpx;
+                Complex<T> lower = (this.abs() > c.abs()) ? cpx : this;
+                while (!((Complex<T>) upper.div(lower)).gaussianInteger()) {
+                    Complex<T> remainder = (Complex<T>) upper.sub(lower.mul(((Complex<T>) upper.div(lower)).round()));
                     upper = lower;
                     lower = remainder;
                 }
-                return (lower.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(lower) : lower;
-            } else if (((Complex) this.div(cpx)).gaussianInteger()) {
-                return (cpx.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(cpx) : cpx;
-            } else if (((Complex) cpx.div(this)).gaussianInteger()) {
-                return (this.re.doubleValue() < 0) ? (Constant) AlgeEngine.negate(this) : this;
+                return (lower.re.doubleValue() < 0) ? lower.mul(Constant.NONE(TYPE)) : lower;
+            } else if (((Complex<T>) this.div(cpx)).gaussianInteger()) {
+                return (cpx.re.doubleValue() < 0) ? cpx.mul(Constant.NONE(TYPE)) : cpx;
+            } else if (((Complex<T>) cpx.div(this)).gaussianInteger()) {
+                return (this.re.doubleValue() < 0) ? this.mul(Constant.NONE(TYPE)) : this;
             } else {
-                return Constant.ONE;
+                return Constant.ONE(TYPE);
             }
         } else {
             return this;
@@ -183,15 +178,15 @@ public class Complex extends Constant {
         return this.re instanceof Integer && this.im.equals(0);
     }
 
-    public Complex round() {
-        return new Complex((int) Math.round(this.re.doubleValue()), (int) Math.round(this.im.doubleValue()));
+    public Complex<T> round() {
+        return new Complex<>((int) Math.round(this.re.doubleValue()), (int) Math.round(this.im.doubleValue()), TYPE);
     }
 
     public int compareTo(Entity ent) {
         if (ent == null || this.getClass() != ent.getClass()) {
             return Integer.MIN_VALUE;
         } else {
-            Complex scriptEnt = (Complex) this.sub((Complex) ent);
+            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) ent);
             if (scriptEnt.abs() < AlgeEngine.EPSILON) {
                 return 0;
             } else {

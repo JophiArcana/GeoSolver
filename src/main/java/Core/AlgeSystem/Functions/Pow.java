@@ -1,27 +1,29 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.ExpressionTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Utilities.*;
 
 import java.util.*;
 import java.util.function.Function;
 
-public class Pow extends DefinedExpression {
-    public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args ->
-            new ArrayList<>(Collections.singletonList(AlgeEngine.pow(args.get("Base").get(0).get(0),
-                    args.get("Exponent").get(0).get(0))));
+public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Base", "Exponent"};
 
-    public Expression base, exponent;
+    public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
+        return new ArrayList<>(Collections.singletonList(ENGINE.pow(args.get("Base").get(0).get(0), args.get("Exponent").get(0).get(0))));
+    }
 
-    public Pow(Expression base, Expression exponent) {
-        super();
+    public Expression<T> base, exponent;
+
+    public Pow(Expression<T> base, Expression<T> exponent, Class<T> type) {
+        super(type);
         if (base instanceof Pow) {
-            this.base = ((Pow) base).base;
-            this.exponent = AlgeEngine.mul(((Pow) base).exponent, exponent);
-        } else if (base instanceof Constant && exponent instanceof Log logExp) {
+            this.base = ((Pow<T>) base).base;
+            this.exponent = ENGINE.mul(((Pow<T>) base).exponent, exponent);
+        } else if (base instanceof Constant && exponent instanceof Log<T> logExp) {
             this.base = logExp.input;
-            this.exponent = ((Constant) base).log();
+            this.exponent = ((Constant<T>) base).log();
         } else {
             this.base = base;
             this.exponent = exponent;
@@ -38,30 +40,30 @@ public class Pow extends DefinedExpression {
         return baseString + " ** " + this.exponent;
     }
 
-    public Expression reduction() {
-        if (this.exponent.equals(Constant.ONE)) {
+    public Expression<T> reduction() {
+        if (this.exponent.equals(Constant.ONE(TYPE))) {
             return this.base;
-        } else if (this.exponent.equals(Constant.ZERO)) {
-            return Constant.ONE;
-        } else if (this.base.equals(Constant.ZERO) || this.base.equals(Constant.ONE)) {
+        } else if (this.exponent.equals(Constant.ZERO(TYPE))) {
+            return Constant.ONE(TYPE);
+        } else if (this.base.equals(Constant.ZERO(TYPE)) || this.base.equals(Constant.ONE(TYPE))) {
             return this.base;
-        } else if (this.base instanceof Mul mulBase) {
-            ArrayList<Expression> powTerms = Utils.map(mulBase.inputs.get("Terms"), arg ->
-                    AlgeEngine.pow(arg, this.exponent));
-            return AlgeEngine.mul(AlgeEngine.pow(mulBase.constant, this.exponent),
-                    AlgeEngine.mul(powTerms.toArray()));
-        } else if (this.base instanceof Constant baseConst) {
-            if (this.exponent instanceof Constant expConst) {
+        } else if (this.base instanceof Mul<T> mulBase) {
+            ArrayList<Expression<T>> powTerms = Utils.map(mulBase.inputs.get("Terms"), arg ->
+                    ENGINE.pow(arg, this.exponent));
+            return ENGINE.mul(ENGINE.pow(mulBase.constant, this.exponent),
+                    ENGINE.mul(powTerms.toArray()));
+        } else if (this.base instanceof Constant<T> baseConst) {
+            if (this.exponent instanceof Constant<T> expConst) {
                 return baseConst.pow(expConst);
-            } else if (this.exponent instanceof Log expLog) {
-                return AlgeEngine.pow(expLog.input, AlgeEngine.log(baseConst));
-            } else if (this.exponent instanceof Mul expMul && expMul.baseForm() instanceof Log baseLog) {
-                return AlgeEngine.pow(baseLog.input, AlgeEngine.mul(expMul.constant, AlgeEngine.log(baseConst)));
-            } else if (this.exponent instanceof Add expAdd
-                    && (!expAdd.constant.equals(Constant.ZERO) || !expAdd.logTerm.equals(Constant.ZERO))) {
-                Expression expBase = AlgeEngine.sub(expAdd, AlgeEngine.add(expAdd.constant, expAdd.logTerm));
-                return AlgeEngine.mul(AlgeEngine.pow(baseConst, expAdd.constant), AlgeEngine.pow(baseConst, expAdd.logTerm),
-                        AlgeEngine.pow(baseConst, expBase));
+            } else if (this.exponent instanceof Log<T> expLog) {
+                return ENGINE.pow(expLog.input, ENGINE.log(baseConst));
+            } else if (this.exponent instanceof Mul<T> expMul && expMul.baseForm() instanceof Log<T> baseLog) {
+                return ENGINE.pow(baseLog.input, ENGINE.mul(expMul.constant, ENGINE.log(baseConst)));
+            } else if (this.exponent instanceof Add<T> expAdd
+                    && (!expAdd.constant.equals(Constant.ZERO(TYPE)) || !expAdd.logTerm.equals(Constant.ZERO(TYPE)))) {
+                Expression<T> expBase = ENGINE.sub(expAdd, ENGINE.add(expAdd.constant, expAdd.logTerm));
+                return ENGINE.mul(ENGINE.pow(baseConst, expAdd.constant), ENGINE.pow(baseConst, expAdd.logTerm),
+                        ENGINE.pow(baseConst, expBase));
             } else {
                 return this;
             }
@@ -70,23 +72,23 @@ public class Pow extends DefinedExpression {
         }
     }
 
-    public Factorization normalize() {
-        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+    public Factorization<T> normalize() {
+        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         factors.put(this.base, this.exponent);
-        return new Factorization(Constant.ONE, factors);
+        return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
     }
 
-    public Expression derivative(Symbol s) {
+    public Expression<T> derivative(Univariate<T> s) {
         if (!this.variables().contains(s)) {
-            return Constant.ZERO;
+            return Constant.ZERO(TYPE);
         } else {
-            return AlgeEngine.mul(this, AlgeEngine.add(AlgeEngine.mul(this.exponent.derivative(s), AlgeEngine.log(this.base)),
-                    AlgeEngine.mul(this.exponent, this.base.derivative(s), AlgeEngine.pow(this.base, Constant.NONE))));
+            return ENGINE.mul(this, ENGINE.add(ENGINE.mul(this.exponent.derivative(s), ENGINE.log(this.base)),
+                    ENGINE.mul(this.exponent, this.base.derivative(s), ENGINE.pow(this.base, Constant.NONE(TYPE)))));
         }
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
-        return Pow.formula;
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
+        return this::formula;
     }
 
     public String[] getInputTypes() {

@@ -1,6 +1,7 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.ExpressionTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
@@ -8,26 +9,27 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 import java.util.function.Function;
 
-public class Add extends DefinedExpression {
-    public static final Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula = args -> {
-        Expression sum = AlgeEngine.add(args.get("Constant").get(0).get(0),
-                AlgeEngine.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
-        return new ArrayList<>(Collections.singletonList(sum));
-    };
+public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
-    public TreeMap<Expression, Constant> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-    public Expression logTerm = Constant.ZERO;
-    public Constant constant = Constant.ZERO;
+    public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
+        Expression<T> sum = ENGINE.add(args.get("Constant").get(0).get(0),
+                ENGINE.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
+        return new ArrayList<>(Collections.singletonList(sum));
+    }
 
-    public Add(Expression ... args) {
-        super();
+    public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+    public Expression<T> logTerm = Constant.ZERO(TYPE);
+    public Constant<T> constant = Constant.ZERO(TYPE);
+
+    public Add(Iterable<Expression<T>> args, Class<T> type) {
+        super(type);
         TreeMultiset<Entity> inputTerms = inputs.get("Terms");
         this.construct(args);
-        for (Map.Entry<Expression, Constant> entry : terms.entrySet()) {
-            inputTerms.add(AlgeEngine.mul(entry.getKey(), entry.getValue()));
+        for (Map.Entry<Expression<T>, Constant<T>> entry : terms.entrySet()) {
+            inputTerms.add(ENGINE.mul(entry.getKey(), entry.getValue()));
         }
-        if (!this.logTerm.equals(Constant.ZERO)) {
+        if (!this.logTerm.equals(Constant.ZERO(TYPE))) {
             inputTerms.add(this.logTerm);
         }
         this.inputs.get("Constant").add(this.constant);
@@ -39,101 +41,101 @@ public class Add extends DefinedExpression {
         for (Entity ent : inputTerms) {
             stringTerms.add(ent.toString());
         }
-        if (constant.equals(Constant.ZERO)) {
+        if (constant.equals(Constant.ZERO(TYPE))) {
             return String.join(" + ", stringTerms);
         } else {
             return constant + " + " + String.join(" + ", stringTerms);
         }
     }
 
-    private void construct(Expression ... args) {
-        for (Expression arg : args) {
-            if (arg instanceof Constant constArg) {
+    private void construct(Iterable<Expression<T>> args) {
+        for (Expression<T> arg : args) {
+            if (arg instanceof Constant<T> constArg) {
                 constant = constant.add(constArg);
-            } else if (arg instanceof Add addArg) {
+            } else if (arg instanceof Add<T> addArg) {
                 constant = constant.add(addArg.constant);
-                this.construct(addArg.inputs.get("Terms").toArray(new Expression[0]));
-            } else if (arg instanceof Mul mulArg) {
-                Expression baseExpr = mulArg.baseForm();
-                Constant baseConst = mulArg.constant;
-                if (baseExpr instanceof Add baseAdd) {
+                this.construct(Utils.cast(addArg.inputs.get("Terms")));
+            } else if (arg instanceof Mul<T> mulArg) {
+                Expression<T> baseExpr = mulArg.baseForm();
+                Constant<T> baseConst = mulArg.constant;
+                if (baseExpr instanceof Add<T> baseAdd) {
                     for (Entity ent : baseAdd.inputs.get("Terms")) {
-                        this.construct(AlgeEngine.mul(baseConst, ent));
+                        this.construct(new ArrayList<>(Collections.singletonList(ENGINE.mul(baseConst, ent))));
                     }
-                    constant = constant.add((Constant) AlgeEngine.mul(baseConst, baseAdd.constant));
+                    constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
                 } else if (baseExpr instanceof Log) {
-                    logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(mulArg)));
+                    logTerm = ENGINE.log(ENGINE.mul(ENGINE.exp(logTerm), ENGINE.exp(mulArg)));
                 } else {
-                    terms.put(baseExpr, (Constant) AlgeEngine.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO)));
-                    if (terms.get(baseExpr).equals(Constant.ZERO)) {
+                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
+                    if (terms.get(baseExpr).equals(Constant.ZERO(TYPE))) {
                         terms.remove(baseExpr);
                     }
                 }
-            } else if (arg instanceof Log logArg) {
-                logTerm = AlgeEngine.log(AlgeEngine.mul(AlgeEngine.exp(logTerm), AlgeEngine.exp(logArg)));
+            } else if (arg instanceof Log<T> logArg) {
+                logTerm = ENGINE.log(ENGINE.mul(ENGINE.exp(logTerm), ENGINE.exp(logArg)));
             } else {
-                terms.put(arg, (Constant) AlgeEngine.add(terms.getOrDefault(arg, Constant.ZERO), Constant.ONE));
-                if (terms.get(arg).equals(Constant.ZERO)) {
+                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
+                if (terms.get(arg).equals(Constant.ZERO(TYPE))) {
                     terms.remove(arg);
                 }
             }
         }
     }
 
-    public Expression reduction() {
+    public Expression<T> reduction() {
         if (inputs.get("Terms").size() == 0) {
             return constant;
-        } else if (constant.equals(Constant.ZERO) && inputs.get("Terms").size() == 1) {
-            return (Expression) inputs.get("Terms").firstEntry().getElement().simplify();
+        } else if (constant.equals(Constant.ZERO(TYPE)) && inputs.get("Terms").size() == 1) {
+            return (Expression<T>) inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
-            Expression gcd = AlgeEngine.greatestCommonDivisor(this.constant,
-                    AlgeEngine.greatestCommonDivisor(this.inputs.get("Terms").toArray(new Expression[0])));
-            if (gcd.equals(Constant.ONE)) {
-                ArrayList<Monomial> monomials = new ArrayList<>();
+            Expression<T> gcd = ENGINE.greatestCommonDivisor(this.constant,
+                    ENGINE.greatestCommonDivisor(Utils.cast(this.inputs.get("Terms"))));
+            if (gcd.equals(Constant.ONE(TYPE))) {
+                ArrayList<Monomial<T>> monomials = new ArrayList<>();
                 for (Entity ent : this.inputs.get("Terms")) {
-                    if (ent instanceof Symbol s) {
-                        HashMap<Symbol, Integer> factor = new HashMap<>() {{
-                            put(s, 1);
+                    if (ent instanceof Univariate) {
+                        HashMap<Univariate<T>, Integer> factor = new HashMap<>() {{
+                            put((Univariate<T>) ent, 1);
                         }};
-                        monomials.add(new Monomial(Constant.ONE, factor));
-                    } else if (ent instanceof Monomial m) {
-                        monomials.add(m);
+                        monomials.add(new Monomial<>(Constant.ONE(TYPE), factor, TYPE));
+                    } else if (ent instanceof Monomial) {
+                        monomials.add((Monomial<T>) ent);
                     } else {
                         return this;
                     }
                 }
-                return new Polynomial(this.constant, monomials.toArray(new Monomial[0]));
+                return new Polynomial<>(this.constant, monomials, TYPE);
             } else {
-                ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
-                        AlgeEngine.div(arg, gcd));
-                normalizedTerms.add(AlgeEngine.div(this.constant, gcd));
-                return new Mul(gcd, new Add(normalizedTerms.toArray(new Expression[0])).reduction()).reduction();
+                ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
+                        ENGINE.div(arg, gcd));
+                normalizedTerms.add(ENGINE.div(this.constant, gcd));
+                return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).reduction()), TYPE).reduction();
             }
         }
     }
 
-    public Factorization normalize() {
-        TreeMap<Expression, Expression> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        if (this.constant.equals(Constant.ZERO)) {
-            factors.put(this, Constant.ONE);
-            return new Factorization(Constant.ONE, factors);
+    public Factorization<T> normalize() {
+        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        if (this.constant.equals(Constant.ZERO(TYPE))) {
+            factors.put(this, Constant.ONE(TYPE));
+            return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
         } else {
-            ArrayList<Expression> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
-                    AlgeEngine.div(arg, this.constant));
-            normalizedTerms.add(Constant.ONE);
-            factors.put(AlgeEngine.add(normalizedTerms.toArray()), Constant.ONE);
-            return new Factorization(this.constant, factors);
+            ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
+                    ENGINE.div(arg, this.constant));
+            normalizedTerms.add(Constant.ONE(TYPE));
+            factors.put(ENGINE.add(normalizedTerms.toArray()), Constant.ONE(TYPE));
+            return new Factorization<>(this.constant, factors, TYPE);
         }
     }
 
-    public Expression derivative(Symbol s) {
-        ArrayList<Expression> derivativeTerms = Utils.map(this.inputs.get("Terms"), arg ->
-                ((Expression) arg).derivative(s));
-        return AlgeEngine.add(derivativeTerms.toArray());
+    public Expression<T> derivative(Univariate<T> s) {
+        ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")),
+                arg -> arg.derivative(s));
+        return ENGINE.add(derivativeTerms.toArray());
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
-        return Add.formula;
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
+        return this::formula;
     }
 
     public String[] getInputTypes() {

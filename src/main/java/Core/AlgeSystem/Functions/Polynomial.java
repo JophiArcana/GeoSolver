@@ -1,11 +1,11 @@
 package Core.AlgeSystem.Functions;
 
-import Core.AlgeSystem.ExpressionTypes.*;
-import Core.Utilities.AlgeEngine;
+import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.Utilities.Utils;
 
-public class Polynomial extends Add {
-    public Polynomial(Constant c, Monomial ... args) {
-        super(args);
-        this.constant = (Constant) AlgeEngine.add(this.constant, c);
+public class Polynomial<T extends Expression<T>> extends Add<T> {
+    public Polynomial(Constant<T> c, Iterable<Monomial<T>> args, Class<T> type) {
+        super(Utils.cast(args), type);
+        this.constant = (Constant<T>) ENGINE.add(this.constant, c);
     }
 }

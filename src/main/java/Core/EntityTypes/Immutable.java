@@ -1,6 +1,6 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -13,7 +13,7 @@ public abstract class Immutable implements Entity {
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> formula;
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula;
     public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
 
     public Immutable() {
@@ -40,7 +40,7 @@ public abstract class Immutable implements Entity {
         return constraints;
     }
 
-    public Function<HashMap<String, ArrayList<ArrayList<Expression>>>, ArrayList<Expression>> getFormula() {
+    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
         return formula;
     }
 

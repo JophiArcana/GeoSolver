@@ -2,9 +2,13 @@ package Core.Utilities;
 
 import Core.AlgeSystem.Constants.Complex;
 import Core.AlgeSystem.Constants.Infinity;
-import Core.AlgeSystem.ExpressionTypes.Constant;
-import Core.AlgeSystem.ExpressionTypes.Expression;
-import Core.AlgeSystem.ExpressionTypes.Symbol;
+import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
+import Core.AlgeSystem.UnicardinalRings.Distance;
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.AlgeSystem.UnicardinalTypes.Constant;
+import Core.AlgeSystem.UnicardinalTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgeSystem.UnicardinalTypes.Univariate;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.*;
@@ -17,13 +21,13 @@ import java.util.function.Function;
 
 public class Utils {
     public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
-    public static final Comparator<Expression> GROWTH_COMPARATOR = new OrderOfGrowthComparator();
+    public static final AlgeEngine<Symbolic> SYMBOLIC_ENGINE = new AlgeEngine<>(Symbolic.class);
 
-    public static final ArrayList<Class> CLASS_IDS = new ArrayList<>(Arrays.asList(
+    public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
             Complex.class,
             Infinity.class,
-            Symbol.class,
+            Univariate.class,
             Log.class,
             Add.class,
             Pow.class,
@@ -42,12 +46,38 @@ public class Utils {
             Linear.class
     ));
 
-    public static final HashSet<Class> CLOSED_FORM = new HashSet<>(Arrays.asList(
+    public static final HashSet<Class<? extends Unicardinal>> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Complex.class,
             Infinity.class,
-            Symbol.class,
+            Univariate.class,
             Log.class
     ));
+
+    public static final HashSet<Class<? extends Expression<?>>> UNICARDINAL_RINGS = new HashSet<>(Arrays.asList(
+            Symbolic.class,
+            Distance.class,
+            DirectedAngle.class
+    ));
+
+    private static final HashMap<Class<? extends Expression<?>>, OrderOfGrowthComparator> GROWTH_COMPARATORS = new HashMap<>() {{
+        for (Class cls : Utils.UNICARDINAL_RINGS) {
+            put(cls, new OrderOfGrowthComparator<>(cls));
+        }
+    }};
+
+    private static final HashMap<Class<? extends Expression<?>>, AlgeEngine> ENGINES = new HashMap<>() {{
+        for (Class cls : Utils.UNICARDINAL_RINGS) {
+            put(cls, new AlgeEngine<>(cls));
+        }
+    }};
+
+    public static <T extends Expression<T>> AlgeEngine<T> getEngine(Class<T> type) {
+        return Utils.ENGINES.get(type);
+    }
+
+    public static <T extends Expression<T>> OrderOfGrowthComparator<T> getGrowthComparator(Class<T> type) {
+        return Utils.GROWTH_COMPARATORS.get(type);
+    }
 
     public static String className(Object o) {
         Class cls = o.getClass();
@@ -72,6 +102,12 @@ public class Utils {
         return result;
     }
 
+    public static <T, S> ArrayList<S> cast(Iterable<T> args) {
+        ArrayList<S> list = new ArrayList<>();
+        args.forEach(arg -> list.add((S) arg));
+        return list;
+    }
+
     public static Number integerize(Number arg) {
         if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < AlgeEngine.EPSILON) {
             return (int) Math.round(arg.doubleValue());
@@ -88,23 +124,22 @@ public class Utils {
         return rounded;
     }
 
-    public static Expression objectConversion(Object obj) {
+    public static <T extends Expression<T>> Expression<T> objectConversion(Object obj, Class<T> type) {
+        assert obj instanceof Number || obj instanceof Expression || obj == null;
         if (obj instanceof Number n) {
-            return new Complex(n, 0);
-        } else if (obj instanceof Expression expr) {
-            return expr;
-        } else if (obj == null) {
-            return Constant.ZERO;
+            return new Complex<>(n, 0, type);
+        } else if (obj != null) {
+            return (Expression<T>) obj;
         } else {
-            return null;
+            return Constant.ZERO(type);
         }
     }
 
-    public static ArrayList<Expression> additiveTerms(Expression expr) {
-        ArrayList<Expression> expansionTerms = new ArrayList<>();
-        if (expr instanceof Add addExpr) {
-            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression) arg));
-            if (!addExpr.constant.equals(Constant.ZERO)) {
+    public static <T extends Expression<T>> ArrayList<Expression<T>> additiveTerms(Expression<T> expr) {
+        ArrayList<Expression<T>> expansionTerms = new ArrayList<>();
+        if (expr instanceof Add<T> addExpr) {
+            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression<T>) arg));
+            if (!addExpr.constant.equals(Constant.ZERO(expr.getType()))) {
                 expansionTerms.add(addExpr.constant);
             }
         } else {

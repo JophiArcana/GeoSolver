@@ -1,6 +1,6 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.ExpressionTypes.Expression;
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -22,8 +22,8 @@ public abstract class DefinedEntity implements Entity {
         }
     }
 
-    public ArrayList<Expression> expression() {
-        HashMap<String, ArrayList<ArrayList<Expression>>> expressionInputs = new HashMap<>();
+    public ArrayList<Unicardinal> expression() {
+        HashMap<String, ArrayList<ArrayList<Unicardinal>>> expressionInputs = new HashMap<>();
         for (String inputType : this.getInputTypes()) {
             expressionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), Entity::expression));
         }
