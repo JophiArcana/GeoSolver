@@ -1,14 +1,9 @@
 package Core.Utilities;
 
-import Core.EntityTypes.Entity;
-import Core.EntityTypes.Immutable;
-import Core.EntityTypes.Mutable;
+import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 
 public class PriorityComparator implements Comparator<Entity> {
     public int compare(Entity e1, Entity e2) {

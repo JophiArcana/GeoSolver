@@ -1,27 +1,18 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.Constants.Complex;
-import Core.AlgeSystem.Constants.Infinity;
-import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
-import Core.AlgeSystem.UnicardinalRings.Distance;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.AlgeSystem.UnicardinalTypes.Constant;
-import Core.AlgeSystem.UnicardinalTypes.Expression;
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
-import Core.AlgeSystem.UnicardinalTypes.Univariate;
+import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.*;
 import Core.GeoSystem.Points.Functions.*;
-import Core.GeoSystem.Points.PointTypes.Coordinate;
-import Core.GeoSystem.Points.PointTypes.Phantom;
+import Core.GeoSystem.Points.PointTypes.*;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class Utils {
     public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
-    public static final AlgeEngine<Symbolic> SYMBOLIC_ENGINE = new AlgeEngine<>(Symbolic.class);
 
     public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
@@ -53,20 +44,14 @@ public class Utils {
             Log.class
     ));
 
-    public static final HashSet<Class<? extends Expression<?>>> UNICARDINAL_RINGS = new HashSet<>(Arrays.asList(
-            Symbolic.class,
-            Distance.class,
-            DirectedAngle.class
-    ));
-
     private static final HashMap<Class<? extends Expression<?>>, OrderOfGrowthComparator> GROWTH_COMPARATORS = new HashMap<>() {{
-        for (Class cls : Utils.UNICARDINAL_RINGS) {
+        for (Class cls : Unicardinal.RINGS.keySet()) {
             put(cls, new OrderOfGrowthComparator<>(cls));
         }
     }};
 
     private static final HashMap<Class<? extends Expression<?>>, AlgeEngine> ENGINES = new HashMap<>() {{
-        for (Class cls : Utils.UNICARDINAL_RINGS) {
+        for (Class cls : Unicardinal.RINGS.keySet()) {
             put(cls, new AlgeEngine<>(cls));
         }
     }};
@@ -122,29 +107,5 @@ public class Utils {
             rounded[i] = Utils.integerize(args[i]);
         }
         return rounded;
-    }
-
-    public static <T extends Expression<T>> Expression<T> objectConversion(Object obj, Class<T> type) {
-        assert obj instanceof Number || obj instanceof Expression || obj == null;
-        if (obj instanceof Number n) {
-            return new Complex<>(n, 0, type);
-        } else if (obj != null) {
-            return (Expression<T>) obj;
-        } else {
-            return Constant.ZERO(type);
-        }
-    }
-
-    public static <T extends Expression<T>> ArrayList<Expression<T>> additiveTerms(Expression<T> expr) {
-        ArrayList<Expression<T>> expansionTerms = new ArrayList<>();
-        if (expr instanceof Add<T> addExpr) {
-            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression<T>) arg));
-            if (!addExpr.constant.equals(Constant.ZERO(expr.getType()))) {
-                expansionTerms.add(addExpr.constant);
-            }
-        } else {
-            expansionTerms.add(expr);
-        }
-        return expansionTerms;
     }
 }

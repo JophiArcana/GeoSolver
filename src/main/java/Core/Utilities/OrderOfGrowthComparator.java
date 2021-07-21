@@ -1,8 +1,6 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.UnicardinalTypes.Constant;
-import Core.AlgeSystem.UnicardinalTypes.Expression;
-import Core.AlgeSystem.UnicardinalTypes.Univariate;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Mutable;
 

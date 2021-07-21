@@ -65,15 +65,15 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
     }
 
     public Constant<T> inverse() {
-        return new Infinity<T>(ENGINE.div(Constant.ONE(TYPE), this.expression), TYPE);
+        return new Infinity<>(ENGINE.div(Constant.ONE(TYPE), this.expression), TYPE);
     }
 
     public Constant<T> conjugate() {
-        return new Infinity<T>(ENGINE.conjugate(this.expression), TYPE);
+        return new Infinity<>(ENGINE.conjugate(this.expression), TYPE);
     }
 
     public Constant<T> exp() {
-        return new Infinity<T>(ENGINE.pow(Constant.E(TYPE), this.expression), TYPE);
+        return new Infinity<>(ENGINE.pow(Constant.E(TYPE), this.expression), TYPE);
     }
 
     public Constant<T> log() {

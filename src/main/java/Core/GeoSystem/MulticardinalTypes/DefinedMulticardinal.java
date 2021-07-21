@@ -1,7 +1,6 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.EntityTypes.DefinedEntity;
-import Core.EntityTypes.Entity;
+import Core.EntityTypes.*;
 import Core.Utilities.Utils;
 
 import java.util.ArrayList;

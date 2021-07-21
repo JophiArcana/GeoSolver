@@ -50,7 +50,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     im.doubleValue() + cpx.im.doubleValue());
             return new Complex<>(set[0], set[1], TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return new Infinity<T>(ENGINE.add(inf.expression, this), TYPE);
+            return new Infinity<>(ENGINE.add(inf.expression, this), TYPE);
         } else {
             return this;
         }
@@ -63,7 +63,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     im.doubleValue() - cpx.im.doubleValue());
             return new Complex<>(set[0], set[1], TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return new Infinity<T>(ENGINE.sub(this, inf.expression), TYPE);
+            return new Infinity<>(ENGINE.sub(this, inf.expression), TYPE);
         } else {
             return this;
         }
@@ -115,7 +115,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         if (x instanceof Complex) {
             return this.log().mul(x).exp();
         } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.<T>infinity(ENGINE.pow(this, inf.expression));
+            return ENGINE.infinity(ENGINE.pow(this, inf.expression));
         } else {
             return this;
         }

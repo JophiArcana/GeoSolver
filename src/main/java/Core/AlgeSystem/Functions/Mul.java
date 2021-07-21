@@ -2,7 +2,6 @@ package Core.AlgeSystem.Functions;
 
 import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;

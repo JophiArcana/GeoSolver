@@ -1,7 +1,6 @@
 package Core.GeoSystem.Points.PointTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.Constant;
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.AlgeSystem.UnicardinalRings.Distance;
 

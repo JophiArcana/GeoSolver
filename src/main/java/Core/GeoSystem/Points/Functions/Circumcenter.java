@@ -1,12 +1,9 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgeSystem.UnicardinalTypes.Constant;
-import Core.AlgeSystem.UnicardinalTypes.Expression;
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;
 import Core.AlgeSystem.UnicardinalRings.Distance;
-import Core.GeoSystem.Points.PointTypes.Center;
-import Core.GeoSystem.Points.PointTypes.Point;
+import Core.GeoSystem.Points.PointTypes.*;
 import Core.Utilities.*;
 
 import java.util.*;

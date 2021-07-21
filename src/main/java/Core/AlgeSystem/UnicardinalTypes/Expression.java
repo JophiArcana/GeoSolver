@@ -112,7 +112,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
     }
 
     default String getVarType() {
-        return Unicardinal.UNICARDINAL_RINGS.getOrDefault(this.getType(), "");
+        return Unicardinal.RINGS.getOrDefault(this.getType(), "");
     }
 
     Class<T> getType();

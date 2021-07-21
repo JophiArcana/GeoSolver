@@ -1,13 +1,8 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.Constants.Complex;
-import Core.AlgeSystem.Constants.Infinity;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.AlgeSystem.UnicardinalTypes.Constant;
-import Core.AlgeSystem.UnicardinalTypes.Expression;
-import Core.AlgeSystem.UnicardinalTypes.Univariate;
+import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
 
@@ -79,9 +74,9 @@ public class AlgeEngine<T extends Expression<T>> {
             }
             if (containsAddTerm) {
                 if (inputTerms.size() == 2) {
-                    ArrayList<Expression<T>> expansion1Terms = Utils.additiveTerms(
+                    ArrayList<Expression<T>> expansion1Terms = this.additiveTerms(
                             ((Expression<T>) inputTerms.firstEntry().getElement()).expand());
-                    ArrayList<Expression<T>> expansion2Terms = Utils.additiveTerms(
+                    ArrayList<Expression<T>> expansion2Terms = this.additiveTerms(
                             ((Expression<T>) inputTerms.lastEntry().getElement()).expand());
                     ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
                     for (Expression<T> term1 : expansion1Terms) {
@@ -106,7 +101,7 @@ public class AlgeEngine<T extends Expression<T>> {
                     && cpx.integer() && cpx.re.intValue() > 0) {
                 int n = cpx.re.intValue();
                 if (n == 2) {
-                    ArrayList<Expression<T>> expansion = Utils.additiveTerms(addExpr);
+                    ArrayList<Expression<T>> expansion = this.additiveTerms(addExpr);
                     ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
                     for (int i = 0; i < expansion.size(); i++) {
                         for (int j = 0; j < i; j++) {
@@ -133,6 +128,19 @@ public class AlgeEngine<T extends Expression<T>> {
         } else {
             return null;
         }
+    }
+
+    public ArrayList<Expression<T>> additiveTerms(Expression<T> expr) {
+        ArrayList<Expression<T>> expansionTerms = new ArrayList<>();
+        if (expr instanceof Add<T> addExpr) {
+            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression<T>) arg));
+            if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
+                expansionTerms.add(addExpr.constant);
+            }
+        } else {
+            expansionTerms.add(expr);
+        }
+        return expansionTerms;
     }
 
     /** SECTION: Order of Growth ==================================================================================== */
