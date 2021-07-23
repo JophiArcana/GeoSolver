@@ -19,7 +19,7 @@ public class Test {
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
         Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
-        System.out.println(e1.mul(x, e1.add(1, e1.pow(x, 2))));
+        System.out.println(e1.mul(2, e1.pow(e1.add(1, x), 3)).expand());
         Expression<Symbolic> expr1 = e1.mul(x, y, y, x, e1.log(x));
         Expression<Symbolic> expr2 = e1.pow(x, 2);
         Expression<Symbolic> expr3 = e1.exp(x);

@@ -44,13 +44,17 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         }
     }
 
-    default Entity simplify() {
+    default Expression<T> expressionSimplify() {
         Expression<T> reducedExpr = this.reduction();
         if (this.getEngine().numberOfOperations(reducedExpr) - 2 <= this.getEngine().numberOfOperations(reducedExpr.expand())) {
             return reducedExpr;
         } else {
             return reducedExpr.expand();
         }
+    }
+
+    default Entity simplify() {
+        return this.expressionSimplify();
     }
 
     default ArrayList<Unicardinal> expression() {
