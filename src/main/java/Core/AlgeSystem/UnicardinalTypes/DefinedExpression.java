@@ -6,9 +6,9 @@ import Core.Utilities.*;
 import java.util.*;
 
 public abstract class DefinedExpression<T extends Expression<T>> extends DefinedEntity implements Expression<T> {
-    public Expression<T> expansion;
     public final Class<T> TYPE;
     public final AlgeEngine<T> ENGINE;
+    public Expression<T> expansion;
 
     public DefinedExpression(Class<T> type) {
         super();

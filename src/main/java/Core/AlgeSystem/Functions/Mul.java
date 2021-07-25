@@ -25,6 +25,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         super(type);
         TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
         this.construct(args);
+        System.out.println(args + " constructed: " + terms);
         for (Map.Entry<Expression<T>, Expression<T>> entry : this.terms.entrySet()) {
             inputTerms.add(ENGINE.pow(entry.getKey(), entry.getValue()));
         }
@@ -51,19 +52,23 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     private void construct(Iterable<Expression<T>> args) {
+        // System.out.println("Constructing " + args);
         for (Expression<T> arg : args) {
             Factorization<T> argFactor = arg.normalize();
             constant = constant.mul(argFactor.constant);
             for (Map.Entry<Expression<T>, Expression<T>> entry : argFactor.terms.entrySet()) {
                 terms.put(entry.getKey(), ENGINE.add(entry.getValue(), terms.getOrDefault(entry.getKey(), Constant.ZERO(TYPE))));
             }
+            // System.out.println(arg + " of " + args + " constructed");
         }
+        // System.out.println(args + " construction progress " + this.terms);
         ArrayList<Map.Entry<Expression<T>, Expression<T>>> entrySet = new ArrayList<>(terms.entrySet());
         for (Map.Entry<Expression<T>, Expression<T>> entry : entrySet) {
             if (entry.getValue().equals(Constant.ZERO(TYPE))) {
                 terms.remove(entry.getKey());
             }
         }
+        // System.out.println(args + " construction complete");
     }
 
     public Expression<T> reduction() {

@@ -22,7 +22,7 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
         return Utils.className(this) + "(" + String.join(", ", allInputs.toArray(new String[0])) + ")";
     }
 
-    public String getName() {
-        return this.name;
+    public boolean equals(Entity ent) {
+        return Utils.compare(this, ent) == 0;
     }
 }

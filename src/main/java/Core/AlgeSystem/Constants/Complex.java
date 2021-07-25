@@ -182,11 +182,9 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         return new Complex<>((int) Math.round(this.re.doubleValue()), (int) Math.round(this.im.doubleValue()), TYPE);
     }
 
-    public int compareTo(Entity ent) {
-        if (ent == null || this.getClass() != ent.getClass()) {
-            return Integer.MIN_VALUE;
-        } else {
-            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) ent);
+    public int compareTo(Immutable immutable) {
+        if (immutable instanceof Constant constant && this.TYPE == constant.TYPE) {
+            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) immutable);
             if (scriptEnt.abs() < AlgeEngine.EPSILON) {
                 return 0;
             } else {
@@ -196,6 +194,8 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     return (int) Math.signum(scriptEnt.im.doubleValue());
                 }
             }
+        } else {
+            return Integer.MIN_VALUE;
         }
     }
 }

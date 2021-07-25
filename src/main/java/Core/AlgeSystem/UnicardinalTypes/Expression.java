@@ -44,6 +44,16 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         }
     }
 
+    default boolean equals(Entity ent) {
+        if (ent instanceof DefinedExpression) {
+            Expression<T> difference = this.getEngine().sub(this, ent).expand();
+            if (difference instanceof Constant<T>) {
+                return difference.equals(Constant.ZERO(this.getType()));
+            }
+        }
+        return false;
+    }
+
     default Expression<T> expressionSimplify() {
         Expression<T> reducedExpr = this.reduction();
         if (this.getEngine().numberOfOperations(reducedExpr) - 2 <= this.getEngine().numberOfOperations(reducedExpr.expand())) {

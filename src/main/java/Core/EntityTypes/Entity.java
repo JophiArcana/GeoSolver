@@ -1,6 +1,8 @@
 package Core.EntityTypes;
 
+import Core.AlgeSystem.UnicardinalTypes.Expression;
 import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgeSystem.UnicardinalTypes.Univariate;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -8,7 +10,10 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 import java.util.function.Function;
 
+
 public interface Entity {
+    boolean equals(Entity ent);
+
     Entity simplify();
     ArrayList<Unicardinal> expression();
     Unicardinal expression(String varType);
@@ -16,27 +21,25 @@ public interface Entity {
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();
     ArrayList<Function<Entity, Property>> getConstraints();
+
+    Entity create(HashMap<String, ArrayList<Entity>> args);
     Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula();
+
     HashMap<String, TreeMultiset<Entity>> getInputs();
     String[] getInputTypes();
 
     default TreeSet<Mutable> variables() {
-        Entity simplified = this.simplify();
         TreeSet<Mutable> vars = new TreeSet<>(Utils.PRIORITY_COMPARATOR);
-        if (simplified instanceof Mutable) {
-            vars.add((Mutable) this);
-        } else if (simplified instanceof DefinedEntity) {
-            for (TreeMultiset<Entity> input : simplified.getInputs().values()) {
+        if (this instanceof Mutable var) {
+            vars.add(var);
+        } else if (this instanceof DefinedEntity) {
+            for (TreeMultiset<Entity> input : this.getInputs().values()) {
                 for (Entity ent : input) {
                     vars.addAll(ent.variables());
                 }
             }
         }
         return vars;
-    }
-
-    default boolean equals(Entity ent) {
-        return Utils.compare(this, ent) == 0;
     }
 }
 

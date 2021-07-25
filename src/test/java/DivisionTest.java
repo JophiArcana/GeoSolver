@@ -13,15 +13,19 @@ import java.util.ArrayList;
 
 import static Core.Utilities.GeoEngine.*;
 
-public class Test {
+public class DivisionTest {
     public static void main(String[] args) {
         AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
-        Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
-        System.out.println(e1.mul(2, e1.pow(e1.add(1, x), 3)).expand());
-        Expression<Symbolic> expr1 = e1.mul(x, y, y, x, e1.log(x));
-        Expression<Symbolic> expr2 = e1.pow(x, 2);
+        // Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
+        // System.out.println(e1.mul(2, e1.pow(e1.add(1, x), 3)).expand());
+        System.out.println(e1.mul(x, e1.pow(y, 2)));
+        // System.out.println(e1.mul(x, y, y));
+        // System.out.println(e1.orderOfGrowth(e1.pow(y, 2), x));
+        // System.out.println(Utils.PRIORITY_COMPARATOR.compare(x, e1.pow(y, 2)));
+        // Expression<Symbolic> expr1 = e1.mul(x, y, y, x, e1.log(x));
+        /**Expression<Symbolic> expr2 = e1.pow(x, 2);
         Expression<Symbolic> expr3 = e1.exp(x);
         Expression<Symbolic> expr4 = e1.exp(e1.mul(x, 2));
         System.out.println(e1.add(expr1, expr2));
@@ -48,6 +52,6 @@ public class Test {
         System.out.println(e2.numberOfOperations((Expression<Distance>) o.expression(Multicardinal.VALUE)));
 
         Linear l = new Linear("L");
-        System.out.println(l.expression());
+        System.out.println(l.expression());*/
     }
 }

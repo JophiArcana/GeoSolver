@@ -21,27 +21,27 @@ public abstract class Mutable implements Entity {
     public String name;
 
     public Mutable(String n) {
-        this.name = n;
         this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
         for (String inputType : getInputTypes()) {
             inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
+        this.name = n;
     }
 
     public String toString() {
         return this.name;
     }
 
-    public Entity simplify() {
-        return this;
+    public boolean equals(Entity ent) {
+        if (this.getClass() == ent.getClass()) {
+            return this.name.equals(((Mutable) ent).name);
+        } else {
+            return false;
+        }
     }
 
-    public int compareTo(Entity ent) {
-        if (this.getClass() != ent.getClass()) {
-            return Integer.MIN_VALUE;
-        } else {
-            return name.compareTo(((Mutable) ent).getName());
-        }
+    public Entity simplify() {
+        return this;
     }
 
     public int getConstrainedDegreesOfFreedom() {
@@ -63,8 +63,6 @@ public abstract class Mutable implements Entity {
     public String[] getInputTypes() {
         return Mutable.inputTypes;
     }
-
-    public String getName() {
-        return name;
-    }
 }
+
+

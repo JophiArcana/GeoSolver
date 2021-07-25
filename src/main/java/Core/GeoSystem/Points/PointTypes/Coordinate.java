@@ -9,12 +9,12 @@ import java.util.*;
 public class Coordinate extends Immutable implements Point {
     public static final String[] inputTypes = new String[] {"Value"};
 
-    public Constant<Distance> value;
+    public final Constant<Distance> value;
 
     public Coordinate(Constant<Distance> v) {
         super();
         this.value = v;
-        inputs.get("Value").add(this.value);
+        this.inputs.get("Value").add(this.value);
     }
 
     public ArrayList<Unicardinal> expression() {
@@ -25,11 +25,11 @@ public class Coordinate extends Immutable implements Point {
         return Coordinate.inputTypes;
     }
 
-    public int compareTo(Entity ent) {
-        if (ent == null || this.getClass() != ent.getClass()) {
-            return Integer.MIN_VALUE;
+    public int compareTo(Immutable immutable) {
+        if (immutable instanceof Coordinate coordinate) {
+            return this.value.compareTo(coordinate.value);
         } else {
-            return this.value.compareTo(((Coordinate) ent).value);
+            return Integer.MIN_VALUE;
         }
     }
 }

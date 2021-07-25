@@ -4,7 +4,8 @@ import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Lines.*;
+import Core.GeoSystem.Lines.LineTypes.Axis;
+import Core.GeoSystem.Lines.LineTypes.Linear;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
 
@@ -34,6 +35,7 @@ public class Utils {
             Circumcenter.class,
 
         /** SECTION: Lines ========================================================================================== */
+            Axis.class,
             Linear.class
     ));
 
@@ -44,15 +46,15 @@ public class Utils {
             Log.class
     ));
 
-    private static final HashMap<Class<? extends Expression<?>>, OrderOfGrowthComparator> GROWTH_COMPARATORS = new HashMap<>() {{
-        for (Class cls : Unicardinal.RINGS.keySet()) {
-            put(cls, new OrderOfGrowthComparator<>(cls));
-        }
-    }};
-
     private static final HashMap<Class<? extends Expression<?>>, AlgeEngine> ENGINES = new HashMap<>() {{
         for (Class cls : Unicardinal.RINGS.keySet()) {
             put(cls, new AlgeEngine<>(cls));
+        }
+    }};
+
+    private static final HashMap<Class<? extends Expression<?>>, OrderOfGrowthComparator> GROWTH_COMPARATORS = new HashMap<>() {{
+        for (Class cls : Unicardinal.RINGS.keySet()) {
+            put(cls, new OrderOfGrowthComparator<>(cls));
         }
     }};
 

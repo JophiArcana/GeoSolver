@@ -11,6 +11,10 @@ import java.util.function.Function;
 public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return ENGINE.add((Constant<T>) args.get("Constant"), )
+    }
+
     public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
         Expression<T> sum = ENGINE.add(args.get("Constant").get(0).get(0),
                 ENGINE.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
@@ -32,6 +36,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
             inputTerms.add(this.logTerm);
         }
         this.inputs.get("Constant").add(this.constant);
+        // System.out.println("Add constructed: " + args);
     }
 
     public String toString() {

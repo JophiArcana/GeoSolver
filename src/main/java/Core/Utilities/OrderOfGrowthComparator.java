@@ -8,16 +8,19 @@ import java.util.*;
 
 public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>> {
     public final Class<T> TYPE;
+    public final AlgeEngine<T> ENGINE;
     public Univariate<T> base;
 
     public OrderOfGrowthComparator(Univariate<T> x, Class<T> type) {
-        this.TYPE = type;
         this.base = x;
+        this.TYPE = type;
+        this.ENGINE = Utils.getEngine(this.TYPE);
     }
 
     public OrderOfGrowthComparator(Class<T> type) {
-        this.TYPE = type;
         this.base = null;
+        this.TYPE = type;
+        this.ENGINE = Utils.getEngine(this.TYPE);
     }
 
     public int compare(Expression<T> e1, Expression<T> e2) {
@@ -47,13 +50,17 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
     }
 
     private int baseCompare(Expression<T> e1, Expression<T> e2, Univariate<T> var) {
-        AlgeEngine<T> ENGINE = Utils.getEngine(TYPE);
-        Expression<T> comparison = ENGINE.div(ENGINE.orderOfGrowth(e1, var), ENGINE.orderOfGrowth(e2, var));
+        e1 = ENGINE.orderOfGrowth(e1, var);
+        e2 = ENGINE.orderOfGrowth(e2, var);
+        System.out.println(e1 + " and " + e2 + " comparison with " + var);
+        Expression<T> comparison = ENGINE.div(e1, e2);
+        //System.out.println(e1 + " and " + e2 + " comparison: " + comparison);
         if (comparison instanceof Constant) {
             return e1.normalize().constant.compareTo(e2.normalize().constant);
         } else if (!comparison.variables().contains(var)) {
             return 0;
         } else {
+            System.out.println("Here: " + e1 + " and " + e2);
             Expression<T> logDerivative = comparison.logarithmicDerivative(var);
             Expression<T> logOrder = ENGINE.orderOfGrowth(logDerivative, var);
             if (logOrder instanceof Pow || logOrder instanceof Log || logOrder instanceof Univariate) {

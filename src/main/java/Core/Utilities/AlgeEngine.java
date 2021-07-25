@@ -84,6 +84,7 @@ public class AlgeEngine<T extends Expression<T>> {
         } else if (expr instanceof Pow<T> powExpr) {
             if (powExpr.base instanceof Add<T> addExpr && powExpr.exponent instanceof Complex<T> cpx
                     && cpx.integer() && cpx.re.intValue() > 0) {
+                // System.out.println("Expanding " + addExpr + " " + cpx);
                 int n = cpx.re.intValue();
                 if (n == 2) {
                     ArrayList<Expression<T>> expansion = this.additiveTerms(addExpr);
@@ -95,6 +96,7 @@ public class AlgeEngine<T extends Expression<T>> {
                         }
                         expandedTerms.add(this.pow(expansion.get(i), 2));
                     }
+                    // System.out.println("Expanded terms: " + expandedTerms);
                     return this.add(expandedTerms.toArray());
                 } else {
                     Expression<T> sqrt = this.pow(powExpr.base, n / 2).expand();
@@ -142,9 +144,9 @@ public class AlgeEngine<T extends Expression<T>> {
                 Expression<T> baseOrder = termOrder;
                 if (termOrder instanceof Mul<T> mulOrder) {
                     baseOrder = mulOrder.baseForm();
-                    orders.put(baseOrder, orders.get(baseOrder).add(mulOrder.constant));
+                    orders.put(baseOrder, orders.getOrDefault(baseOrder, Constant.ZERO(TYPE)).add(mulOrder.constant));
                 } else {
-                    orders.put(termOrder, orders.get(termOrder).add(Constant.ONE(TYPE)));
+                    orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(Constant.ONE(TYPE)));
                 }
                 if (orders.get(baseOrder).equals(Constant.ZERO(TYPE))) {
                     orders.remove(baseOrder);
@@ -160,7 +162,7 @@ public class AlgeEngine<T extends Expression<T>> {
             return this.pow(this.orderOfGrowth(powExpr.base, s), powExpr.exponent);
         } else if (expr instanceof Log<T> logExpr) {
             return this.log(this.orderOfGrowth(logExpr.input, s));
-        } else if (expr instanceof Univariate || expr instanceof Constant) {
+        } else if (expr instanceof Univariate<T> || expr instanceof Constant<T>) {
             return expr;
         } else {
             /** TODO: Implement Order of Growth for other Functions */
@@ -280,6 +282,7 @@ public class AlgeEngine<T extends Expression<T>> {
         } else if (expr1 instanceof Constant<T> const1 && expr2 instanceof Constant<T> const2) {
             return const1.div(const2);
         } else {
+            // System.out.println("Dividing " + o1 + " " + o2);
             return new Mul<>(Arrays.asList(expr1, this.invert(expr2)), TYPE).expressionSimplify();
         }
     }
@@ -311,6 +314,7 @@ public class AlgeEngine<T extends Expression<T>> {
         if (baseExpr instanceof Constant<T> baseConst && exponentExpr instanceof Constant<T> expConst) {
             return baseConst.pow(expConst);
         } else {
+            // System.out.println("Pow " + base + " " + exponent);
             return new Pow<>(baseExpr, exponentExpr, TYPE).expressionSimplify();
         }
     }

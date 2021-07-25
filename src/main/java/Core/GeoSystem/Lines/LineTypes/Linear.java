@@ -1,4 +1,4 @@
-package Core.GeoSystem.Lines;
+package Core.GeoSystem.Lines.LineTypes;
 
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.UnicardinalRings.*;

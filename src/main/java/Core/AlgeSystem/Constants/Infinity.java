@@ -124,9 +124,9 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         return Double.MAX_VALUE;
     }
 
-    public int compareTo(Entity ent) {
-        if (ent instanceof Infinity) {
-            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) ent).expression);
+    public int compareTo(Immutable immutable) {
+        if (immutable instanceof Infinity) {
+            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) immutable).expression);
         } else {
             return Integer.MIN_VALUE;
         }

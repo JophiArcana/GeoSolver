@@ -29,14 +29,19 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         }
         this.inputs.get("Base").add(this.base);
         this.inputs.get("Exponent").add(this.exponent);
+        // System.out.println(base + " and " + exponent + " Pow constructed");
     }
 
     public String toString() {
         String baseString = this.base.toString();
+        String exponentString = this.exponent.toString();
         if (!Utils.CLOSED_FORM.contains(this.base.getClass())) {
             baseString = "(" + baseString + ")";
         }
-        return baseString + " ** " + this.exponent;
+        if (!Utils.CLOSED_FORM.contains(this.exponent.getClass())) {
+            exponentString = "(" + exponentString + ")";
+        }
+        return baseString + " ** " + exponentString;
     }
 
     public Expression<T> reduction() {
