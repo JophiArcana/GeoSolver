@@ -1,6 +1,7 @@
 package Core.AlgeSystem.Functions;
 
 import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.EntityTypes.Entity;
 import Core.Utilities.*;
 
 import java.util.*;
@@ -8,6 +9,10 @@ import java.util.function.Function;
 
 public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Base", "Exponent"};
+
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return ENGINE.pow(args.get("Base").get(0), args.get("Exponent").get(0));
+    }
 
     public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
         return new ArrayList<>(Collections.singletonList(ENGINE.pow(args.get("Base").get(0).get(0), args.get("Exponent").get(0).get(0))));
@@ -61,7 +66,7 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
                 return baseConst.pow(expConst);
             } else if (this.exponent instanceof Log<T> expLog) {
                 return ENGINE.pow(expLog.input, ENGINE.log(baseConst));
-            } else if (this.exponent instanceof Mul<T> expMul && expMul.baseForm() instanceof Log<T> baseLog) {
+            } else if (this.exponent instanceof Mul<T> expMul && expMul.baseForm().getValue() instanceof Log<T> baseLog) {
                 return ENGINE.pow(baseLog.input, ENGINE.mul(expMul.constant, ENGINE.log(baseConst)));
             } else if (this.exponent instanceof Add<T> expAdd
                     && (!expAdd.constant.equals(Constant.ZERO(TYPE)) || !expAdd.logTerm.equals(Constant.ZERO(TYPE)))) {
@@ -88,6 +93,16 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         } else {
             return ENGINE.mul(this, ENGINE.add(ENGINE.mul(this.exponent.derivative(s), ENGINE.log(this.base)),
                     ENGINE.mul(this.exponent, this.base.derivative(s), ENGINE.pow(this.base, Constant.NONE(TYPE)))));
+        }
+    }
+
+    @Override
+    public Expression<T> logarithmicDerivative(Univariate<T> s) {
+        if (!this.variables().contains(s)) {
+            return Constant.ZERO(TYPE);
+        } else {
+            return ENGINE.add(ENGINE.mul(this.exponent.derivative(s), ENGINE.log(this.base)),
+                    ENGINE.mul(this.exponent, this.base.derivative(s), ENGINE.pow(this.base, Constant.NONE(TYPE))));
         }
     }
 

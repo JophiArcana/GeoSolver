@@ -12,6 +12,10 @@ import java.util.function.Function;
 public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return ENGINE.mul(args.get("Constant").get(0), ENGINE.mul(args.get("Terms").toArray()));
+    }
+
     public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
         Expression<T> product = ENGINE.mul(args.get("Constant").get(0).get(0),
                 ENGINE.mul(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
@@ -25,7 +29,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         super(type);
         TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
         this.construct(args);
-        System.out.println(args + " constructed: " + terms);
+        // System.out.println(args + " constructed: " + terms);
         for (Map.Entry<Expression<T>, Expression<T>> entry : this.terms.entrySet()) {
             inputTerms.add(ENGINE.pow(entry.getKey(), entry.getValue()));
         }
@@ -122,15 +126,21 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
+    @Override
+    public Expression<T> logarithmicDerivative(Univariate<T> s) {
+        if (!this.variables().contains(s)) {
+            return Constant.ZERO(TYPE);
+        } else {
+            ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")), arg -> arg.logarithmicDerivative(s));
+            return ENGINE.add(derivativeTerms.toArray());
+        }
+    }
+
     public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
         return this::formula;
     }
 
     public String[] getInputTypes() {
         return Mul.inputTypes;
-    }
-
-    public Expression<T> baseForm() {
-        return new Mul<T>(Utils.cast(this.inputs.get("Terms")), TYPE).reduction();
     }
 }

@@ -4,6 +4,7 @@ import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
+import javafx.util.Pair;
 
 import java.util.*;
 
@@ -85,7 +86,17 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         return this.getEngine().div(this.derivative(s), this);
     }
 
-    default int signum(Univariate<T> s) {
+    default Pair<Constant<T>, Expression<T>> baseForm() {
+        if (this instanceof Mul<T> mulExpr) {
+            return new Pair<>(mulExpr.constant, new Mul<>(Utils.cast(mulExpr.inputs.get("Terms")), mulExpr.TYPE).reduction());
+        } else if (this instanceof Constant<T> constExpr) {
+            return new Pair<>(constExpr, Constant.ONE(this.getType()));
+        } else {
+            return new Pair<>(Constant.ONE(this.getType()), this);
+        }
+    }
+
+    default int signum(Univariate<T> var) {
         if (this instanceof Complex<T> cpx) {
             if (Math.signum(cpx.re.doubleValue()) != 0) {
                 return (int) Math.signum(cpx.re.doubleValue());
@@ -95,8 +106,8 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         } else if (this instanceof Infinity<T> inf) {
             return inf.expression.signum(this.getEngine().X());
         } else {
-            Expression<T> order = this.getEngine().orderOfGrowth(this, s);
-            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
+            Expression<T> order = this.getEngine().orderOfGrowth(this, var);
+            if (order instanceof Pow || order instanceof Log || order instanceof Univariate) {
                 return 1;
             } else {
                 Complex<T> constant = (Complex<T>) ((Mul<T>) order).constant;
@@ -106,23 +117,17 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
     }
 
     default int signum() {
-        if (this instanceof Complex<T> cpx) {
-            if (Math.signum(cpx.re.doubleValue()) != 0) {
-                return (int) Math.signum(cpx.re.doubleValue());
-            } else {
-                return (int) Math.signum(cpx.im.doubleValue());
-            }
-        } else if (this instanceof Infinity<T> inf) {
-            return inf.expression.signum(this.getEngine().X());
-        } else {
-            Expression<T> order = this.getEngine().orderOfGrowth(this, (Univariate<T>) this.variables().first());
-            if (order instanceof Pow || null instanceof Log || order instanceof Univariate) {
-                return 1;
-            } else {
-                Complex<T> constant = (Complex<T>) ((Mul<T>) order).constant;
-                return (int) Math.signum(constant.re.doubleValue());
-            }
+        Univariate<T> var = (Univariate<T>) this.variables().first();
+        return this.signum(var);
+    }
+
+    default Expression<T> fullSubstitute() {
+        Expression<T> expr = this;
+        Univariate<T> X = this.getEngine().X();
+        for (Mutable var : this.variables()) {
+            expr = (Expression<T>) expr.substitute(new Pair<>(var, X));
         }
+        return expr;
     }
 
     default String getVarType() {

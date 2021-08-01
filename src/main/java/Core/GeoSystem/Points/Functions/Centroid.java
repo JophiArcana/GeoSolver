@@ -10,8 +10,12 @@ import java.util.*;
 import java.util.function.Function;
 
 public class Centroid extends Center {
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return new Centroid(this.name, args.get("Points").toArray(new Point[0]));
+    }
+
     public static ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
-        final AlgeEngine<Distance> ENGINE = Utils.getEngine(Distance.class);
+        AlgeEngine<Distance> ENGINE = Utils.getEngine(Distance.class);
         ArrayList<Unicardinal> argTerms = Utils.map(args.get("Points"), arg -> arg.get(0));
         return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()),
                 argTerms.size())));

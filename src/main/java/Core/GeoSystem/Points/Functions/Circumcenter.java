@@ -10,6 +10,11 @@ import java.util.*;
 import java.util.function.Function;
 
 public class Circumcenter extends Center {
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        ArrayList<Entity> points = args.get("Points");
+        return new Circumcenter(this.name, (Point) points.get(0), (Point) points.get(1), (Point) points.get(2));
+    }
+
     public static ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
         final AlgeEngine<Distance> ENGINE = Utils.getEngine(Distance.class);
         ArrayList<Expression<Distance>> argTerms = Utils.map(args.get("Points"), arg -> (Expression<Distance>) arg.get(0));

@@ -11,9 +11,13 @@ import java.util.function.Function;
 
 public abstract class Mutable implements Entity {
     public static final String[] inputTypes = new String[] {"Variable"};
+
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return args.get("Variable").get(0);
+    }
+
     public static final Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula = args ->
             args.get("Variable").get(0);
-    public abstract int getNaturalDegreesOfFreedom();
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
@@ -26,6 +30,7 @@ public abstract class Mutable implements Entity {
             inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
         this.name = n;
+        this.inputs.get("Variable").add(this);
     }
 
     public String toString() {

@@ -12,7 +12,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
 
     public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return ENGINE.add((Constant<T>) args.get("Constant"), )
+        return ENGINE.add(args.get("Constant").get(0), ENGINE.add(args.get("Terms").toArray()));
     }
 
     public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
@@ -60,7 +60,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                 constant = constant.add(addArg.constant);
                 this.construct(Utils.cast(addArg.inputs.get("Terms")));
             } else if (arg instanceof Mul<T> mulArg) {
-                Expression<T> baseExpr = mulArg.baseForm();
+                Expression<T> baseExpr = mulArg.baseForm().getValue();
                 Constant<T> baseConst = mulArg.constant;
                 if (baseExpr instanceof Add<T> baseAdd) {
                     for (Entity ent : baseAdd.inputs.get("Terms")) {

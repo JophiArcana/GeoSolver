@@ -10,6 +10,8 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 import java.util.function.Function;
 
+import javafx.util.*;
+
 
 public interface Entity {
     boolean equals(Entity ent);
@@ -40,6 +42,35 @@ public interface Entity {
             }
         }
         return vars;
+    }
+
+    default Entity substitute(Pair<Entity, Entity> entityPair) {
+        if (this.equals(entityPair.getKey())) {
+            return entityPair.getValue();
+        } else if (this instanceof Mutable || this instanceof Immutable) {
+            return this;
+        } else {
+            HashMap<String, ArrayList<Entity>> substitutionInputs = new HashMap<>();
+            for (String inputType : this.getInputTypes()) {
+                substitutionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), arg -> arg.substitute(entityPair)));
+            }
+            return this.create(substitutionInputs);
+        }
+    }
+
+    default boolean containsClass(Class cls) {
+        if (this.getClass() == cls) {
+            return true;
+        } else {
+            for (String inputType : this.getInputTypes()) {
+                for (Entity input : this.getInputs().get(inputType)) {
+                    if (input.containsClass(cls)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
 

@@ -41,21 +41,14 @@ public class PriorityComparator implements Comparator<Entity> {
             return 0;
         }
         if (e1 instanceof Expression expr1 && e2 instanceof Expression expr2 && expr1.getType() == expr2.getType()) {
-            return Utils.getGrowthComparator(expr1.getType()).compare(expr1, expr2);
+            expr1 = expr1.fullSubstitute();
+            expr2 = expr2.fullSubstitute();
+            int k = Utils.getGrowthComparator(expr1.getType()).compare(expr1, expr2);
+            return (k == 0) ? n : k;
         } else {
             return n;
         }
-        /**
-        if (e1 instanceof Expression expr1 && e2 instanceof Expression expr2 && expr1.getType() == expr2.getType()) {
-            if (expr1 instanceof Constant const1 && expr2 instanceof Constant const2) {
-                return const1.compareTo(const2);
-            } else if (expr1 instanceof Univariate var1 && expr2 instanceof Univariate var2) {
-                return var1.name.compareTo(var2.name);
-            } else {
-                return Utils.getGrowthComparator(expr1.getType()).compare(expr1, expr2);
-            }
-        }
-        if (Utils.classCode(e1) != Utils.classCode(e2)) {
+        /**if (Utils.classCode(e1) != Utils.classCode(e2)) {
             return Utils.classCode(e1) - Utils.classCode(e2);
         } else if (e1 == e2) {
             return 0;

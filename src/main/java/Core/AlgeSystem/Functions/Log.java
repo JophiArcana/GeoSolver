@@ -1,6 +1,7 @@
 package Core.AlgeSystem.Functions;
 
 import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.EntityTypes.Entity;
 import Core.Utilities.*;
 
 import java.util.*;
@@ -8,6 +9,10 @@ import java.util.function.Function;
 
 public class Log<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Input"};
+
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return ENGINE.log(args.get("Input").get(0));
+    }
 
     public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
         return new ArrayList<>(Collections.singletonList(ENGINE.log(args.get("Input").get(0).get(0))));

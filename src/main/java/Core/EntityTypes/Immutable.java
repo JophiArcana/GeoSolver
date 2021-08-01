@@ -12,6 +12,10 @@ import java.util.function.Function;
 public abstract class Immutable implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
+    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+        return this;
+    }
+
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula;

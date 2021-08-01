@@ -1,11 +1,9 @@
 
-import Core.AlgeSystem.UnicardinalRings.Distance;
 import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.AlgeSystem.UnicardinalRings.*;
 import Core.GeoSystem.Lines.LineTypes.Linear;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
-import Core.GeoSystem.Points.PointTypes.Phantom;
-import Core.GeoSystem.Points.PointTypes.Point;
+import Core.GeoSystem.Points.PointTypes.*;
 import Core.Utilities.AlgeEngine;
 import Core.Utilities.Utils;
 
@@ -49,5 +47,8 @@ public class Test {
 
         Linear l = new Linear("L");
         System.out.println(l.expression());
+
+        System.out.println(e1.add(expr1, expr2));
+        System.out.println(expr1.fullSubstitute());
     }
 }

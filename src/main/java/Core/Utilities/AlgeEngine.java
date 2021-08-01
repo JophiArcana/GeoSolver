@@ -17,7 +17,7 @@ public class AlgeEngine<T extends Expression<T>> {
     }
     
     public Univariate<T> X() {
-        return new Univariate<>("x", TYPE);
+        return new Univariate<>("\u5929", TYPE);
     }
     public static final double EPSILON = Math.pow(10, -9);
 
@@ -143,7 +143,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 Expression<T> termOrder = this.orderOfGrowth((Expression<T>) ent, s);
                 Expression<T> baseOrder = termOrder;
                 if (termOrder instanceof Mul<T> mulOrder) {
-                    baseOrder = mulOrder.baseForm();
+                    baseOrder = mulOrder.baseForm().getValue();
                     orders.put(baseOrder, orders.getOrDefault(baseOrder, Constant.ZERO(TYPE)).add(mulOrder.constant));
                 } else {
                     orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(Constant.ONE(TYPE)));
@@ -320,7 +320,11 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> exp(Object obj) {
-        return this.pow(Constant.E(TYPE), obj);
+        if (obj instanceof Log logExpr) {
+            return logExpr.input;
+        } else {
+            return this.pow(Constant.E(TYPE), obj);
+        }
     }
 
     public Expression<T> log(Object obj) {
