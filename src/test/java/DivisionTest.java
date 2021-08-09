@@ -29,11 +29,9 @@ public class DivisionTest {
         // System.out.println(Utils.PRIORITY_COMPARATOR.compare(x, e1.pow(y, 2)));
         // System.out.println(c1.compare(x, e1.log(x)));
         System.out.println("Marker =============================================================================================");
-        Expression<Symbolic> expr1 = e1.mul(x, y, y, x, e1.log(x));
         Expression<Symbolic> expr2 = e1.pow(x, 2);
         // Expression<Symbolic> expr3 = e1.exp(x);
         // Expression<Symbolic> expr4 = e1.exp(e1.mul(x, 2));
-        System.out.println(e1.log(x).derivative(x));
         // System.out.println(e1.add(expr1, expr2));
         /**System.out.println(e1.exp(e1.add(e1.mul(3, e1.log(x)), e1.mul(2, e1.log(y)), 3)));
         Phantom p = new Phantom("P");

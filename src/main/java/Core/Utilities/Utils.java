@@ -8,9 +8,14 @@ import Core.GeoSystem.Lines.LineTypes.Axis;
 import Core.GeoSystem.Lines.LineTypes.Linear;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
+import com.google.common.base.CharMatcher;
+import javafx.util.Pair;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Utils {
     public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
@@ -20,7 +25,6 @@ public class Utils {
             Complex.class,
             Infinity.class,
             Univariate.class,
-            Log.class,
             Add.class,
             Pow.class,
             Monomial.class,
@@ -42,8 +46,7 @@ public class Utils {
     public static final HashSet<Class<? extends Unicardinal>> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Complex.class,
             Infinity.class,
-            Univariate.class,
-            Log.class
+            Univariate.class
     ));
 
     private static final HashMap<Class<? extends Expression<?>>, AlgeEngine> ENGINES = new HashMap<>() {{
@@ -109,5 +112,82 @@ public class Utils {
             rounded[i] = Utils.integerize(args[i]);
         }
         return rounded;
+    }
+
+    public static Comparator<Integer> binaryComparator = (o1, o2) -> {
+        CharMatcher cm = CharMatcher.is('1');
+        int c1 = cm.countIn(Integer.toBinaryString(o1));
+        int c2 = cm.countIn(Integer.toBinaryString(o2));
+        return (c1 == c2) ? o1 - o2 : c1 - c2;
+    };
+
+    private static int binomial(int a, int b) {
+        if (b > a / 2) {
+            return binomial(a, a - b);
+        } else {
+            int numerator = 1;
+            int denominator = 1;
+            for (int i = 0; i < b; i++) {
+                numerator *= (a - i);
+                denominator *= (b - i);
+            }
+            return numerator / denominator;
+        }
+    }
+
+    public static <T> ArrayList<ArrayList<HashSet<T>>> binarySortedSubsetsHelper(ArrayList<T> args) {
+        if (args.size() == 0) {
+            return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(new HashSet<>()))));
+        } else {
+            ArrayList<ArrayList<HashSet<T>>> lower = Utils.binarySortedSubsetsHelper(new ArrayList<>(args.subList(0, args.size() - 1)));
+            ArrayList<ArrayList<HashSet<T>>> upper = new ArrayList<>();
+            for (ArrayList<HashSet<T>> list : lower) {
+                upper.add(Utils.map(list, set -> {
+                    HashSet<T> duplicate = new HashSet<>(set);
+                    duplicate.add(args.get(args.size() - 1));
+                    return duplicate;
+                }));
+            }
+            for (int i = 0; i < lower.size() - 1; i++) {
+                lower.get(i + 1).addAll(upper.get(i));
+            }
+            lower.add(upper.get(lower.size() - 1));
+            return lower;
+        }
+    }
+
+    public static <T> ArrayList<HashSet<T>> subsets(Collection<T> args) {
+        args = new HashSet<>(args);
+        if (args.size() == 0) {
+            return new ArrayList<>(Collections.singletonList(new HashSet<>()));
+        } else {
+            T arg;
+            args.remove(arg = args.stream().findAny().get());
+            ArrayList<HashSet<T>> lower = Utils.subsets(args);
+            ArrayList<HashSet<T>> upper = Utils.map(lower, set -> {
+                HashSet<T> copy = new HashSet<>(set);
+                copy.add(arg);
+                return copy;
+            });
+            lower.addAll(upper);
+            return lower;
+        }
+    }
+
+    public static <T> ArrayList<HashSet<T>> supersets(Collection<T> subset, Collection<T> superset) {
+        Set<T> exclusion = new HashSet<>(superset);
+        exclusion.removeAll(subset);
+        ArrayList<HashSet<T>> exclusionSets = Utils.subsets(exclusion);
+        return Utils.map(exclusionSets, set -> {
+            HashSet<T> copy = new HashSet<>(subset);
+            copy.addAll(set);
+            return copy;
+        });
+    }
+
+    public static <T> ArrayList<HashSet<T>> binarySortedSubsets(ArrayList<T> args) {
+        ArrayList<HashSet<T>> subsets = new ArrayList<>();
+        Utils.binarySortedSubsetsHelper(args).forEach(subsets::addAll);
+        return subsets;
     }
 }

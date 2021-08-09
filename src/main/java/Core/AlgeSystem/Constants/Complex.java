@@ -152,16 +152,16 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
             if (this.gaussianInteger() && cpx.gaussianInteger()) {
                 Complex<T> upper = (this.abs() > c.abs()) ? this : cpx;
                 Complex<T> lower = (this.abs() > c.abs()) ? cpx : this;
-                while (!((Complex<T>) upper.div(lower)).gaussianInteger()) {
+                while (!upper.div(lower).gaussianInteger()) {
                     Complex<T> remainder = (Complex<T>) upper.sub(lower.mul(((Complex<T>) upper.div(lower)).round()));
                     upper = lower;
                     lower = remainder;
                 }
-                return (lower.re.doubleValue() < 0) ? lower.mul(Constant.NONE(TYPE)) : lower;
-            } else if (((Complex<T>) this.div(cpx)).gaussianInteger()) {
-                return (cpx.re.doubleValue() < 0) ? cpx.mul(Constant.NONE(TYPE)) : cpx;
-            } else if (((Complex<T>) cpx.div(this)).gaussianInteger()) {
-                return (this.re.doubleValue() < 0) ? this.mul(Constant.NONE(TYPE)) : this;
+                return (lower.compareTo(Constant.ZERO(TYPE)) < 0) ? lower.mul(Constant.NONE(TYPE)) : lower;
+            } else if ((this.div(cpx)).gaussianInteger()) {
+                return (cpx.compareTo(Constant.ZERO(TYPE)) < 0) ? cpx.mul(Constant.NONE(TYPE)) : cpx;
+            } else if (cpx.div(this).gaussianInteger()) {
+                return (this.compareTo(Constant.ZERO(TYPE)) < 0) ? this.mul(Constant.NONE(TYPE)) : this;
             } else {
                 return Constant.ONE(TYPE);
             }
@@ -176,6 +176,10 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
 
     public boolean integer() {
         return this.re instanceof Integer && this.im.equals(0);
+    }
+
+    public boolean positiveInteger() {
+        return this.re instanceof Integer && this.re.intValue() > 0 && this.im.equals(0);
     }
 
     public Complex<T> round() {

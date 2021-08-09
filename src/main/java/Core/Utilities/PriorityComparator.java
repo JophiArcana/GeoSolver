@@ -8,7 +8,7 @@ import java.util.*;
 
 public class PriorityComparator implements Comparator<Entity> {
     public int compare(Entity e1, Entity e2) {
-        int n;
+        /**int n;
         if (Utils.classCode(e1) != Utils.classCode(e2)) {
             n = Utils.classCode(e1) - Utils.classCode(e2);
         } else if (e1 == e2) {
@@ -16,7 +16,7 @@ public class PriorityComparator implements Comparator<Entity> {
         } else if (e1 instanceof Immutable) {
             return ((Immutable) e1).compareTo((Immutable) e2);
         } else if (e1 instanceof Mutable) {
-            return ((Mutable) e1).name.compareTo(((Mutable) e2).name);
+            return -((Mutable) e1).name.compareTo(((Mutable) e2).name);
         } else A: {
             HashMap<String, TreeMultiset<Entity>> e1Inputs = e1.getInputs();
             HashMap<String, TreeMultiset<Entity>> e2Inputs = e2.getInputs();
@@ -47,8 +47,9 @@ public class PriorityComparator implements Comparator<Entity> {
             return (k == 0) ? n : k;
         } else {
             return n;
-        }
-        /**if (Utils.classCode(e1) != Utils.classCode(e2)) {
+        }*/
+
+        if (Utils.classCode(e1) != Utils.classCode(e2)) {
             return Utils.classCode(e1) - Utils.classCode(e2);
         } else if (e1 == e2) {
             return 0;
@@ -76,6 +77,6 @@ public class PriorityComparator implements Comparator<Entity> {
                 }
             }
             return 0;
-        }*/
+        }
     }
 }

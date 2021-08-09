@@ -4,6 +4,8 @@ import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
+import java.util.Arrays;
+
 public class Infinity<T extends Expression<T>> extends Constant<T> {
     public Expression<T> expression;
 
@@ -76,10 +78,6 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         return new Infinity<>(ENGINE.pow(Constant.E(TYPE), this.expression), TYPE);
     }
 
-    public Constant<T> log() {
-        return new Infinity<>(ENGINE.log(this.expression), TYPE);
-    }
-
     public Constant<T> pow(Constant<T> x) {
         return ENGINE.infinity(ENGINE.pow(this.expression, x));
     }
@@ -113,7 +111,7 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
 
     public Constant<T> gcd(Constant<T> c) {
         if (c instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.greatestCommonDivisor(this.expression, inf.expression));
+            return ENGINE.infinity(ENGINE.greatestCommonDivisor(Arrays.asList(this.expression, inf.expression)));
         } else {
             return c;
         }
@@ -122,6 +120,18 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
     /** TODO: Implement argument function */
     public double phase() {
         return Double.MAX_VALUE;
+    }
+
+    public boolean gaussianInteger() {
+        return false;
+    }
+
+    public boolean integer() {
+        return false;
+    }
+
+    public boolean positiveInteger() {
+        return false;
     }
 
     public int compareTo(Immutable immutable) {

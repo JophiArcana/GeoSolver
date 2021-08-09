@@ -22,7 +22,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         return new ArrayList<>(Collections.singletonList(product));
     }
 
-    public TreeMap<Expression<T>, Expression<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+    public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ONE(TYPE);
 
     public Mul(Iterable<Expression<T>> args, Class<T> type) {
@@ -30,7 +30,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
         this.construct(args);
         // System.out.println(args + " constructed: " + terms);
-        for (Map.Entry<Expression<T>, Expression<T>> entry : this.terms.entrySet()) {
+        for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
             inputTerms.add(ENGINE.pow(entry.getKey(), entry.getValue()));
         }
         this.inputs.get("Constant").add(this.constant);
@@ -60,14 +60,14 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         for (Expression<T> arg : args) {
             Factorization<T> argFactor = arg.normalize();
             constant = constant.mul(argFactor.constant);
-            for (Map.Entry<Expression<T>, Expression<T>> entry : argFactor.terms.entrySet()) {
-                terms.put(entry.getKey(), ENGINE.add(entry.getValue(), terms.getOrDefault(entry.getKey(), Constant.ZERO(TYPE))));
+            for (Map.Entry<Expression<T>, Constant<T>> entry : argFactor.terms.entrySet()) {
+                terms.put(entry.getKey(), entry.getValue().add(terms.getOrDefault(entry.getKey(), Constant.ZERO(TYPE))));
             }
             // System.out.println(arg + " of " + args + " constructed");
         }
         // System.out.println(args + " construction progress " + this.terms);
-        ArrayList<Map.Entry<Expression<T>, Expression<T>>> entrySet = new ArrayList<>(terms.entrySet());
-        for (Map.Entry<Expression<T>, Expression<T>> entry : entrySet) {
+        ArrayList<Map.Entry<Expression<T>, Constant<T>>> entrySet = new ArrayList<>(terms.entrySet());
+        for (Map.Entry<Expression<T>, Constant<T>> entry : entrySet) {
             if (entry.getValue().equals(Constant.ZERO(TYPE))) {
                 terms.remove(entry.getKey());
             }
@@ -87,7 +87,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
                 return this;
             } else {
                 TreeMap<Univariate<T>, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-                for (Map.Entry<Expression<T>, Expression<T>> entry : this.terms.entrySet()) {
+                for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
                     if (!(entry.getKey() instanceof Univariate)) {
                         return this;
                     } else if (!(entry.getValue() instanceof Complex<T> cpxExp && cpxExp.integer())) {
@@ -102,12 +102,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
 
     public Factorization<T> normalize() {
         Constant<T> coefficient = this.constant;
-        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         for (Entity ent : this.inputs.get("Terms")) {
             Factorization<T> entFactor = ((Expression<T>) ent).normalize();
-            coefficient = (Constant<T>) ENGINE.mul(coefficient, entFactor.constant);
-            for (Map.Entry<Expression<T>, Expression<T>> entry : entFactor.terms.entrySet()) {
-                factors.put(entry.getKey(), ENGINE.add(factors.get(entry.getKey()), entry.getValue()));
+            coefficient = coefficient.mul(entFactor.constant);
+            for (Map.Entry<Expression<T>, Constant<T>> entry : entFactor.terms.entrySet()) {
+                factors.put(entry.getKey(), factors.getOrDefault(entry.getKey(), Constant.ZERO(TYPE)).add(entry.getValue()));
                 if (factors.get(entry.getKey()).equals(Constant.ZERO(TYPE))) {
                     factors.remove(entry.getKey());
                 }

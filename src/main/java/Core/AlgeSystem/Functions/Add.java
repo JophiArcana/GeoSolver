@@ -22,7 +22,6 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-    public Expression<T> logTerm = Constant.ZERO(TYPE);
     public Constant<T> constant = Constant.ZERO(TYPE);
 
     public Add(Iterable<Expression<T>> args, Class<T> type) {
@@ -31,9 +30,6 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         this.construct(args);
         for (Map.Entry<Expression<T>, Constant<T>> entry : terms.entrySet()) {
             inputTerms.add(ENGINE.mul(entry.getKey(), entry.getValue()));
-        }
-        if (!this.logTerm.equals(Constant.ZERO(TYPE))) {
-            inputTerms.add(this.logTerm);
         }
         this.inputs.get("Constant").add(this.constant);
         // System.out.println("Add constructed: " + args);
@@ -61,22 +57,18 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                 this.construct(Utils.cast(addArg.inputs.get("Terms")));
             } else if (arg instanceof Mul<T> mulArg) {
                 Expression<T> baseExpr = mulArg.baseForm().getValue();
-                Constant<T> baseConst = mulArg.constant;
+                Constant<T> baseConst = mulArg.baseForm().getKey();
                 if (baseExpr instanceof Add<T> baseAdd) {
                     for (Entity ent : baseAdd.inputs.get("Terms")) {
                         this.construct(new ArrayList<>(Collections.singletonList(ENGINE.mul(baseConst, ent))));
                     }
                     constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
-                } else if (baseExpr instanceof Log) {
-                    logTerm = ENGINE.log(ENGINE.mul(ENGINE.exp(logTerm), ENGINE.exp(mulArg)));
                 } else {
                     terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
                     if (terms.get(baseExpr).equals(Constant.ZERO(TYPE))) {
                         terms.remove(baseExpr);
                     }
                 }
-            } else if (arg instanceof Log<T> logArg) {
-                logTerm = ENGINE.log(ENGINE.mul(ENGINE.exp(logTerm), ENGINE.exp(logArg)));
             } else {
                 terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
                 if (terms.get(arg).equals(Constant.ZERO(TYPE))) {
@@ -92,8 +84,8 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         } else if (constant.equals(Constant.ZERO(TYPE)) && inputs.get("Terms").size() == 1) {
             return (Expression<T>) inputs.get("Terms").firstEntry().getElement().simplify();
         } else {
-            Expression<T> gcd = ENGINE.greatestCommonDivisor(this.constant,
-                    ENGINE.greatestCommonDivisor(Utils.cast(this.inputs.get("Terms"))));
+            Expression<T> gcd = ENGINE.greatestCommonDivisor(Arrays.asList(this.constant,
+                    ENGINE.greatestCommonDivisor(Utils.cast(this.inputs.get("Terms")))));
             if (gcd.equals(Constant.ONE(TYPE))) {
                 ArrayList<Monomial<T>> monomials = new ArrayList<>();
                 for (Entity ent : this.inputs.get("Terms")) {
@@ -119,7 +111,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public Factorization<T> normalize() {
-        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         if (this.constant.equals(Constant.ZERO(TYPE))) {
             factors.put(this, Constant.ONE(TYPE));
             return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);

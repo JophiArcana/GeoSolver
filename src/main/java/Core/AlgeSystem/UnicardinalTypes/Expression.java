@@ -14,9 +14,9 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         public final AlgeEngine<U> ENGINE;
 
         public Constant<U> constant;
-        public TreeMap<Expression<U>, Expression<U>> terms;
+        public TreeMap<Expression<U>, Constant<U>> terms;
 
-        public Factorization(Constant<U> c, TreeMap<Expression<U>, Expression<U>> t, Class<U> type) {
+        public Factorization(Constant<U> c, TreeMap<Expression<U>, Constant<U>> t, Class<U> type) {
             constant = c;
             terms = t;
             this.TYPE = type;
@@ -33,7 +33,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
                 constString = constant.toString();
             }
             ArrayList<String> stringTerms = new ArrayList<>();
-            for (Map.Entry<Expression<U>, Expression<U>> entry : terms.entrySet()) {
+            for (Map.Entry<Expression<U>, Constant<U>> entry : terms.entrySet()) {
                 Expression<U> factor = new Pow<>(entry.getKey(), entry.getValue(), TYPE).reduction();
                 if (Utils.CLOSED_FORM.contains(factor.getClass())) {
                     stringTerms.add(factor.toString());
@@ -107,7 +107,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
             return inf.expression.signum(this.getEngine().X());
         } else {
             Expression<T> order = this.getEngine().orderOfGrowth(this, var);
-            if (order instanceof Pow || order instanceof Log || order instanceof Univariate) {
+            if (order instanceof Pow || order instanceof Univariate) {
                 return 1;
             } else {
                 Complex<T> constant = (Complex<T>) ((Mul<T>) order).constant;
@@ -117,8 +117,12 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
     }
 
     default int signum() {
-        Univariate<T> var = (Univariate<T>) this.variables().first();
-        return this.signum(var);
+        TreeSet<Mutable> variables = this.variables();
+        if (variables.size() == 0) {
+            return this.signum(null);
+        } else {
+            return this.signum((Univariate<T>) variables.first());
+        }
     }
 
     default Expression<T> fullSubstitute() {

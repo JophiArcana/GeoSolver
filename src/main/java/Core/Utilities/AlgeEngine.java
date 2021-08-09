@@ -5,6 +5,7 @@ import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
+import javafx.util.Pair;
 
 import java.util.*;
 import java.util.function.Function;
@@ -36,8 +37,6 @@ public class AlgeEngine<T extends Expression<T>> {
             return operations;
         } else if (expr instanceof Pow<T> powExpr) {
             return this.numberOfOperations(powExpr.base) + this.numberOfOperations(powExpr.exponent) + 1;
-        } else if (expr instanceof Log<T> logExpr) {
-            return this.numberOfOperations(logExpr.input) + 1;
         } else if (expr instanceof Constant || expr instanceof Univariate) {
             return 0;
         } else {
@@ -56,31 +55,41 @@ public class AlgeEngine<T extends Expression<T>> {
                 return new Mul<>(Arrays.asList(mulExpr.constant,
                         ((Expression<T>) mulExpr.inputs.get("Terms").firstEntry().getElement()).expand()), TYPE).reduction();
             }
+            ArrayList<Expression<T>> expandableTerms = new ArrayList<>();
+            ArrayList<Expression<T>> rest = new ArrayList<>();
             for (Entity term : inputTerms) {
                 if (term instanceof Add) {
-                    if (inputTerms.size() == 2) {
-                        ArrayList<Expression<T>> expansion1Terms = this.additiveTerms(
-                                ((Expression<T>) inputTerms.firstEntry().getElement()).expand());
-                        ArrayList<Expression<T>> expansion2Terms = this.additiveTerms(
-                                ((Expression<T>) inputTerms.lastEntry().getElement()).expand());
-                        ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
-                        for (Expression<T> term1 : expansion1Terms) {
-                            for (Expression<T> term2 : expansion2Terms) {
-                                expandedTerms.add(new Mul<>(Arrays.asList(term1, term2), TYPE).reduction());
-                            }
-                        }
-                        Expression<T> sum = new Add<>(expandedTerms, TYPE);
-                        return this.mul(sum, mulExpr.constant);
-                    } else {
-                        Expression<T> product = mulExpr.constant;
-                        for (Entity ent : inputTerms) {
-                            product = this.expand(new Mul<>(Arrays.asList(product, (Expression<T>) ent), TYPE).reduction());
-                        }
-                        return product;
-                    }
+                    expandableTerms.add((Add<T>) term);
+                } else {
+                    rest.add((Expression<T>) term);
                 }
             }
-            return mulExpr;
+            Expression<T> singleton = new Mul<>(rest, TYPE).reduction();
+            if (!singleton.equals(Constant.ONE(TYPE))) {
+                expandableTerms.add(0, singleton);
+            }
+            if (expandableTerms.size() == 1) {
+                return new Mul<>(Arrays.asList(singleton, mulExpr.constant), TYPE).reduction();
+            } else if (expandableTerms.size() == 2) {
+                ArrayList<Expression<T>> expansion1Terms = this.additiveTerms(expandableTerms.get(0).expand());
+                ArrayList<Expression<T>> expansion2Terms = this.additiveTerms(expandableTerms.get(1).expand());
+                ArrayList<Expression<T>> expandedTerms = new ArrayList<>();
+                for (Expression<T> term1 : expansion1Terms) {
+                    for (Expression<T> term2 : expansion2Terms) {
+                        expandedTerms.add(new Mul<>(Arrays.asList(term1, term2), TYPE).reduction());
+                    }
+                }
+                Expression<T> sum = new Add<>(expandedTerms, TYPE);
+                return this.mul(sum, mulExpr.constant);
+            } else {
+                Expression<T> product = mulExpr.constant;
+                // System.out.println(expandableTerms);
+                for (Expression<T> ent : expandableTerms) {
+                    // System.out.println(ent + " of " + expandableTerms);
+                    product = this.expand(new Mul<>(Arrays.asList(product, ent), TYPE).reduction());
+                }
+                return product;
+            }
         } else if (expr instanceof Pow<T> powExpr) {
             if (powExpr.base instanceof Add<T> addExpr && powExpr.exponent instanceof Complex<T> cpx
                     && cpx.integer() && cpx.re.intValue() > 0) {
@@ -109,7 +118,7 @@ public class AlgeEngine<T extends Expression<T>> {
             } else {
                 return powExpr;
             }
-        } else if (expr instanceof Log || expr instanceof Constant || expr instanceof Univariate) {
+        } else if (expr instanceof Constant || expr instanceof Univariate) {
             return expr;
         } else {
             return null;
@@ -160,8 +169,6 @@ public class AlgeEngine<T extends Expression<T>> {
             return this.mul(mulExpr.constant, this.mul(termOrders.toArray()));
         } else if (expr instanceof Pow<T> powExpr) {
             return this.pow(this.orderOfGrowth(powExpr.base, s), powExpr.exponent);
-        } else if (expr instanceof Log<T> logExpr) {
-            return this.log(this.orderOfGrowth(logExpr.input, s));
         } else if (expr instanceof Univariate<T> || expr instanceof Constant<T>) {
             return expr;
         } else {
@@ -181,11 +188,15 @@ public class AlgeEngine<T extends Expression<T>> {
 
     /** SECTION: Greatest Common Divisor ============================================================================ */
 
-    public Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
+    private Expression<T> greatestCommonDivisorBase(Expression<T> e1, Expression<T> e2) {
         if (e1.equals(Constant.ZERO(TYPE))) {
             return e2;
         } else if (e2.equals(Constant.ZERO(TYPE))) {
             return e1;
+        } else if (e1 instanceof Constant<T> const1) {
+            return const1.gcd(e2.baseForm().getKey());
+        } else if (e2 instanceof Constant<T> const2) {
+            return const2.gcd(e1.baseForm().getKey());
         } else {
             Expression.Factorization<T> e1Norm = e1.normalize();
             Expression.Factorization<T> e2Norm = e2.normalize();
@@ -207,13 +218,219 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> greatestCommonDivisor(List<Expression<T>> args) {
-        if (args.size() == 1) {
+        return switch (args.size()) {
+            case 1 -> (args.get(0).baseForm().getKey().compareTo(Constant.ZERO(TYPE)) < 0) ? this.negate(args.get(0)) : args.get(0);
+            case 2 -> this.greatestCommonDivisorBase(args.get(0), args.get(1));
+            default -> this.greatestCommonDivisorBase(this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
+                    this.greatestCommonDivisor(args.subList(args.size() / 2, args.size())));
+        };
+        /**if (args.size() == 1) {
             return args.get(0);
-        } else if (args.size() == 2) {
-            return this.greatestCommonDivisor(args.get(0), args.get(1));
-        } else {
-            return this.greatestCommonDivisor(args.get(0), this.greatestCommonDivisor(args.subList(1, args.size())));
         }
+        Expression<T> gcd;
+        if (args.size() == 2) {
+            gcd = this.greatestCommonDivisorBase(args.get(0), args.get(1));
+        } else {
+            gcd = this.greatestCommonDivisorBase(this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
+                    this.greatestCommonDivisor(args.subList(args.size() / 2, args.size())));
+        }
+        return gcd;*/
+
+        /**Constant<T> I = Constant.I(TYPE);
+        ArrayList<Expression<T>> bases = Utils.map(args, arg -> arg.baseForm().getValue());
+        Expression<T> weightedBase = Collections.max(bases, Utils.PRIORITY_COMPARATOR);
+        Constant<T> weightedConstant = args.get(bases.indexOf(weightedBase)).baseForm().getKey().div(gcd.baseForm().getKey());
+        Constant<T> maxRotation = null;
+        int maxIndex = -1;
+        for (int i = 0; i < 4; i++) {
+            if (maxRotation == null || weightedConstant.compareTo(maxRotation) > 0) {
+                maxRotation = weightedConstant;
+                maxIndex = i;
+            }
+            weightedConstant = weightedConstant.div(I);
+        }
+        return this.mul(this.pow(I, maxIndex), gcd);*/
+
+        /**Pair<Constant<T>, Expression<T>> gcdBaseForm = gcd.baseForm();
+        ArrayList<Constant<T>> constants = Utils.map(args, arg -> arg.baseForm().getKey().div(gcdBaseForm.getKey()));
+        Constant<T> I = Constant.I(TYPE);
+        ArrayList<Integer> rotations = new ArrayList<>();
+        int numberOfIntegers = Integer.MIN_VALUE;
+        for (int i = 0; i < 4; i++) {
+            int count = 0;
+            for (Constant<T> constant : constants) {
+                if (constant.positiveInteger()) {
+                    count ++;
+                }
+            }
+            if (count > numberOfIntegers) {
+                numberOfIntegers = count;
+                rotations.clear();
+                rotations.add(i);
+            } else if (count == numberOfIntegers) {
+                rotations.add(i);
+            }
+            constants = Utils.map(constants, constant -> constant.div(I));
+        }
+        if (rotations.size() == 1) {
+            return this.mul(this.pow(I, rotations.get(0)), gcd);
+        } else {
+            ArrayList<Expression<T>> bases = Utils.map(args, arg -> arg.baseForm().getValue());
+            Expression<T> weightedBase = Collections.max(bases, Utils.PRIORITY_COMPARATOR);
+            Constant<T> weightedConstant = constants.get(bases.indexOf(weightedBase));
+            Constant<T> maxRotation = null;
+            int maxIndex = -1;
+            for (int i : rotations) {
+                Constant<T> rotation = (Constant<T>) this.mul(this.pow(I, -i), weightedConstant);
+                if (maxRotation == null || rotation.compareTo(maxRotation) > 0) {
+                    maxRotation = rotation;
+                    maxIndex = i;
+                }
+            }
+            return this.mul(this.pow(I, maxIndex), gcd);
+        }*/
+    }
+
+    private static class GCDValue<T extends Expression<T>> {
+        Expression<T> GCD;
+        int weight;
+
+        public GCDValue(Expression<T> GCD, int weight) {
+            this.GCD = GCD;
+            this.weight = weight;
+        }
+
+        public String toString() {
+            return "(" + GCD + ", " + weight + ")";
+        }
+    }
+
+    private static class GCDNode<T extends Expression<T>> {
+        HashSet<Expression<T>> elements;
+        GCDValue<T> value;
+
+        public GCDNode(HashSet<Expression<T>> elements, GCDValue<T> value) {
+            this.elements = elements;
+            this.value = value;
+        }
+
+        public String toString() {
+            return "(" + elements + ", " + value + ")";
+        }
+    }
+
+    private static class GCDGraph<T extends Expression<T>> {
+        HashMap<HashSet<Expression<T>>, GCDValue<T>> GCDMap;
+        TreeSet<GCDNode<T>> GCDList;
+
+        HashSet<HashSet<Expression<T>>> ignoredSubsets = new HashSet<>();
+
+        public GCDGraph(Comparator<GCDNode<T>> comparator) {
+            this.GCDMap = new HashMap<>();
+            this.GCDList = new TreeSet<>(comparator);
+        }
+
+        public String toString() {
+            return "(" + GCDMap + ", " + GCDList + ")";
+        }
+
+        public void filter(Function<HashSet<Expression<T>>, Boolean> filter) {
+            Iterator<GCDNode<T>> listIter = this.GCDList.iterator();
+            Iterator<HashSet<Expression<T>>> mapIter = this.GCDMap.keySet().iterator();
+            while (listIter.hasNext()) {
+                if (filter.apply(listIter.next().elements)) {
+                    listIter.remove();
+                }
+            }
+            while (mapIter.hasNext()) {
+                if (filter.apply(mapIter.next())) {
+                    mapIter.remove();
+                }
+            }
+        }
+    }
+
+    private final Comparator<GCDNode<T>> GCDGraphComparator = (o1, o2) -> {
+        if (o1.value.weight != o2.value.weight) {
+            return o2.value.weight - o1.value.weight;
+        } else {
+            if (o1.elements.size() != o2.elements.size()) {
+                return o1.elements.size() - o2.elements.size();
+            } else {
+                return Utils.PRIORITY_COMPARATOR.compare(o2.value.GCD, o1.value.GCD);
+            }
+        }
+    };
+
+    private void addToGCDGraph(ArrayList<HashSet<Expression<T>>> subsets, Collection<Expression<T>> superset, GCDGraph<T> graph) {
+        Constant<T> ONE = Constant.ONE(TYPE);
+
+        for (HashSet<Expression<T>> subset : subsets) {
+            if (!graph.ignoredSubsets.contains(subset)) {
+                Expression<T> GCD;
+                if (subset.size() == 2) {
+                    GCD = this.greatestCommonDivisor(new ArrayList<>(subset));
+                } else {
+                    ArrayList<Expression<T>> elements = new ArrayList<>(subset);
+                    Expression<T> GCD1 = graph.GCDMap.getOrDefault(new HashSet<>(elements.subList(0, elements.size() - 1)),
+                            new GCDValue<>(ONE, 0)).GCD;
+                    Expression<T> GCD2 = graph.GCDMap.getOrDefault(new HashSet<>(elements.subList(1, elements.size())),
+                            new GCDValue<>(ONE, 0)).GCD;
+                    GCD = this.greatestCommonDivisor(Arrays.asList(GCD1, GCD2));
+                }
+                if (GCD.equals(ONE)) {
+                    graph.ignoredSubsets.addAll(Utils.supersets(subset, superset));
+                } else {
+                    GCDValue<T> gcdValue = new GCDValue<>(GCD, subset.size() * this.numberOfOperations(GCD));
+                    graph.GCDMap.put(subset, gcdValue);
+                    graph.GCDList.add(new GCDNode<>(subset, gcdValue));
+                }
+            }
+        }
+    }
+
+    public GCDGraph<T> fullGCDGraph(ArrayList<Expression<T>> args) {
+        ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsetsHelper(args);
+        ArrayList<HashSet<Expression<T>>> subsets = new ArrayList<>();
+        subsetList.subList(2, subsetList.size()).forEach(subsets::addAll);
+
+        GCDGraph<T> graph = new GCDGraph<>(this.GCDGraphComparator);
+
+        this.addToGCDGraph(subsets, args, graph);
+        return graph;
+    }
+
+    public Pair<ArrayList<Expression<T>>, GCDGraph<T>> reduceGCDGraph(ArrayList<Expression<T>> args, GCDGraph<T> graph) {
+        HashSet<Expression<T>> argSet = new HashSet<>(args);
+
+        TreeSet<GCDNode<T>> GCDList = graph.GCDList;
+
+        while (GCDList.size() > 0 && GCDList.first().value.weight > 1) {
+            HashSet<Expression<T>> elements = new HashSet<>(GCDList.first().elements);
+            argSet.removeAll(elements);
+            graph.filter(subset -> {
+                for (Expression<T> element : elements) {
+                    if (subset.contains(element)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            Expression<T> sum = this.add(elements.toArray());
+            ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsetsHelper(new ArrayList<>(argSet));
+            ArrayList<HashSet<Expression<T>>> subsets = new ArrayList<>();
+            subsetList.subList(1, subsetList.size()).forEach(subsets::addAll);
+            subsets.forEach(subset -> subset.add(sum));
+            argSet.add(sum);
+
+            this.addToGCDGraph(subsets, argSet, graph);
+        }
+        return new Pair<>(new ArrayList<>(argSet), graph);
+    }
+
+    public Pair<ArrayList<Expression<T>>, GCDGraph<T>> GCDReduction(ArrayList<Expression<T>> args) {
+        return reduceGCDGraph(args, fullGCDGraph(args));
     }
 
     /** SECTION: Basic operations =================================================================================== */
@@ -310,9 +527,9 @@ public class AlgeEngine<T extends Expression<T>> {
 
     public Expression<T> pow(Object base, Object exponent) {
         Expression<T> baseExpr = this.objectConversion(base);
-        Expression<T> exponentExpr = this.objectConversion(exponent);
-        if (baseExpr instanceof Constant<T> baseConst && exponentExpr instanceof Constant<T> expConst) {
-            return baseConst.pow(expConst);
+        Constant<T> exponentExpr = (Constant<T>) this.objectConversion(exponent);
+        if (baseExpr instanceof Constant<T> baseConst) {
+            return baseConst.pow(exponentExpr);
         } else {
             // System.out.println("Pow " + base + " " + exponent);
             return new Pow<>(baseExpr, exponentExpr, TYPE).expressionSimplify();
@@ -320,20 +537,7 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> exp(Object obj) {
-        if (obj instanceof Log logExpr) {
-            return logExpr.input;
-        } else {
-            return this.pow(Constant.E(TYPE), obj);
-        }
-    }
-
-    public Expression<T> log(Object obj) {
-        Expression<T> expr = this.objectConversion(obj);
-        if (expr instanceof Constant<T> constExpr) {
-            return constExpr.log();
-        } else {
-            return new Log<>(expr, TYPE).expressionSimplify();
-        }
+        return this.pow(Constant.E(TYPE), obj);
     }
 
     /** SECTION: Real, Imaginary, Conjugate ========================================================================= */
@@ -352,10 +556,6 @@ public class AlgeEngine<T extends Expression<T>> {
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.real(addExpr.constant),
                         this.add(Utils.map(addExpr.inputs.get("Terms"), this::real).toArray()));
-            } else if (expr instanceof Log<T> logExpr) {
-                Expression<T> re = this.real(logExpr.input);
-                Expression<T> im = this.imaginary(logExpr.input);
-                return this.mul(0.5, this.log(this.add(this.pow(re, 2), this.pow(im, 2))));
             } else {
                 return this.mul(0.5, this.add(expr, this.conjugate(expr)));
             }
@@ -378,10 +578,6 @@ public class AlgeEngine<T extends Expression<T>> {
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.imaginary(addExpr.constant),
                         this.add(Utils.map(addExpr.inputs.get("Terms"), this::imaginary).toArray()));
-            } else if (expr instanceof Log<T> logExpr) {
-                Expression<T> re = this.real(logExpr.input);
-                Expression<T> im = this.imaginary(logExpr.input);
-                return this.log(this.div(logExpr.input, this.pow(this.add(this.pow(re, 2), this.pow(im, 2)), 0.5)));
             } else {
                 return this.mul(-0.5, Constant.I(TYPE), this.sub(expr, this.conjugate(expr)));
             }

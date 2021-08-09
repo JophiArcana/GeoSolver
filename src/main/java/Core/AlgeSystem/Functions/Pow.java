@@ -18,16 +18,14 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         return new ArrayList<>(Collections.singletonList(ENGINE.pow(args.get("Base").get(0).get(0), args.get("Exponent").get(0).get(0))));
     }
 
-    public Expression<T> base, exponent;
+    public Expression<T> base;
+    public Constant<T> exponent;
 
-    public Pow(Expression<T> base, Expression<T> exponent, Class<T> type) {
+    public Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
         super(type);
         if (base instanceof Pow) {
             this.base = ((Pow<T>) base).base;
-            this.exponent = ENGINE.mul(((Pow<T>) base).exponent, exponent);
-        } else if (base instanceof Constant && exponent instanceof Log<T> logExp) {
-            this.base = logExp.input;
-            this.exponent = ((Constant<T>) base).log();
+            this.exponent = ((Pow<T>) base).exponent.mul(exponent);
         } else {
             this.base = base;
             this.exponent = exponent;
@@ -62,27 +60,14 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
             return ENGINE.mul(ENGINE.pow(mulBase.constant, this.exponent),
                     ENGINE.mul(powTerms.toArray()));
         } else if (this.base instanceof Constant<T> baseConst) {
-            if (this.exponent instanceof Constant<T> expConst) {
-                return baseConst.pow(expConst);
-            } else if (this.exponent instanceof Log<T> expLog) {
-                return ENGINE.pow(expLog.input, ENGINE.log(baseConst));
-            } else if (this.exponent instanceof Mul<T> expMul && expMul.baseForm().getValue() instanceof Log<T> baseLog) {
-                return ENGINE.pow(baseLog.input, ENGINE.mul(expMul.constant, ENGINE.log(baseConst)));
-            } else if (this.exponent instanceof Add<T> expAdd
-                    && (!expAdd.constant.equals(Constant.ZERO(TYPE)) || !expAdd.logTerm.equals(Constant.ZERO(TYPE)))) {
-                Expression<T> expBase = ENGINE.sub(expAdd, ENGINE.add(expAdd.constant, expAdd.logTerm));
-                return ENGINE.mul(ENGINE.pow(baseConst, expAdd.constant), ENGINE.pow(baseConst, expAdd.logTerm),
-                        ENGINE.pow(baseConst, expBase));
-            } else {
-                return this;
-            }
+            return baseConst.pow(this.exponent);
         } else {
             return this;
         }
     }
 
     public Factorization<T> normalize() {
-        TreeMap<Expression<T>, Expression<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
+        TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         factors.put(this.base, this.exponent);
         return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
     }
@@ -91,8 +76,7 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         if (!this.variables().contains(s)) {
             return Constant.ZERO(TYPE);
         } else {
-            return ENGINE.mul(this, ENGINE.add(ENGINE.mul(this.exponent.derivative(s), ENGINE.log(this.base)),
-                    ENGINE.mul(this.exponent, this.base.derivative(s), ENGINE.pow(this.base, Constant.NONE(TYPE)))));
+            return ENGINE.mul(this.exponent, ENGINE.pow(this.base, ENGINE.sub(this.exponent, 1)), this.base.derivative(s));
         }
     }
 
@@ -101,8 +85,7 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         if (!this.variables().contains(s)) {
             return Constant.ZERO(TYPE);
         } else {
-            return ENGINE.add(ENGINE.mul(this.exponent.derivative(s), ENGINE.log(this.base)),
-                    ENGINE.mul(this.exponent, this.base.derivative(s), ENGINE.pow(this.base, Constant.NONE(TYPE))));
+            return ENGINE.mul(this.exponent, this.base.logarithmicDerivative(s));
         }
     }
 

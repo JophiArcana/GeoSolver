@@ -1,11 +1,9 @@
 package Core.Utilities;
 
 import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Mutable;
 
 import java.util.*;
-import javafx.util.*;
 
 public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>> {
     public final Class<T> TYPE;
@@ -19,9 +17,7 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
     }
 
     public OrderOfGrowthComparator(Class<T> type) {
-        this.base = null;
-        this.TYPE = type;
-        this.ENGINE = Utils.getEngine(this.TYPE);
+        this(null, type);
     }
 
     public int compare(Expression<T> e1, Expression<T> e2) {
@@ -56,30 +52,37 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
         e2 = ENGINE.orderOfGrowth(e2, var);
         e1 = ENGINE.mul(e1.signum(var), e1);
         e2 = ENGINE.mul(e2.signum(var), e2);
-        if (e1 instanceof Log<T> || e2 instanceof Log<T>) {
-            return this.baseCompare(ENGINE.exp(e1), ENGINE.exp(e2), var);
+
+        Expression<T> logDerivative1 = e1.logarithmicDerivative(var);
+        Expression<T> logDerivative2 = e2.logarithmicDerivative(var);
+        int k = logDerivative1.baseForm().getKey().compareTo(logDerivative2.baseForm().getKey());
+        if (k != 0) {
+            return k;
         } else {
-            Pair<Constant<T>, Expression<T>> baseForm1 = e1.baseForm();
-            Pair<Constant<T>, Expression<T>> baseForm2 = e2.baseForm();
-            if (baseForm1.getValue().equals(baseForm2.getValue())) {
-                return baseForm1.getKey().compareTo(baseForm2.getKey());
-            } else {
-                Expression<T> logDerivative1 = e1.logarithmicDerivative(var);
-                Expression<T> logDerivative2 = e2.logarithmicDerivative(var);
-                int sign1 = logDerivative1.signum(var);
-                int sign2 = logDerivative2.signum(var);
-                Constant<T> NONE = Constant.NONE(TYPE);
-                if (sign1 != sign2) {
-                    return sign1 - sign2;
-                } else if (sign1 == 0) {
-                    return 0;
-                } else if (sign1 == -1) {
-                    return this.baseCompare(ENGINE.mul(NONE, logDerivative2), ENGINE.mul(NONE, logDerivative1), var);
-                } else {
-                    return this.baseCompare(logDerivative1, logDerivative2, var);
-                }
-            }
+            return e1.baseForm().getKey().compareTo(e2.baseForm().getKey());
         }
+
+        /**Pair<Constant<T>, Expression<T>> baseForm1 = e1.baseForm();
+        Pair<Constant<T>, Expression<T>> baseForm2 = e2.baseForm();
+        if (baseForm1.getValue().equals(baseForm2.getValue())) {
+            return baseForm1.getKey().compareTo(baseForm2.getKey());
+        } else {
+            Expression<T> logDerivative1 = e1.logarithmicDerivative(var);
+            Expression<T> logDerivative2 = e2.logarithmicDerivative(var);
+            return logDerivative1.baseForm().getKey().compareTo(logDerivative2.baseForm().getKey());
+            int sign1 = logDerivative1.signum(var);
+            int sign2 = logDerivative2.signum(var);
+            Constant<T> NONE = Constant.NONE(TYPE);
+            if (sign1 != sign2) {
+                return sign1 - sign2;
+            } else if (sign1 == 0) {
+                return 0;
+            } else if (sign1 == -1) {
+                return this.baseCompare(ENGINE.mul(NONE, logDerivative2), ENGINE.mul(NONE, logDerivative1), var);
+            } else {
+                return this.baseCompare(logDerivative1, logDerivative2, var);
+            }
+        }*/
         /**e1 = ENGINE.orderOfGrowth(e1, var);
         e2 = ENGINE.orderOfGrowth(e2, var);
         System.out.println(e1 + " and " + e2 + " comparison with " + var);

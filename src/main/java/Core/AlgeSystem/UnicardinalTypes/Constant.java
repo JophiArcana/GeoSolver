@@ -1,9 +1,12 @@
 package Core.AlgeSystem.UnicardinalTypes;
 
 import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.UnicardinalRings.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 public abstract class Constant<T extends Expression<T>> extends Immutable implements Expression<T> {
@@ -18,26 +21,64 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
         this.ENGINE = Utils.getEngine(TYPE);
     }
 
+    private final static HashMap<String, HashMap<Class<? extends Expression<?>>, Constant<? extends Expression<?>>>> constants = new HashMap<>() {{
+        put("ZERO", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(0, 0, Symbolic.class));
+            put(Distance.class, new Complex<>(0, 0, Distance.class));
+            put(DirectedAngle.class, new Complex<>(0, 0, DirectedAngle.class));
+        }});
+        put("ONE", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(1, 0, Symbolic.class));
+            put(Distance.class, new Complex<>(1, 0, Distance.class));
+            put(DirectedAngle.class, new Complex<>(1, 0, DirectedAngle.class));
+        }});
+        put("NONE", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(-1, 0, Symbolic.class));
+            put(Distance.class, new Complex<>(-1, 0, Distance.class));
+            put(DirectedAngle.class, new Complex<>(-1, 0, DirectedAngle.class));
+        }});
+        put("I", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(0, 1, Symbolic.class));
+            put(Distance.class, new Complex<>(0, 1, Distance.class));
+            put(DirectedAngle.class, new Complex<>(0, 1, DirectedAngle.class));
+        }});
+        put("INFINITY", new HashMap<>() {{
+            put(Symbolic.class, new Infinity<>(Symbolic.class));
+            put(Distance.class, new Infinity<>(Distance.class));
+            put(DirectedAngle.class, new Infinity<>(DirectedAngle.class));
+        }});
+        put("E", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(Math.E, 0, Symbolic.class));
+            put(Distance.class, new Complex<>(Math.E, 0, Distance.class));
+            put(DirectedAngle.class, new Complex<>(Math.E, 0, DirectedAngle.class));
+        }});
+        put("PI", new HashMap<>() {{
+            put(Symbolic.class, new Complex<>(Math.PI, 0, Symbolic.class));
+            put(Distance.class, new Complex<>(Math.PI, 0, Distance.class));
+            put(DirectedAngle.class, new Complex<>(Math.PI, 0, DirectedAngle.class));
+        }});
+    }};
+
     public static <U extends Expression<U>> Constant<U> ZERO(Class<U> type) {
-        return new Complex<>(0, 0, type);
+        return (Constant<U>) Constant.constants.get("ZERO").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> ONE(Class<U> type) {
-        return new Complex<>(1, 0, type);
+        return (Constant<U>) Constant.constants.get("ONE").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> NONE(Class<U> type) {
-        return new Complex<>(-1, 0, type);
+        return (Constant<U>) Constant.constants.get("NONE").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> I(Class<U> type) {
-        return new Complex<>(0, 1, type);
+        return (Constant<U>) Constant.constants.get("I").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> INFINITY(Class<U> type) {
-        return new Infinity<>(type);
+        return (Constant<U>) Constant.constants.get("INFINITY").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> E(Class<U> type) {
-        return new Complex<>(Math.E, 0, type);
+        return (Constant<U>) Constant.constants.get("E").getOrDefault(type, null);
     }
     public static <U extends Expression<U>> Constant<U> PI(Class<U> type) {
-        return new Complex<>(Math.PI, 0, type);
+        return (Constant<U>) Constant.constants.get("PI").getOrDefault(type, null);
     }
 
     public Expression<T> reduction() {
@@ -67,7 +108,6 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
     public abstract Constant<T> inverse();
     public abstract Constant<T> conjugate();
     public abstract Constant<T> exp();
-    public abstract Constant<T> log();
     public abstract Constant<T> pow(Constant<T> x);
     public abstract Constant<T> sin();
     public abstract Constant<T> cos();
@@ -76,6 +116,10 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
     public abstract double phase();
 
     public abstract Constant<T> gcd(Constant<T> c);
+
+    public abstract boolean gaussianInteger();
+    public abstract boolean integer();
+    public abstract boolean positiveInteger();
 
     public Class<T> getType() {
         return this.TYPE;
