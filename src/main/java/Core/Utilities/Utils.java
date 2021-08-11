@@ -9,13 +9,9 @@ import Core.GeoSystem.Lines.LineTypes.Linear;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
 import com.google.common.base.CharMatcher;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Utils {
     public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
@@ -135,11 +131,11 @@ public class Utils {
         }
     }
 
-    public static <T> ArrayList<ArrayList<HashSet<T>>> binarySortedSubsetsHelper(ArrayList<T> args) {
+    public static <T> ArrayList<ArrayList<HashSet<T>>> binarySortedSubsets(ArrayList<T> args) {
         if (args.size() == 0) {
             return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(new HashSet<>()))));
         } else {
-            ArrayList<ArrayList<HashSet<T>>> lower = Utils.binarySortedSubsetsHelper(new ArrayList<>(args.subList(0, args.size() - 1)));
+            ArrayList<ArrayList<HashSet<T>>> lower = Utils.binarySortedSubsets(new ArrayList<>(args.subList(0, args.size() - 1)));
             ArrayList<ArrayList<HashSet<T>>> upper = new ArrayList<>();
             for (ArrayList<HashSet<T>> list : lower) {
                 upper.add(Utils.map(list, set -> {
@@ -183,11 +179,5 @@ public class Utils {
             copy.addAll(set);
             return copy;
         });
-    }
-
-    public static <T> ArrayList<HashSet<T>> binarySortedSubsets(ArrayList<T> args) {
-        ArrayList<HashSet<T>> subsets = new ArrayList<>();
-        Utils.binarySortedSubsetsHelper(args).forEach(subsets::addAll);
-        return subsets;
     }
 }

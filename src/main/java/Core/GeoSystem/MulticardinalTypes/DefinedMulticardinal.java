@@ -1,5 +1,6 @@
 package Core.GeoSystem.MulticardinalTypes;
 
+import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import Core.Utilities.Utils;
 
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 
 public abstract class DefinedMulticardinal extends DefinedEntity implements Multicardinal {
     public String name;
+    public ArrayList<Unicardinal> expression;
 
     public DefinedMulticardinal(String n) {
         this.name = n;
@@ -24,5 +26,12 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
 
     public boolean equals(Entity ent) {
         return Utils.compare(this, ent) == 0;
+    }
+
+    public ArrayList<Unicardinal> expression() {
+        if (this.expression == null) {
+            this.expression = super.expression();
+        }
+        return this.expression;
     }
 }

@@ -390,7 +390,7 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public GCDGraph<T> fullGCDGraph(ArrayList<Expression<T>> args) {
-        ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsetsHelper(args);
+        ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsets(args);
         ArrayList<HashSet<Expression<T>>> subsets = new ArrayList<>();
         subsetList.subList(2, subsetList.size()).forEach(subsets::addAll);
 
@@ -418,7 +418,7 @@ public class AlgeEngine<T extends Expression<T>> {
             });
 
             Expression<T> sum = this.add(elements.toArray());
-            ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsetsHelper(new ArrayList<>(argSet));
+            ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsets(new ArrayList<>(argSet));
             ArrayList<HashSet<Expression<T>>> subsets = new ArrayList<>();
             subsetList.subList(1, subsetList.size()).forEach(subsets::addAll);
             subsets.forEach(subset -> subset.add(sum));
@@ -430,6 +430,7 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Pair<ArrayList<Expression<T>>, GCDGraph<T>> GCDReduction(ArrayList<Expression<T>> args) {
+        System.out.println("Reducing " + args);
         return reduceGCDGraph(args, fullGCDGraph(args));
     }
 

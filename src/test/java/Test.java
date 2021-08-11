@@ -30,6 +30,8 @@ public class Test {
         Point c = centroid("C", p, m);
         Point o = circumcenter(p, q, r);
 
+        System.out.println(o.expression());
+
         /**Expression<Distance> expr = (Expression<Distance>) o.expression().get(0);
         Expression<Distance> conjugate = e2.conjugate(expr);
         System.out.println(expr);
@@ -46,7 +48,7 @@ public class Test {
 
         System.out.println(e2.real(expr2));*/
 
-        Expression<Distance> expr = (Expression<Distance>) o.expression(Multicardinal.X);
+        /**Expression<Distance> expr = (Expression<Distance>) o.expression(Multicardinal.X);
         expr = e2.mul(expr, 2);
         ArrayList<Expression<Distance>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
         exprInputs = Utils.cast(exprInputs.get(1).getInputs().get("Terms"));
@@ -54,8 +56,9 @@ public class Test {
         ArrayList<Expression<Symbolic>> exprInputs2 = new ArrayList<>(Arrays.asList(e1.mul(x, y), e1.mul(y, z), e1.mul(z, x)));
         // System.out.println(e2.fullGCDGraph(exprInputs));
         System.out.println(e2.GCDReduction(exprInputs));
+        System.out.println(e1.GCDReduction(new ArrayList<>(Arrays.asList(x, y))));
 
         Linear l = new Linear("L");
-        System.out.println(l.expression());
+        System.out.println(l.expression());*/
     }
 }

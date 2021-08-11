@@ -104,6 +104,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
             } else {
                 ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
                         ENGINE.div(arg, gcd));
+                // normalizedTerms = ENGINE.GCDReduction(normalizedTerms).getKey();
                 normalizedTerms.add(ENGINE.div(this.constant, gcd));
                 return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).reduction()), TYPE).reduction();
             }
