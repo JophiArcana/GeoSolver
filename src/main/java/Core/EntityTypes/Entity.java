@@ -1,5 +1,6 @@
 package Core.EntityTypes;
 
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
 import Core.AlgeSystem.UnicardinalTypes.Expression;
 import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.AlgeSystem.UnicardinalTypes.Univariate;
@@ -19,13 +20,13 @@ public interface Entity {
     Entity simplify();
     ArrayList<Unicardinal> expression();
     Unicardinal expression(String varType);
+    ArrayList<Expression<Symbolic>> symbolic();
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();
     ArrayList<Function<Entity, Property>> getConstraints();
 
     Entity create(HashMap<String, ArrayList<Entity>> args);
-    Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula();
 
     HashMap<String, TreeMultiset<Entity>> getInputs();
     String[] getInputTypes();

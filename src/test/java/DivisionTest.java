@@ -1,19 +1,9 @@
 
-import Core.AlgeSystem.Functions.*;
-import Core.AlgeSystem.UnicardinalRings.Distance;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.GeoSystem.Lines.LineTypes.Linear;
-import Core.GeoSystem.MulticardinalTypes.Multicardinal;
-import Core.GeoSystem.Points.PointTypes.Phantom;
-import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.AlgeEngine;
 import Core.Utilities.OrderOfGrowthComparator;
 import Core.Utilities.Utils;
-
-import java.util.ArrayList;
-
-import static Core.Utilities.GeoEngine.*;
 
 public class DivisionTest {
     public static void main(String[] args) {

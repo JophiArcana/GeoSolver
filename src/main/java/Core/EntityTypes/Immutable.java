@@ -18,7 +18,6 @@ public abstract class Immutable implements Entity {
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
-    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula;
     public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
 
     public Immutable() {
@@ -26,7 +25,6 @@ public abstract class Immutable implements Entity {
         for (String inputType : this.getInputTypes()) {
             this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
-        this.formula = args -> this.expression();
     }
 
     public abstract int compareTo(Immutable immutable);
@@ -53,10 +51,6 @@ public abstract class Immutable implements Entity {
 
     public ArrayList<Function<Entity, Property>> getConstraints() {
         return constraints;
-    }
-
-    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
-        return formula;
     }
 
     public HashMap<String, TreeMultiset<Entity>> getInputs() {

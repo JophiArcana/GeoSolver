@@ -4,8 +4,7 @@ import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Lines.LineTypes.Axis;
-import Core.GeoSystem.Lines.LineTypes.Linear;
+import Core.GeoSystem.Lines.LineTypes.*;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
 import com.google.common.base.CharMatcher;
@@ -23,8 +22,6 @@ public class Utils {
             Univariate.class,
             Add.class,
             Pow.class,
-            Monomial.class,
-            Polynomial.class,
             Mul.class,
 
         /** SECTION: Points ========================================================================================= */
@@ -117,7 +114,7 @@ public class Utils {
         return (c1 == c2) ? o1 - o2 : c1 - c2;
     };
 
-    private static int binomial(int a, int b) {
+    public static int binomial(int a, int b) {
         if (b > a / 2) {
             return binomial(a, a - b);
         } else {

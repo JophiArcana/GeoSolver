@@ -4,6 +4,7 @@ import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.Functions.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
+import com.google.common.collect.TreeMultiset;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
             }
             ArrayList<String> stringTerms = new ArrayList<>();
             for (Map.Entry<Expression<U>, Constant<U>> entry : terms.entrySet()) {
-                Expression<U> factor = new Pow<>(entry.getKey(), entry.getValue(), TYPE).reduction();
+                Expression<U> factor = new Pow<>(entry.getKey(), entry.getValue(), TYPE).close();
                 if (Utils.CLOSED_FORM.contains(factor.getClass())) {
                     stringTerms.add(factor.toString());
                 } else {
@@ -56,11 +57,12 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
     }
 
     default Expression<T> expressionSimplify() {
-        Expression<T> reducedExpr = this.reduction();
-        if (this.getEngine().numberOfOperations(reducedExpr) - 2 <= this.getEngine().numberOfOperations(reducedExpr.expand())) {
+        Expression<T> reducedExpr = this.reduce();
+        Expression<T> reducedExpansion = this.expand().reduce();
+        if (this.getEngine().numberOfOperations(reducedExpr) - 2 <= this.getEngine().numberOfOperations(reducedExpansion)) {
             return reducedExpr;
         } else {
-            return reducedExpr.expand();
+            return reducedExpansion;
         }
     }
 
@@ -72,11 +74,12 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         return new ArrayList<>(Collections.singletonList(this));
     }
 
-    Expression<T> reduction();
+    Expression<T> reduce();
     Expression<T> expand();
+    Expression<T> close();
 
     Factorization<T> normalize();
-    Expression<T> derivative(Univariate<T> s);
+    Expression<T> derivative(Univariate<T> var);
 
     default Expression<T> derivative() {
         return (this instanceof Constant) ? Constant.ZERO(this.getType()) : this.derivative((Univariate<T>) this.variables().first());
@@ -88,7 +91,11 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
 
     default Pair<Constant<T>, Expression<T>> baseForm() {
         if (this instanceof Mul<T> mulExpr) {
-            return new Pair<>(mulExpr.constant, new Mul<>(Utils.cast(mulExpr.inputs.get("Terms")), mulExpr.TYPE).reduction());
+            Mul<T> copy = new Mul<>(mulExpr.TYPE);
+            copy.terms = mulExpr.terms;
+            copy.inputs.get("Constant").add(Constant.ONE(mulExpr.TYPE));
+            copy.inputs.get("Terms").addAll(mulExpr.inputs.get("Terms"));
+            return new Pair<>(mulExpr.constant, copy.close());
         } else if (this instanceof Constant<T> constExpr) {
             return new Pair<>(constExpr, Constant.ONE(this.getType()));
         } else {

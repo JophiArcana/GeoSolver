@@ -1,13 +1,13 @@
 package Core.AlgeSystem.Functions;
 
 import Core.AlgeSystem.Constants.*;
+import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
@@ -16,14 +16,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         return ENGINE.mul(args.get("Constant").get(0), ENGINE.mul(args.get("Terms").toArray()));
     }
 
-    public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
-        Expression<T> product = ENGINE.mul(args.get("Constant").get(0).get(0),
-                ENGINE.mul(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
-        return new ArrayList<>(Collections.singletonList(product));
-    }
-
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ONE(TYPE);
+
+    public Mul(Class<T> type) {
+        super(type);
+    }
 
     public Mul(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
@@ -75,28 +73,51 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         // System.out.println(args + " construction complete");
     }
 
-    public Expression<T> reduction() {
-        if (inputs.get("Terms").size() == 0) {
-            return constant;
-        } else if (constant.equals(Constant.ZERO(TYPE))) {
-            return Constant.ZERO(TYPE);
-        } else if (constant.equals(Constant.ONE(TYPE)) && inputs.get("Terms").size() == 1) {
-            return (Expression<T>) inputs.get("Terms").firstEntry().getElement().simplify();
-        } else {
-            if (!ENGINE.imaginary(this.constant).equals(Constant.ZERO(TYPE))) {
-                return this;
-            } else {
-                TreeMap<Univariate<T>, Integer> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-                for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
-                    if (!(entry.getKey() instanceof Univariate)) {
-                        return this;
-                    } else if (!(entry.getValue() instanceof Complex<T> cpxExp && cpxExp.integer())) {
-                        return this;
+    public ArrayList<Expression<Symbolic>> symbolic() {
+        if (this.TYPE == Symbolic.class) {
+            return new ArrayList<>(Collections.singletonList((Mul<Symbolic>) this));
+        } else if (this.TYPE == DirectedAngle.class) {
+            if (this.inputs.get("Terms").size() == 1 && this.constant instanceof Complex<T> cpx
+                && cpx.gaussianInteger() && cpx.im.equals(0)) {
+                final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+                int n = cpx.re.intValue();
+                int k = Math.abs(n);
+                Expression<Symbolic> expr = this.inputs.get("Terms").firstEntry().getElement().symbolic().get(0);
+                ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
+                ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
+                for (int i = 1; i <= k; i++) {
+                    Expression<Symbolic> symbolic = ENGINE.mul(Utils.binomial(k, i), ENGINE.pow(expr, i));
+                    switch (i % 4) {
+                        case 0:
+                            denominatorTerms.add(symbolic);
+                        case 1:
+                            numeratorTerms.add(symbolic);
+                        case 2:
+                            denominatorTerms.add(ENGINE.negate(symbolic));
+                        case 3:
+                            numeratorTerms.add(ENGINE.negate(symbolic));
                     }
-                    factors.put((Univariate<T>) entry.getKey(), ((Complex<T>) entry.getValue()).re.intValue());
                 }
-                return new Monomial<>(this.constant, factors, TYPE);
+                Expression<Symbolic> sum = ENGINE.div(ENGINE.add(numeratorTerms.toArray()),
+                        ENGINE.add(denominatorTerms.toArray()));
+                return new ArrayList<>(Collections.singletonList((n > 0) ? sum : ENGINE.negate(sum)));
+            } else {
+                return null;
             }
+        } else {
+            return null;
+        }
+    }
+
+    public Expression<T> close() {
+        if (this.inputs.get("Terms").size() == 0) {
+            return this.constant;
+        } else if (this.constant.equals(Constant.ZERO(TYPE))) {
+            return Constant.ZERO(TYPE);
+        } else if (this.constant.equals(Constant.ONE(TYPE)) && this.inputs.get("Terms").size() == 1) {
+            return (Expression<T>) this.inputs.get("Terms").firstEntry().getElement();
+        } else {
+            return this;
         }
     }
 
@@ -116,12 +137,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         return new Factorization<>(coefficient, factors, TYPE);
     }
 
-    public Expression<T> derivative(Univariate<T> s) {
-        if (!this.variables().contains(s)) {
+    public Expression<T> derivative(Univariate<T> var) {
+        if (!this.variables().contains(var)) {
             return Constant.ZERO(TYPE);
         } else {
             ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")), arg ->
-                    ENGINE.mul(this, arg.logarithmicDerivative(s)));
+                    ENGINE.mul(this, arg.logarithmicDerivative(var)));
             return ENGINE.add(derivativeTerms.toArray());
         }
     }
@@ -134,10 +155,6 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")), arg -> arg.logarithmicDerivative(s));
             return ENGINE.add(derivativeTerms.toArray());
         }
-    }
-
-    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
-        return this::formula;
     }
 
     public String[] getInputTypes() {

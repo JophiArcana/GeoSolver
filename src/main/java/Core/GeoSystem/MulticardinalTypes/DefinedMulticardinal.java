@@ -11,6 +11,7 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     public ArrayList<Unicardinal> expression;
 
     public DefinedMulticardinal(String n) {
+        super();
         this.name = n;
     }
 
@@ -24,14 +25,20 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
         return Utils.className(this) + "(" + String.join(", ", allInputs.toArray(new String[0])) + ")";
     }
 
+    public ArrayList<Unicardinal> expression() {
+        if (this.expression == null) {
+            this.expression = this.getExpression();
+        }
+        return this.expression;
+    }
+
+    protected abstract ArrayList<Unicardinal> getExpression();
+
     public boolean equals(Entity ent) {
         return Utils.compare(this, ent) == 0;
     }
 
-    public ArrayList<Unicardinal> expression() {
-        if (this.expression == null) {
-            this.expression = super.expression();
-        }
-        return this.expression;
+    public String getName() {
+        return this.name;
     }
 }

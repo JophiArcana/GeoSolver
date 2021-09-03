@@ -1,12 +1,12 @@
 package Core.AlgeSystem.Functions;
 
+import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final String[] inputTypes = new String[] {"Terms", "Constant"};
@@ -15,14 +15,12 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         return ENGINE.add(args.get("Constant").get(0), ENGINE.add(args.get("Terms").toArray()));
     }
 
-    public ArrayList<Unicardinal> formula(HashMap<String, ArrayList<ArrayList<Unicardinal>>> args) {
-        Expression<T> sum = ENGINE.add(args.get("Constant").get(0).get(0),
-                ENGINE.add(Utils.map(args.get("Terms"), arg -> arg.get(0)).toArray()));
-        return new ArrayList<>(Collections.singletonList(sum));
-    }
-
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ZERO(TYPE);
+
+    public Add(Class<T> type) {
+        super(type);
+    }
 
     public Add(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
@@ -78,36 +76,47 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
-    public Expression<T> reduction() {
-        if (inputs.get("Terms").size() == 0) {
-            return constant;
-        } else if (constant.equals(Constant.ZERO(TYPE)) && inputs.get("Terms").size() == 1) {
-            return (Expression<T>) inputs.get("Terms").firstEntry().getElement().simplify();
-        } else {
-            Expression<T> gcd = ENGINE.greatestCommonDivisor(Arrays.asList(this.constant,
-                    ENGINE.greatestCommonDivisor(Utils.cast(this.inputs.get("Terms")))));
-            if (gcd.equals(Constant.ONE(TYPE))) {
-                ArrayList<Monomial<T>> monomials = new ArrayList<>();
-                for (Entity ent : this.inputs.get("Terms")) {
-                    if (ent instanceof Univariate) {
-                        HashMap<Univariate<T>, Integer> factor = new HashMap<>() {{
-                            put((Univariate<T>) ent, 1);
-                        }};
-                        monomials.add(new Monomial<>(Constant.ONE(TYPE), factor, TYPE));
-                    } else if (ent instanceof Monomial) {
-                        monomials.add((Monomial<T>) ent);
-                    } else {
-                        return this;
-                    }
+    public ArrayList<Expression<Symbolic>> symbolic() {
+        if (this.TYPE == Symbolic.class) {
+            return new ArrayList<>(Collections.singletonList((Add<Symbolic>) this));
+        } else if (this.TYPE == DirectedAngle.class){
+            final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+            ArrayList<Expression<T>> terms = new ArrayList<>(Collections.singletonList(this.constant));
+            terms.addAll(Utils.cast(this.inputs.get("Terms")));
+            ArrayList<ArrayList<HashSet<Expression<T>>>> subsets = Utils.binarySortedSubsets(terms);
+            ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
+            ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
+            for (int i = 1; i < subsets.size(); i++) {
+                ArrayList<Expression<Symbolic>> symbolics = new ArrayList<>();
+                for (HashSet<Expression<T>> subset : subsets.get(i)) {
+                    symbolics.add(ENGINE.mul(Utils.map(subset, arg -> arg.symbolic().get(0)).toArray()));
                 }
-                return new Polynomial<>(this.constant, monomials, TYPE);
-            } else {
-                ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get("Terms"), arg ->
-                        ENGINE.div(arg, gcd));
-                // normalizedTerms = ENGINE.GCDReduction(normalizedTerms).getKey();
-                normalizedTerms.add(ENGINE.div(this.constant, gcd));
-                return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).reduction()), TYPE).reduction();
+                Expression<Symbolic> symmetricSum = ENGINE.add(symbolics.toArray());
+                switch (i % 4) {
+                    case 0:
+                        denominatorTerms.add(symmetricSum);
+                    case 1:
+                        numeratorTerms.add(symmetricSum);
+                    case 2:
+                        denominatorTerms.add(ENGINE.negate(symmetricSum));
+                    case 3:
+                        numeratorTerms.add(ENGINE.negate(symmetricSum));
+                }
             }
+            return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(numeratorTerms.toArray()),
+                    ENGINE.add(denominatorTerms.toArray()))));
+        } else {
+            return null;
+        }
+    }
+
+    public Expression<T> close() {
+        if (this.inputs.get("Terms").size() == 0) {
+            return this.constant;
+        } else if (this.constant.equals(Constant.ZERO(TYPE)) && this.inputs.get("Terms").size() == 1) {
+            return (Expression<T>) this.inputs.get("Terms").firstEntry().getElement();
+        } else {
+            return this;
         }
     }
 
@@ -125,14 +134,10 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
-    public Expression<T> derivative(Univariate<T> s) {
+    public Expression<T> derivative(Univariate<T> var) {
         ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")),
-                arg -> arg.derivative(s));
+                arg -> arg.derivative(var));
         return ENGINE.add(derivativeTerms.toArray());
-    }
-
-    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
-        return this::formula;
     }
 
     public String[] getInputTypes() {

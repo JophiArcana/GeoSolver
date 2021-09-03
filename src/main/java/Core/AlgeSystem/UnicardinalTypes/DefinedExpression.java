@@ -3,12 +3,10 @@ package Core.AlgeSystem.UnicardinalTypes;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
-import java.util.*;
-
 public abstract class DefinedExpression<T extends Expression<T>> extends DefinedEntity implements Expression<T> {
     public final Class<T> TYPE;
     public final AlgeEngine<T> ENGINE;
-    public Expression<T> expansion;
+    public Expression<T> reduction, expansion;
 
     public DefinedExpression(Class<T> type) {
         super();
@@ -16,13 +14,16 @@ public abstract class DefinedExpression<T extends Expression<T>> extends Defined
         this.ENGINE = Utils.getEngine(TYPE);
     }
 
-    public ArrayList<Unicardinal> expression() {
-        return Expression.super.expression();
+    public Expression<T> reduce() {
+        if (this.reduction == null) {
+            this.reduction = ENGINE.reduce(this);
+        }
+        return this.reduction;
     }
 
     public Expression<T> expand() {
         if (this.expansion == null) {
-            this.expansion = ENGINE.expand(this.reduction());
+            this.expansion = ENGINE.expand(this);
         }
         return this.expansion;
     }

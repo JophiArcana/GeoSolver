@@ -1,10 +1,14 @@
 package Core.AlgeSystem.Constants;
 
+import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Infinity<T extends Expression<T>> extends Constant<T> {
     public Expression<T> expression;
@@ -25,7 +29,36 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
 
     @Override
     public Entity simplify() {
-        if (this.expression instanceof Constant) {
+        if (this.expression instanceof Complex) {
+            return this.expression;
+        } else {
+            return this;
+        }
+    }
+
+    public ArrayList<Expression<Symbolic>> symbolic() {
+        if (this.TYPE == Symbolic.class) {
+            return new ArrayList<>(Collections.singletonList((Constant<Symbolic>) this));
+        } else if (this.TYPE == DirectedAngle.class) {
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Expression<T> reduce() {
+        return new Infinity<>(this.expression.reduce(), TYPE).close();
+    }
+
+    @Override
+    public Expression<T> expand() {
+        return new Infinity<>(this.expression.expand(), TYPE).close();
+    }
+
+    @Override
+    public Expression<T> close() {
+        if (this.expression instanceof Complex) {
             return this.expression;
         } else {
             return this;

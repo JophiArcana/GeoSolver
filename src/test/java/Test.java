@@ -1,4 +1,5 @@
 
+import Core.AlgeSystem.Constants.Complex;
 import Core.AlgeSystem.Functions.Add;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.AlgeSystem.UnicardinalRings.*;
@@ -19,7 +20,12 @@ public class Test {
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
         Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
         AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
-        AlgeEngine<Distance> e2 = Utils.getEngine(Distance.class);
+
+        /** Expression<Symbolic> term1 = e1.mul(x, new Complex<>(0, -1, Symbolic.class));
+        Expression<Symbolic> term2 = y;
+        Expression<Symbolic> term3 = e1.negate(z);
+        Expression<Symbolic> term4 = Constant.ZERO(Symbolic.class);
+        System.out.println(e1.greatestCommonDivisor(Arrays.asList(term1, term2, term3, term4))); */
 
         // System.out.println(e1.expand(e1.mul(e1.add(e1.mul(2, x), y), e1.add(x, y))));
 
@@ -32,33 +38,37 @@ public class Test {
 
         System.out.println(o.expression());
 
-        /**Expression<Distance> expr = (Expression<Distance>) o.expression().get(0);
-        Expression<Distance> conjugate = e2.conjugate(expr);
+        // Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
+        // expr = e1.mul(expr, 2);
+        // System.out.println(expr.getInputs().get("Terms"));
+
+        /**Expression<Symbolic> expr = (Expression<Symbolic>) o.expression().get(0);
+        Expression<Symbolic> conjugate = e1.conjugate(expr);
         System.out.println(expr);
         System.out.println(conjugate);
 
-        Expression<Distance> numerator = (Expression<Distance>) expr.getInputs().get("Terms").firstEntry().getElement();
-        Expression<Distance> constant = (Expression<Distance>) expr.getInputs().get("Constant").firstEntry().getElement();
+        Expression<Symbolic> numerator = (Expression<Symbolic>) expr.getInputs().get("Terms").firstEntry().getElement();
+        Expression<Symbolic> constant = (Expression<Symbolic>) expr.getInputs().get("Constant").firstEntry().getElement();
         System.out.println(numerator);
         System.out.println(constant);
 
-        Expression<Distance> expr2 = e2.mul(numerator, constant);
+        Expression<Symbolic> expr2 = e1.mul(numerator, constant);
 
         System.out.println("\n\n");
 
-        System.out.println(e2.real(expr2));*/
+        System.out.println(e1.real(expr2));*/
 
-        /**Expression<Distance> expr = (Expression<Distance>) o.expression(Multicardinal.X);
-        expr = e2.mul(expr, 2);
-        ArrayList<Expression<Distance>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
-        exprInputs = Utils.cast(exprInputs.get(1).getInputs().get("Terms"));
+        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
+        expr = e1.mul(expr, 2);
+        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
+        exprInputs = Utils.cast(exprInputs.get(0).getInputs().get("Terms"));
         System.out.println(exprInputs);
-        ArrayList<Expression<Symbolic>> exprInputs2 = new ArrayList<>(Arrays.asList(e1.mul(x, y), e1.mul(y, z), e1.mul(z, x)));
-        // System.out.println(e2.fullGCDGraph(exprInputs));
-        System.out.println(e2.GCDReduction(exprInputs));
-        System.out.println(e1.GCDReduction(new ArrayList<>(Arrays.asList(x, y))));
+        // ArrayList<Expression<Symbolic>> exprInputs2 = new ArrayList<>(Arrays.asList(e1.mul(x, y), e1.mul(y, z), e1.mul(z, x)));
+        // System.out.println(e1.fullGCDGraph(exprInputs));
+        System.out.println(e1.GCDReduction(exprInputs));
+        // System.out.println(e1.GCDReduction(new ArrayList<>(Arrays.asList(x, y, z))));
 
         Linear l = new Linear("L");
-        System.out.println(l.expression());*/
+        System.out.println(l.symbolic());
     }
 }

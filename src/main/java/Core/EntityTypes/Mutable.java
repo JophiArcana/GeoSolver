@@ -16,9 +16,6 @@ public abstract class Mutable implements Entity {
         return args.get("Variable").get(0);
     }
 
-    public static final Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> formula = args ->
-            args.get("Variable").get(0);
-
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
@@ -55,10 +52,6 @@ public abstract class Mutable implements Entity {
 
     public ArrayList<Function<Entity, Property>> getConstraints() {
         return constraints;
-    }
-
-    public Function<HashMap<String, ArrayList<ArrayList<Unicardinal>>>, ArrayList<Unicardinal>> getFormula() {
-        return formula;
     }
 
     public HashMap<String, TreeMultiset<Entity>> getInputs() {

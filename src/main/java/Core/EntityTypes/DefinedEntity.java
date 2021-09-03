@@ -1,6 +1,5 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
@@ -20,14 +19,6 @@ public abstract class DefinedEntity implements Entity {
         for (String inputType : this.getInputTypes()) {
             this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
-    }
-
-    public ArrayList<Unicardinal> expression() {
-        HashMap<String, ArrayList<ArrayList<Unicardinal>>> expressionInputs = new HashMap<>();
-        for (String inputType : this.getInputTypes()) {
-            expressionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), Entity::expression));
-        }
-        return this.getFormula().apply(expressionInputs);
     }
 
     public int getNaturalDegreesOfFreedom() {

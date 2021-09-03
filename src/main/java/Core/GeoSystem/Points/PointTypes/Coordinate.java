@@ -1,20 +1,25 @@
 package Core.GeoSystem.Points.PointTypes;
 
+import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
-import Core.AlgeSystem.UnicardinalRings.Distance;
+import Core.GeoSystem.MulticardinalTypes.Multiconstant;
 
 import java.util.*;
 
-public class Coordinate extends Immutable implements Point {
+public class Coordinate extends Multiconstant implements Point {
     public static final String[] inputTypes = new String[] {"Value"};
 
-    public final Constant<Distance> value;
+    public final Constant<Symbolic> value;
 
-    public Coordinate(Constant<Distance> v) {
-        super();
+    public Coordinate(String n, Constant<Symbolic> v) {
+        super(n);
         this.value = v;
         this.inputs.get("Value").add(this.value);
+    }
+
+    public Coordinate(Constant<Symbolic> v) {
+        this("", v);
     }
 
     public ArrayList<Unicardinal> expression() {

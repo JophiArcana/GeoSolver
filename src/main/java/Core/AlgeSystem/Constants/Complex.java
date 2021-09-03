@@ -1,8 +1,13 @@
 package Core.AlgeSystem.Constants;
 
+import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
+import Core.AlgeSystem.UnicardinalRings.Symbolic;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Complex<T extends Expression<T>> extends Constant<T> {
     public final Number re;
@@ -40,6 +45,22 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
             } else {
                 return "(" + reString + " + " + im + "i)";
             }
+        }
+    }
+
+    public ArrayList<Expression<Symbolic>> symbolic() {
+        if (this.TYPE == Symbolic.class) {
+            return new ArrayList<>(Collections.singletonList((Constant<Symbolic>) this));
+        } else if (this.TYPE == DirectedAngle.class) {
+            Constant<T> tan = this.tan();
+            if (tan instanceof Infinity<T>) {
+                return new ArrayList<>(Collections.singletonList(new Infinity<>(Symbolic.class)));
+            } else {
+                Complex<T> cpx = (Complex<T>) tan;
+                return new ArrayList<>(Collections.singletonList(new Complex<>(cpx.re, cpx.im, Symbolic.class)));
+            }
+        } else {
+            return null;
         }
     }
 
@@ -122,15 +143,13 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
     }
 
     public Constant<T> sin() {
-        Number[] set = Utils.integerize(
-                Math.sin(re.doubleValue()) * Math.cosh(im.doubleValue()),
+        Number[] set = Utils.integerize(Math.sin(re.doubleValue()) * Math.cosh(im.doubleValue()),
                 Math.cos(re.doubleValue()) * Math.sinh(im.doubleValue()));
         return new Complex<>(set[0], set[1], TYPE);
     }
 
     public Constant<T> cos() {
-        Number[] set = Utils.integerize(
-                Math.cos(re.doubleValue()) * Math.cosh(im.doubleValue()),
+        Number[] set = Utils.integerize(Math.cos(re.doubleValue()) * Math.cosh(im.doubleValue()),
                 -Math.sin(re.doubleValue()) * Math.sinh(im.doubleValue()));
         return new Complex<>(set[0], set[1], TYPE);
     }
@@ -148,7 +167,10 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
     }
 
     public Constant<T> gcd(Constant<T> c) {
-        if (c instanceof Complex<T> cpx) {
+        if (this.equals(Constant.ONE(TYPE)) && c.equals(Constant.ONE(TYPE))) {
+            return this;
+        } else if (c instanceof Complex<T> cpx) {
+            Complex<T> result;
             if (this.gaussianInteger() && cpx.gaussianInteger()) {
                 Complex<T> upper = (this.abs() > c.abs()) ? this : cpx;
                 Complex<T> lower = (this.abs() > c.abs()) ? cpx : this;
@@ -157,13 +179,20 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     upper = lower;
                     lower = remainder;
                 }
-                return (lower.compareTo(Constant.ZERO(TYPE)) < 0) ? lower.mul(Constant.NONE(TYPE)) : lower;
+                result = lower;
             } else if ((this.div(cpx)).gaussianInteger()) {
-                return (cpx.compareTo(Constant.ZERO(TYPE)) < 0) ? cpx.mul(Constant.NONE(TYPE)) : cpx;
+                result = cpx;
             } else if (cpx.div(this).gaussianInteger()) {
-                return (this.compareTo(Constant.ZERO(TYPE)) < 0) ? this.mul(Constant.NONE(TYPE)) : this;
+                result = this;
             } else {
                 return Constant.ONE(TYPE);
+            }
+            if (result.re.doubleValue() > 0) {
+                return result;
+            } else if (result.re.doubleValue() == 0) {
+                return new Complex<>(Math.abs(result.im.doubleValue()), 0, TYPE);
+            } else {
+                return result.mul(Constant.NONE(TYPE));
             }
         } else {
             return this;

@@ -9,12 +9,12 @@ import java.util.*;
 public class Linear extends Multivariate implements Line {
     public static final int naturalDegreesOfFreedom = 2;
 
-    public Univariate<Distance> var_r;
+    public Univariate<Symbolic> var_r;
     public Univariate<DirectedAngle> var_phi;
 
     public Linear(String n) {
         super(n);
-        this.var_r = new Univariate<>(this.name + Line.varTypes[0], Distance.class);
+        this.var_r = new Univariate<>(this.name + Line.varTypes[0], Symbolic.class);
         this.var_phi = new Univariate<>(this.name + Line.varTypes[1], DirectedAngle.class);
     }
 
