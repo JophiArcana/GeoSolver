@@ -9,8 +9,6 @@ import Core.GeoSystem.Points.PointTypes.*;
 import Core.Utilities.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static Core.Utilities.GeoEngine.*;
 
@@ -65,10 +63,15 @@ public class Test {
         System.out.println(exprInputs);
         // ArrayList<Expression<Symbolic>> exprInputs2 = new ArrayList<>(Arrays.asList(e1.mul(x, y), e1.mul(y, z), e1.mul(z, x)));
         // System.out.println(e1.fullGCDGraph(exprInputs));
+
         System.out.println(e1.GCDReduction(exprInputs));
         // System.out.println(e1.GCDReduction(new ArrayList<>(Arrays.asList(x, y, z))));
 
         Linear l = new Linear("L");
         System.out.println(l.symbolic());
+
+        ArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3));
+        list.add(null);
+        System.out.println(list);
     }
 }
