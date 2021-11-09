@@ -10,7 +10,7 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 
 public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
-    public static final String[] inputTypes = new String[] {"Terms", "Constant"};
+    public static final String[] inputTypes = {"Terms", "Constant"};
 
     public Entity create(HashMap<String, ArrayList<Entity>> args) {
         return ENGINE.mul(args.get("Constant").get(0), ENGINE.mul(args.get("Terms").toArray()));

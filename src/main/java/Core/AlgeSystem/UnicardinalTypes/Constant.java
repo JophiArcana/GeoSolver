@@ -8,7 +8,7 @@ import Core.Utilities.*;
 import java.util.*;
 
 public abstract class Constant<T extends Expression<T>> extends Immutable implements Expression<T> {
-    public static final String[] inputTypes = new String[] {"Value"};
+    public static final String[] inputTypes = {"Value"};
 
     public final Class<T> TYPE;
     public final AlgeEngine<T> ENGINE;

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Axis extends Multiconstant implements Line {
-    public static final String[] inputTypes = new String[] {"Radius", "Angle"};
+    public static final String[] inputTypes = {"Radius", "Angle"};
 
     public final Constant<Symbolic> radius;
     public final Constant<DirectedAngle> angle;

@@ -9,7 +9,7 @@ import Core.GeoSystem.Points.PointTypes.Point;
 import java.util.*;
 
 public class Connect extends DefinedMulticardinal implements Line {
-    public static final String[] inputTypes = new String[] {"Points"};
+    public static final String[] inputTypes = {"Points"};
 
     public Entity create(HashMap<String, ArrayList<Entity>> args) {
         return new Connect((Point) args.get("Points").get(0), (Point) args.get("Points").get(1));
@@ -25,8 +25,9 @@ public class Connect extends DefinedMulticardinal implements Line {
         return this;
     }
 
+    /** TODO: Fix linear representation */
     protected ArrayList<Unicardinal> getExpression() {
-
+        return null;
     }
 
     public String[] getInputTypes() {

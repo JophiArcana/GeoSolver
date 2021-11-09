@@ -215,6 +215,14 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         return new Complex<>((int) Math.round(this.re.doubleValue()), (int) Math.round(this.im.doubleValue()), TYPE);
     }
 
+    public int signum() {
+        if (this.re.doubleValue() != 0) {
+            return (int) Math.signum(this.re.doubleValue());
+        } else {
+            return (int) Math.signum(this.im.doubleValue());
+        }
+    }
+
     public int compareTo(Immutable immutable) {
         if (immutable instanceof Constant constant && this.TYPE == constant.TYPE) {
             Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) immutable);

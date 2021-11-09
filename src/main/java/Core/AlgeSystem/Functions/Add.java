@@ -9,7 +9,7 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 
 public class Add<T extends Expression<T>> extends DefinedExpression<T> {
-    public static final String[] inputTypes = new String[] {"Terms", "Constant"};
+    public static final String[] inputTypes = {"Terms", "Constant"};
 
     public Entity create(HashMap<String, ArrayList<Entity>> args) {
         return ENGINE.add(args.get("Constant").get(0), ENGINE.add(args.get("Terms").toArray()));

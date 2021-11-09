@@ -8,7 +8,7 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
-    public static final String[] inputTypes = new String[] {"Base", "Exponent"};
+    public static final String[] inputTypes = {"Base", "Exponent"};
 
     public Entity create(HashMap<String, ArrayList<Entity>> args) {
         return ENGINE.pow(args.get("Base").get(0), args.get("Exponent").get(0));
