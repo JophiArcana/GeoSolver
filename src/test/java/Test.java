@@ -57,6 +57,8 @@ public class Test {
         System.out.println(e1.real(expr2));*/
 
         Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
+        System.out.println(expr);
+
         expr = e1.mul(expr, 2);
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get("Terms"));
@@ -67,11 +69,11 @@ public class Test {
         System.out.println(e1.GCDReduction(exprInputs));
         // System.out.println(e1.GCDReduction(new ArrayList<>(Arrays.asList(x, y, z))));
 
-        Linear l = new Linear("L");
+        /**Linear l = new Linear("L");
         System.out.println(l.symbolic());
 
         ArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3));
         list.add(null);
-        System.out.println(list);
+        System.out.println(list);*/
     }
 }

@@ -69,52 +69,22 @@ public class Experimenting {
         return subsetList;
     }
 
-    public static void printByteBuffer(ByteBuffer b) {
-        for (int i = 0; i < b.remaining(); i++) {
-            System.out.print(b.get(i));
+    public static ArrayList<ArrayList<Integer>> sortedSubsets(int n) {
+        ArrayList<ArrayList<Integer>> subsets = new ArrayList<>();
+        int bound = 1 << n;
+        subsets.add(new ArrayList<>(Collections.singletonList(0)));
+        for (int i = 1; i <= n; i++) {
+            ArrayList<Integer> subsetList = new ArrayList<>();
+            int k = (1 << i) - 1;
+            while (k < bound) {
+                subsetList.add(k);
+                int lowest_bit = k & -k;
+                int ripple = k + lowest_bit;
+                k = ripple | (((k ^ ripple) >> 2) / lowest_bit);
+            }
+            subsets.add(subsetList);
         }
-        System.out.println();
-    }
-
-    public static int count1(int k) {
-        int count = 0;
-        if ((k & 0xffff0000) != 0) {
-            k >>>= 16;
-            count = 16;
-        }
-        if (k >= 256) {
-            k >>>= 8;
-            count += 8;
-        }
-        if (k >= 16) {
-            k >>>= 4;
-            count += 4;
-        }
-        if (k >= 4) {
-            k >>>= 2;
-            count += 2;
-        }
-        return count + (k >>> 1);
-    }
-
-    public static int count2(int k) {
-        return Integer.numberOfTrailingZeros(k);
-    }
-
-    public static void test(Function<Integer, Integer> counter) {
-        for (int i = 1; i != 0; i <<= 1) {
-            counter.apply(i);
-        }
-    }
-
-    public static <T> HashMap<Integer, T> setMap(T[] arr, int set) {
-        HashMap<Integer, T> elements = new HashMap<>();
-        while (set != 0) {
-            int upper_bits = set & (set - 1);
-            elements.put(set - upper_bits, arr[Integer.numberOfTrailingZeros(set)]);
-            set = upper_bits;
-        }
-        return elements;
+        return subsets;
     }
 
     public static void main(String[] args) {
@@ -130,7 +100,7 @@ public class Experimenting {
         //ArrayList<ArrayList<ByteBuffer>> subsetList = binarySortedSubsets(10);
         //subsetList.forEach(subsets -> subsets.forEach(Experimenting::printByteBuffer));
         // System.out.println(Utils.subsets(37));
-        System.out.println(setMap(new String[] {"asdf", "uiop", "qwer", "zxcv"}, 13));
         // System.out.println(Utils.binarySortedSubsets(4095).get(3).size());
+        System.out.println(sortedSubsets(5));
     }
 }

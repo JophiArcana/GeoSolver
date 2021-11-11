@@ -8,8 +8,6 @@ import Core.GeoSystem.Lines.LineTypes.*;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
 import com.google.common.base.CharMatcher;
-import javafx.util.Pair;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 import java.util.function.Function;
@@ -130,14 +128,14 @@ public class Utils {
         }
     }
 
-    public static ArrayList<ArrayList<Integer>> binarySortedSubsets(int n) {
-        int k = Utils.countSetBits(n);
+    public static ArrayList<ArrayList<Integer>> sortedSubsetsBinary(int set) {
+        int k = Utils.countSetBits(set);
         if (k == 0) {
             return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(0))));
         } else {
-            int upper_bits = n & (n - 1);
-            int lowest_bit = n - upper_bits;
-            ArrayList<ArrayList<Integer>> lower = Utils.binarySortedSubsets(upper_bits);
+            int upper_bits = set & (set - 1);
+            int lowest_bit = set - upper_bits;
+            ArrayList<ArrayList<Integer>> lower = Utils.sortedSubsetsBinary(upper_bits);
             ArrayList<ArrayList<Integer>> upper = Utils.map(lower, list -> Utils.map(list, arg -> arg | lowest_bit));
             for (int i = 0; i < k - 1; i++) {
                 lower.get(i + 1).addAll(upper.get(i));
@@ -147,11 +145,29 @@ public class Utils {
         }
     }
 
-    public static <T> ArrayList<ArrayList<HashSet<T>>> binarySortedSubsets(ArrayList<T> args) {
+    public static ArrayList<ArrayList<Integer>> sortedContiguousSubsets(int setSize) {
+        ArrayList<ArrayList<Integer>> subsets = new ArrayList<>();
+        int bound = 1 << setSize;
+        subsets.add(new ArrayList<>(Collections.singletonList(0)));
+        for (int i = 1; i <= setSize; i++) {
+            ArrayList<Integer> subsetList = new ArrayList<>();
+            int k = (1 << i) - 1;
+            while (k < bound) {
+                subsetList.add(k);
+                int lowest_bit = k & -k;
+                int ripple = k + lowest_bit;
+                k = ripple | (((k ^ ripple) >> 2) / lowest_bit);
+            }
+            subsets.add(subsetList);
+        }
+        return subsets;
+    }
+
+    public static <T> ArrayList<ArrayList<HashSet<T>>> sortedSubsets(ArrayList<T> args) {
         if (args.size() == 0) {
             return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(new HashSet<>()))));
         } else {
-            ArrayList<ArrayList<HashSet<T>>> lower = Utils.binarySortedSubsets(new ArrayList<>(args.subList(0, args.size() - 1)));
+            ArrayList<ArrayList<HashSet<T>>> lower = Utils.sortedSubsets(new ArrayList<>(args.subList(0, args.size() - 1)));
             ArrayList<ArrayList<HashSet<T>>> upper = new ArrayList<>();
             for (ArrayList<HashSet<T>> list : lower) {
                 upper.add(Utils.map(list, set -> {
@@ -202,9 +218,8 @@ public class Utils {
     public static <T> HashMap<Integer, T> setMap(T[] arr, int set) {
         HashMap<Integer, T> elements = new HashMap<>();
         while (set != 0) {
-            int upper_bits = set & (set - 1);
-            elements.put(set - upper_bits, arr[Integer.numberOfTrailingZeros(set)]);
-            set = upper_bits;
+            elements.put(set & -set, arr[Integer.numberOfTrailingZeros(set)]);
+            set &= (set - 1);
         }
         return elements;
     }

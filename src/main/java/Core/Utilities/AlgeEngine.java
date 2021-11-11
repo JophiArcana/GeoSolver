@@ -57,7 +57,10 @@ public class AlgeEngine<T extends Expression<T>> {
             } else {
                 normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
-                // normalizedTerms = new ArrayList<>(this.GCDReduction(normalizedTerms).baseforms.keySet());
+
+                // GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
+                // normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
+
                 return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).close().reduce()), TYPE).close();
             }
         } else if (expr instanceof Mul<T> mulExpr) {
@@ -353,9 +356,9 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public GCDGraph<T> fullGCDGraph(ArrayList<Expression<T>> args) {
-        ArrayList<ArrayList<Integer>> subsetList = Utils.binarySortedSubsets((1 << args.size()) - 1);
+        ArrayList<ArrayList<Integer>> subsets = Utils.sortedContiguousSubsets(args.size());
         GCDGraph<T> graph = new GCDGraph<>(args, this.GCDGraphComparator);
-        this.addToGCDGraph(subsetList, 0, graph);
+        this.addToGCDGraph(subsets, 0, graph);
         return graph;
     }
 
@@ -368,8 +371,8 @@ public class AlgeEngine<T extends Expression<T>> {
             GCDList.removeIf(pair -> (pair.getKey() & removedElements) != 0);
 
             Expression<T> sum = this.add(Utils.setParse(graph.elements, removedElements).toArray());
-            ArrayList<ArrayList<Integer>> subsetList = Utils.binarySortedSubsets(graph.binaryRepresentation);
-            int anchorPosition = removedElements - (removedElements & (removedElements - 1));
+            ArrayList<ArrayList<Integer>> subsetList = Utils.sortedSubsetsBinary(graph.binaryRepresentation);
+            int anchorPosition = removedElements & -removedElements;
             graph.binaryRepresentation |= anchorPosition;
             graph.elements[Integer.numberOfTrailingZeros(removedElements)] = sum;
 

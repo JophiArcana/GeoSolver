@@ -83,7 +83,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
             final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
             ArrayList<Expression<T>> terms = new ArrayList<>(Collections.singletonList(this.constant));
             terms.addAll(Utils.cast(this.inputs.get("Terms")));
-            ArrayList<ArrayList<HashSet<Expression<T>>>> subsets = Utils.binarySortedSubsets(terms);
+            ArrayList<ArrayList<HashSet<Expression<T>>>> subsets = Utils.sortedSubsets(terms);
             ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
             ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
             for (int i = 1; i < subsets.size(); i++) {
