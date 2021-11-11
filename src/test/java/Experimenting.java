@@ -1,5 +1,8 @@
+import Core.Utilities.Utils;
+
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Function;
 
 public class Experimenting {
     public static int countSetBits(int n) {
@@ -73,6 +76,47 @@ public class Experimenting {
         System.out.println();
     }
 
+    public static int count1(int k) {
+        int count = 0;
+        if ((k & 0xffff0000) != 0) {
+            k >>>= 16;
+            count = 16;
+        }
+        if (k >= 256) {
+            k >>>= 8;
+            count += 8;
+        }
+        if (k >= 16) {
+            k >>>= 4;
+            count += 4;
+        }
+        if (k >= 4) {
+            k >>>= 2;
+            count += 2;
+        }
+        return count + (k >>> 1);
+    }
+
+    public static int count2(int k) {
+        return Integer.numberOfTrailingZeros(k);
+    }
+
+    public static void test(Function<Integer, Integer> counter) {
+        for (int i = 1; i != 0; i <<= 1) {
+            counter.apply(i);
+        }
+    }
+
+    public static <T> HashMap<Integer, T> setMap(T[] arr, int set) {
+        HashMap<Integer, T> elements = new HashMap<>();
+        while (set != 0) {
+            int upper_bits = set & (set - 1);
+            elements.put(set - upper_bits, arr[Integer.numberOfTrailingZeros(set)]);
+            set = upper_bits;
+        }
+        return elements;
+    }
+
     public static void main(String[] args) {
         /**byte[] array1 = {0, 1, 2, 3, 4, 5, 6, 7};
         byte[] array2 = {1, 2, 3, 4, 5, 6, 7, 8};
@@ -83,7 +127,10 @@ public class Experimenting {
         System.out.println(a1.get(0));
         System.out.println(a3.remaining());*/
 
-        ArrayList<ArrayList<ByteBuffer>> subsetList = binarySortedSubsets(10);
-        subsetList.forEach(subsets -> subsets.forEach(Experimenting::printByteBuffer));
+        //ArrayList<ArrayList<ByteBuffer>> subsetList = binarySortedSubsets(10);
+        //subsetList.forEach(subsets -> subsets.forEach(Experimenting::printByteBuffer));
+        // System.out.println(Utils.subsets(37));
+        System.out.println(setMap(new String[] {"asdf", "uiop", "qwer", "zxcv"}, 13));
+        // System.out.println(Utils.binarySortedSubsets(4095).get(3).size());
     }
 }

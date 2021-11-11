@@ -8,6 +8,8 @@ import Core.GeoSystem.Lines.LineTypes.*;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
 import com.google.common.base.CharMatcher;
+import javafx.util.Pair;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 import java.util.function.Function;
@@ -128,6 +130,23 @@ public class Utils {
         }
     }
 
+    public static ArrayList<ArrayList<Integer>> binarySortedSubsets(int n) {
+        int k = Utils.countSetBits(n);
+        if (k == 0) {
+            return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(0))));
+        } else {
+            int upper_bits = n & (n - 1);
+            int lowest_bit = n - upper_bits;
+            ArrayList<ArrayList<Integer>> lower = Utils.binarySortedSubsets(upper_bits);
+            ArrayList<ArrayList<Integer>> upper = Utils.map(lower, list -> Utils.map(list, arg -> arg | lowest_bit));
+            for (int i = 0; i < k - 1; i++) {
+                lower.get(i + 1).addAll(upper.get(i));
+            }
+            lower.add(upper.get(lower.size() - 1));
+            return lower;
+        }
+    }
+
     public static <T> ArrayList<ArrayList<HashSet<T>>> binarySortedSubsets(ArrayList<T> args) {
         if (args.size() == 0) {
             return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(new HashSet<>()))));
@@ -149,32 +168,53 @@ public class Utils {
         }
     }
 
-    public static <T> ArrayList<HashSet<T>> subsets(Collection<T> args) {
-        args = new HashSet<>(args);
-        if (args.size() == 0) {
-            return new ArrayList<>(Collections.singletonList(new HashSet<>()));
+    public static ArrayList<Integer> subsets(int n) {
+        return Utils.supersetHelper(0, n);
+    }
+
+    public static ArrayList<Integer> supersets(int subset, int superset) {
+        return Utils.supersetHelper(subset, subset ^ superset);
+    }
+
+    private static ArrayList<Integer> supersetHelper(int seed, int n) {
+        int k = Utils.countSetBits(n);
+        if (k == 0) {
+            return new ArrayList<>(Collections.singletonList(seed));
         } else {
-            T arg;
-            args.remove(arg = args.stream().findAny().get());
-            ArrayList<HashSet<T>> lower = Utils.subsets(args);
-            ArrayList<HashSet<T>> upper = Utils.map(lower, set -> {
-                HashSet<T> copy = new HashSet<>(set);
-                copy.add(arg);
-                return copy;
-            });
+            int upper_bits = n & (n - 1);
+            int lowest_bit = n - upper_bits;
+            ArrayList<Integer> lower = Utils.supersetHelper(seed, upper_bits);
+            ArrayList<Integer> upper = Utils.map(lower, arg -> arg | lowest_bit);
             lower.addAll(upper);
             return lower;
         }
     }
 
-    public static <T> ArrayList<HashSet<T>> supersets(Collection<T> subset, Collection<T> superset) {
-        Set<T> exclusion = new HashSet<>(superset);
-        exclusion.removeAll(subset);
-        ArrayList<HashSet<T>> exclusionSets = Utils.subsets(exclusion);
-        return Utils.map(exclusionSets, set -> {
-            HashSet<T> copy = new HashSet<>(subset);
-            copy.addAll(set);
-            return copy;
-        });
+    public static int countSetBits(int n) {
+        int count = 0;
+        while (n > 0) {
+            n &= (n - 1);
+            count++;
+        }
+        return count;
+    }
+
+    public static <T> HashMap<Integer, T> setMap(T[] arr, int set) {
+        HashMap<Integer, T> elements = new HashMap<>();
+        while (set != 0) {
+            int upper_bits = set & (set - 1);
+            elements.put(set - upper_bits, arr[Integer.numberOfTrailingZeros(set)]);
+            set = upper_bits;
+        }
+        return elements;
+    }
+
+    public static <T> ArrayList<T> setParse(T[] arr, int set) {
+        ArrayList<T> elements = new ArrayList<>();
+        while (set != 0) {
+            elements.add(arr[Integer.numberOfTrailingZeros(set)]);
+            set &= (set - 1);
+        }
+        return elements;
     }
 }

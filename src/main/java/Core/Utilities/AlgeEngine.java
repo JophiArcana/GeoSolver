@@ -47,11 +47,12 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> reduce(Expression<T> expr) {
+        Constant<T> ONE = Constant.ONE(TYPE);
         if (expr instanceof Add<T> addExpr) {
             Expression<T> gcd = this.greatestCommonDivisor(addExpr.constant,
                     this.greatestCommonDivisor(Utils.cast(addExpr.inputs.get("Terms"))));
             ArrayList<Expression<T>> normalizedTerms;
-            if (gcd.equals(Constant.ONE(TYPE))) {
+            if (gcd.equals(ONE)) {
                 return expr;
             } else {
                 normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg -> this.div(arg, gcd));
@@ -62,7 +63,7 @@ public class AlgeEngine<T extends Expression<T>> {
         } else if (expr instanceof Mul<T> mulExpr) {
             Expression.Factorization<T> factorization = mulExpr.normalize();
             Constant<T> exponentGCD = this.constantGreatestCommonDivisor(new ArrayList<>(factorization.terms.values()));
-            if (exponentGCD.equals(Constant.ONE(TYPE))) {
+            if (exponentGCD.equals(ONE)) {
                 return mulExpr;
             } else {
                 ArrayList<Expression<T>> terms = new ArrayList<>();
@@ -171,12 +172,13 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Order of Growth ==================================================================================== */
 
     public Expression<T> orderOfGrowth(Expression<T> expr, Univariate<T> s) {
+        Constant<T> ONE = Constant.ONE(TYPE);
         if (expr == null) {
             return null;
         } else if (expr instanceof Add<T> addExpr) {
             TreeMap<Expression<T>, Constant<T>> orders = new TreeMap<>(new OrderOfGrowthComparator<>(s, TYPE));
             if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
-                orders.put(Constant.ONE(TYPE), addExpr.constant);
+                orders.put(ONE, addExpr.constant);
             }
             for (Entity ent : addExpr.inputs.get("Terms")) {
                 Expression<T> termOrder = this.orderOfGrowth((Expression<T>) ent, s);
@@ -185,7 +187,7 @@ public class AlgeEngine<T extends Expression<T>> {
                     baseOrder = mulOrder.baseForm().getValue();
                     orders.put(baseOrder, orders.getOrDefault(baseOrder, Constant.ZERO(TYPE)).add(mulOrder.constant));
                 } else {
-                    orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(Constant.ONE(TYPE)));
+                    orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(ONE));
                 }
                 if (orders.get(baseOrder).equals(Constant.ZERO(TYPE))) {
                     orders.remove(baseOrder);
@@ -219,6 +221,7 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Greatest Common Divisor ============================================================================ */
 
     private Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
+        Constant<T> ONE = Constant.ONE(TYPE);
         if (e1.equals(Constant.ZERO(TYPE))) {
             Constant<T> const2 = e2.baseForm().getKey();
             if (const2 instanceof Infinity<T> inf) {
@@ -233,6 +236,8 @@ public class AlgeEngine<T extends Expression<T>> {
                     return this.negate(e2);
                 }
             }
+        } else if (e1.equals(ONE) || e2.equals(ONE)) {
+            return ONE;
         } else if (e1 instanceof Constant<T> const1) {
             return const1.gcd(e2.baseForm().getKey());
         } else if (e2 instanceof Constant<T>) {
@@ -241,7 +246,7 @@ public class AlgeEngine<T extends Expression<T>> {
             Expression.Factorization<T> e1Norm = e1.normalize(),
                                         e2Norm = e2.normalize();
             Constant<T> constant = e1Norm.constant.gcd(e2Norm.constant);
-            Expression<T> product = Constant.ONE(TYPE);
+            Expression<T> product = ONE;
             TreeSet<Expression<T>> terms = new TreeSet<>(Utils.PRIORITY_COMPARATOR) {{
                 addAll(e1Norm.terms.keySet());
                 addAll(e2Norm.terms.keySet());
@@ -276,86 +281,67 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     private static class GCDGraph<T extends Expression<T>> {
-        HashSet<Expression<T>> elements;
-        TreeSet<Pair<HashSet<Expression<T>>, Double>> GCDList;
+        Expression<T>[] elements = new Expression[32];
+        int binaryRepresentation;
+        TreeSet<Pair<Integer, Double>> GCDList;
 
-        HashSet<HashSet<Expression<T>>> ignoredSubsets = new HashSet<>();
+        HashSet<Integer> ignoredSubsets = new HashSet<>();
 
-        public GCDGraph(HashSet<Expression<T>> elements, Comparator<Pair<HashSet<Expression<T>>, Double>> comparator) {
-            this.elements = elements;
+        public GCDGraph(ArrayList<Expression<T>> elements, Comparator<Pair<Integer, Double>> comparator) {
+            for (int i = 0; i < elements.size(); i++) {
+                this.elements[i] = elements.get(i);
+            }
+            this.binaryRepresentation = (1 << elements.size()) - 1;
             this.GCDList = new TreeSet<>(comparator);
         }
 
         public String toString() {
-            return this.elements + "=(" + this.GCDList + ")";
-        }
-
-        public void filter(Function<HashSet<Expression<T>>, Boolean> filter) {
-            this.GCDList.removeIf(hashSetIntegerPair -> filter.apply(hashSetIntegerPair.getKey()));
+            return Utils.setParse(this.elements, this.binaryRepresentation) + "=" + this.GCDList;
         }
     }
 
-    private final Comparator<Pair<HashSet<Expression<T>>, Double>> GCDGraphComparator = (o1, o2) -> {
+    private final Comparator<Pair<Integer, Double>> GCDGraphComparator = (o1, o2) -> {
         if (!Objects.equals(o1.getValue(), o2.getValue())) {
             return Double.compare(o2.getValue(), o1.getValue());
-        } else if (o1.getKey().size() != o2.getKey().size()) {
-            return o1.getKey().size() - o2.getKey().size();
         } else {
-            return o1.getKey().hashCode() - o2.getKey().hashCode();
+            int size1 = Utils.countSetBits(o1.getKey()),
+                size2 = Utils.countSetBits(o2.getKey());
+            if (size1 != size2) {
+                return size1 - size2;
+            } else {
+                return o1.getKey() - o2.getKey();
+            }
         }
     };
 
-    private void addToGCDGraph(ArrayList<ArrayList<HashSet<Expression<T>>>> subsets, Expression<T> anchor, GCDGraph<T> graph) {
+    private void addToGCDGraph(ArrayList<ArrayList<Integer>> subsets, int anchor, GCDGraph<T> graph) {
         Constant<T> ONE = Constant.ONE(TYPE);
-        HashMap<HashSet<Expression<T>>, Expression<T>> ring = new HashMap<>();
+        HashMap<Integer, Expression<T>> ring = Utils.setMap(graph.elements, graph.binaryRepresentation);
 
-        boolean allOnes = true;
-        for (HashSet<Expression<T>> subset : subsets.get(2 - (anchor == null ? 0 : 1))) {
-            if (anchor != null) {
-                subset.add(anchor);
-            }
+        int zeroAnchor = (anchor == 0) ? 0 : 1;
+        for (int initialSubsetSize = 2 - zeroAnchor; initialSubsetSize < subsets.size(); initialSubsetSize++) {
+            ArrayList<Integer> subsetList = subsets.get(initialSubsetSize);
+            int subsetSize = initialSubsetSize + zeroAnchor;
+            boolean allOnes = true;
 
-            Expression<T> GCD = this.greatestCommonDivisor(new ArrayList<>(subset));
-            allOnes &= GCD.equals(ONE);
+            HashMap<Integer, Expression<T>> newRing = new HashMap<>();
+            for (int subset : subsetList) {
+                if (!graph.ignoredSubsets.contains(subset | anchor)) {
+                    int upper = (subset & (subset - 1)) | anchor;
+                    int lower = (initialSubsetSize == 1) ? subset : ((subset ^ Integer.highestOneBit(subset)) | anchor);
+                    subset |= anchor;
 
-            if (GCD.equals(ONE)) {
-                graph.ignoredSubsets.addAll(Utils.supersets(subset, graph.elements));
-            } else {
-                ring.put(subset, GCD);
-                graph.GCDList.add(new Pair<>(subset, this.numberOfOperations(GCD) * 2));
-            }
-        }
-        if (allOnes) {
-            return;
-        }
-
-        for (ArrayList<HashSet<Expression<T>>> subsetList : subsets.subList(3 - (anchor == null ? 0 : 1), subsets.size())) {
-            allOnes = true;
-            HashMap<HashSet<Expression<T>>, Expression<T>> newRing = new HashMap<>();
-            for (HashSet<Expression<T>> subset : subsetList) {
-                HashSet<Expression<T>> copy = new HashSet<>(subset);
-                if (anchor != null) {
-                    copy.add(anchor);
-                }
-                if (!graph.ignoredSubsets.contains(copy)) {
-                    ArrayList<Expression<T>> elements = new ArrayList<>(subset);
-                    HashSet<Expression<T>>  lower = new HashSet<>(elements.subList(0, elements.size() - 1)),
-                                            upper = new HashSet<>(elements.subList(1, elements.size()));
-
-                    if (anchor != null) {
-                        subset.add(anchor);
-                        lower.add(anchor);
-                        upper.add(anchor);
-                    }
-
-                    Expression<T> GCD = this.greatestCommonDivisor(ring.getOrDefault(lower, ONE), ring.getOrDefault(upper, ONE));
+                    Expression<T> GCD = this.greatestCommonDivisor(
+                            ring.getOrDefault(lower, ONE),
+                            ring.getOrDefault(upper, ONE)
+                    );
                     allOnes &= GCD.equals(ONE);
 
                     if (GCD.equals(ONE)) {
-                        graph.ignoredSubsets.addAll(Utils.supersets(subset, graph.elements));
+                        graph.ignoredSubsets.addAll(Utils.supersets(subset, graph.binaryRepresentation));
                     } else {
                         newRing.put(subset, GCD);
-                        graph.GCDList.add(new Pair<>(subset, this.numberOfOperations(GCD) * subset.size()));
+                        graph.GCDList.add(new Pair<>(subset, this.numberOfOperations(GCD) * subsetSize));
                     }
                 }
             }
@@ -367,32 +353,27 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public GCDGraph<T> fullGCDGraph(ArrayList<Expression<T>> args) {
-        ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsets(args);
-        GCDGraph<T> graph = new GCDGraph<>(new HashSet<>(args), this.GCDGraphComparator);
-        this.addToGCDGraph(subsetList, null, graph);
+        ArrayList<ArrayList<Integer>> subsetList = Utils.binarySortedSubsets((1 << args.size()) - 1);
+        GCDGraph<T> graph = new GCDGraph<>(args, this.GCDGraphComparator);
+        this.addToGCDGraph(subsetList, 0, graph);
         return graph;
     }
 
     public GCDGraph<T> reduceGCDGraph(GCDGraph<T> graph) {
-        TreeSet<Pair<HashSet<Expression<T>>, Double>> GCDList = graph.GCDList;
+        TreeSet<Pair<Integer, Double>> GCDList = graph.GCDList;
 
-        while (GCDList.size() > 0 && GCDList.first().getValue() > 1) {
-            System.out.println(GCDList);
-            HashSet<Expression<T>> elements = GCDList.first().getKey();
-            graph.elements.removeAll(elements);
-            graph.filter(subset -> {
-                for (Expression<T> element : elements) {
-                    if (subset.contains(element)) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+        while (GCDList.size() > 0 && graph.GCDList.first().getValue() > 1) {
+            int removedElements = GCDList.first().getKey();
+            graph.binaryRepresentation ^= removedElements;
+            GCDList.removeIf(pair -> (pair.getKey() & removedElements) != 0);
 
-            Expression<T> sum = this.add(elements.toArray());
-            ArrayList<ArrayList<HashSet<Expression<T>>>> subsetList = Utils.binarySortedSubsets(new ArrayList<>(graph.elements));
-            graph.elements.add(sum);
-            this.addToGCDGraph(subsetList, sum, graph);
+            Expression<T> sum = this.add(Utils.setParse(graph.elements, removedElements).toArray());
+            ArrayList<ArrayList<Integer>> subsetList = Utils.binarySortedSubsets(graph.binaryRepresentation);
+            int anchorPosition = removedElements - (removedElements & (removedElements - 1));
+            graph.binaryRepresentation |= anchorPosition;
+            graph.elements[Integer.numberOfTrailingZeros(removedElements)] = sum;
+
+            this.addToGCDGraph(subsetList, anchorPosition, graph);
         }
         return graph;
     }
