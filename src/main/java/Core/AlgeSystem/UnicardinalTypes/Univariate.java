@@ -48,11 +48,7 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
     }
 
     public Expression<T> derivative(Univariate<T> var) {
-        if (this.name.equals(var.name)) {
-            return Constant.ONE(TYPE);
-        } else {
-            return Constant.ZERO(TYPE);
-        }
+        return this.name.equals(var.name) ? Constant.ONE(TYPE) : Constant.ZERO(TYPE);
     }
 
     public int getNaturalDegreesOfFreedom() {

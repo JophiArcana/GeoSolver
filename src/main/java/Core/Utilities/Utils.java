@@ -2,7 +2,7 @@ package Core.Utilities;
 
 import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.Functions.*;
+import Core.AlgeSystem.Operators.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.*;
 import Core.GeoSystem.Points.Functions.*;
@@ -106,13 +106,6 @@ public class Utils {
         }
         return rounded;
     }
-
-    public static Comparator<Integer> binaryComparator = (o1, o2) -> {
-        CharMatcher cm = CharMatcher.is('1');
-        int c1 = cm.countIn(Integer.toBinaryString(o1));
-        int c2 = cm.countIn(Integer.toBinaryString(o2));
-        return (c1 == c2) ? o1 - o2 : c1 - c2;
-    };
 
     public static int binomial(int a, int b) {
         if (b > a / 2) {

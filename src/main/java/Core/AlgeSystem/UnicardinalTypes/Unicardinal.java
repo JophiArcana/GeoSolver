@@ -12,11 +12,7 @@ public interface Unicardinal extends Entity {
     }};
 
     default Unicardinal expression(String varType) {
-        if (varType.equals(this.getVarType())) {
-            return this;
-        } else {
-            return null;
-        }
+        return (varType.equals(this.getVarType())) ? this : null;
     }
 
     String getVarType();

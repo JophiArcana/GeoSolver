@@ -1,7 +1,7 @@
 package Core.AlgeSystem.UnicardinalTypes;
 
 import Core.AlgeSystem.Constants.*;
-import Core.AlgeSystem.Functions.*;
+import Core.AlgeSystem.Operators.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import javafx.util.Pair;
@@ -124,11 +124,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
 
     default int signum() {
         TreeSet<Mutable> variables = this.variables();
-        if (variables.size() == 0) {
-            return this.signum(null);
-        } else {
-            return this.signum((Univariate<T>) variables.first());
-        }
+        return this.signum((variables.size() == 0) ? null : (Univariate<T>) variables.first());
     }
 
     default Expression<T> fullSubstitute() {
@@ -146,4 +142,14 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
 
     Class<T> getType();
     AlgeEngine<T> getEngine();
+
+    /** SECTION: Optimizations ====================================================================================== */
+
+    default boolean equalsOne() {
+        return (this instanceof Complex<T> cpx) && (cpx.re.doubleValue() == 1 && cpx.im.doubleValue() == 0);
+    }
+
+    default boolean equalsZero() {
+        return (this instanceof Complex<T> cpx) && (cpx.re.doubleValue() == 0 && cpx.im.doubleValue() == 0);
+    }
 }

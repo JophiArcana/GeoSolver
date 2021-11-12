@@ -1,4 +1,4 @@
-package Core.AlgeSystem.Functions;
+package Core.AlgeSystem.Operators;
 
 import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
@@ -54,9 +54,9 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public Expression<T> close() {
-        if (this.exponent.equals(Constant.ONE(TYPE)) || this.base.equals(Constant.ZERO(TYPE)) || this.base.equals(Constant.ONE(TYPE))) {
+        if (this.exponent.equalsOne() || this.base.equalsZero() || this.base.equalsOne()) {
             return this.base;
-        } else if (this.exponent.equals(Constant.ZERO(TYPE))) {
+        } else if (this.exponent.equalsZero()) {
             return Constant.ONE(TYPE);
         } else if (this.base instanceof Constant<T> baseConst) {
             return baseConst.pow(this.exponent);

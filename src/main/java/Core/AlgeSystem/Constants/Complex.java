@@ -10,13 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Complex<T extends Expression<T>> extends Constant<T> {
-    public final Number re;
-    public final Number im;
+    public final Number re, im;
 
     public Complex(Number real, Number imag, Class<T> type) {
         super(type);
-        re = real;
-        im = imag;
+        this.re = real;
+        this.im = imag;
     }
 
     public String toString() {
@@ -167,7 +166,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
     }
 
     public Constant<T> gcd(Constant<T> c) {
-        if (this.equals(Constant.ONE(TYPE)) && c.equals(Constant.ONE(TYPE))) {
+        if (this.equalsOne() && c.equalsOne()) {
             return this;
         } else if (c instanceof Complex<T> cpx) {
             Complex<T> result;

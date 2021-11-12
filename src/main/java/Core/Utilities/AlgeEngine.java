@@ -2,7 +2,7 @@ package Core.Utilities;
 
 import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.Functions.*;
+import Core.AlgeSystem.Operators.*;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
 import javafx.util.Pair;
@@ -30,16 +30,16 @@ public class AlgeEngine<T extends Expression<T>> {
             for (Entity ent : expr.getInputs().get("Terms")) {
                 operations += numberOfOperations((Expression<T>) ent);
             }
-            if ((expr instanceof Add<T> addExpr && !addExpr.constant.equals(Constant.ZERO(TYPE)))
-                    || (expr instanceof Mul<T> mulExpr && !mulExpr.constant.equals(Constant.ONE(TYPE)))) {
+            if ((expr instanceof Add<T> addExpr && !addExpr.constant.equalsZero())
+                    || (expr instanceof Mul<T> mulExpr && !mulExpr.constant.equalsOne())) {
                 operations += 1;
             }
             return operations;
         } else if (expr instanceof Pow<T> powExpr) {
             return this.numberOfOperations(powExpr.base) + Math.log(powExpr.exponent.abs()) / Math.log(2);
-        } else if (expr instanceof Univariate) {
+        } else if (expr instanceof Univariate<T>) {
             return 1;
-        } else if (expr instanceof Constant) {
+        } else if (expr instanceof Constant<T>) {
             return 0;
         } else {
             return Integer.MAX_VALUE;
@@ -52,21 +52,23 @@ public class AlgeEngine<T extends Expression<T>> {
             Expression<T> gcd = this.greatestCommonDivisor(addExpr.constant,
                     this.greatestCommonDivisor(Utils.cast(addExpr.inputs.get("Terms"))));
             ArrayList<Expression<T>> normalizedTerms;
-            if (gcd.equals(ONE)) {
+            if (gcd.equalsOne()) {
                 return expr;
             } else {
                 normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
 
-                // GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
-                // normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
+                /**if (normalizedTerms.size() <= 16) {
+                    GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
+                    normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
+                }*/
 
                 return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).close().reduce()), TYPE).close();
             }
         } else if (expr instanceof Mul<T> mulExpr) {
             Expression.Factorization<T> factorization = mulExpr.normalize();
             Constant<T> exponentGCD = this.constantGreatestCommonDivisor(new ArrayList<>(factorization.terms.values()));
-            if (exponentGCD.equals(ONE)) {
+            if (exponentGCD.equalsOne()) {
                 return mulExpr;
             } else {
                 ArrayList<Expression<T>> terms = new ArrayList<>();
@@ -74,7 +76,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 return new Mul<>(Arrays.asList(factorization.constant,
                         new Pow<>(new Mul<>(terms, TYPE).close().reduce(), exponentGCD, TYPE).close()), TYPE).close();
             }
-        } else if (expr instanceof Pow<T> || expr instanceof Constant || expr instanceof Univariate) {
+        } else if (expr instanceof Pow<T> || expr instanceof Constant<T> || expr instanceof Univariate<T>) {
             return expr;
         } else {
             return null;
@@ -97,7 +99,7 @@ public class AlgeEngine<T extends Expression<T>> {
             inputTerms.forEach(term -> ((term instanceof Add) ? expandableTerms : rest).add((Expression<T>) term));
             Expression<T> singleton = new Mul<>(rest, TYPE).close();
 
-            if (!singleton.equals(Constant.ONE(TYPE))) {
+            if (!singleton.equalsOne()) {
                 expandableTerms.add(0, singleton);
             }
             if (expandableTerms.size() == 1) {
@@ -152,7 +154,7 @@ public class AlgeEngine<T extends Expression<T>> {
             } else {
                 return powExpr;
             }
-        } else if (expr instanceof Constant || expr instanceof Univariate) {
+        } else if (expr instanceof Constant<T> || expr instanceof Univariate<T>) {
             return expr;
         } else {
             return null;
@@ -163,7 +165,7 @@ public class AlgeEngine<T extends Expression<T>> {
         ArrayList<Expression<T>> expansionTerms = new ArrayList<>();
         if (expr instanceof Add<T> addExpr) {
             addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression<T>) arg));
-            if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
+            if (!addExpr.constant.equalsZero()) {
                 expansionTerms.add(addExpr.constant);
             }
         } else {
@@ -180,7 +182,7 @@ public class AlgeEngine<T extends Expression<T>> {
             return null;
         } else if (expr instanceof Add<T> addExpr) {
             TreeMap<Expression<T>, Constant<T>> orders = new TreeMap<>(new OrderOfGrowthComparator<>(s, TYPE));
-            if (!addExpr.constant.equals(Constant.ZERO(TYPE))) {
+            if (!addExpr.constant.equalsZero()) {
                 orders.put(ONE, addExpr.constant);
             }
             for (Entity ent : addExpr.inputs.get("Terms")) {
@@ -192,7 +194,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 } else {
                     orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(ONE));
                 }
-                if (orders.get(baseOrder).equals(Constant.ZERO(TYPE))) {
+                if (orders.get(baseOrder).equalsZero()) {
                     orders.remove(baseOrder);
                 }
             }
@@ -225,7 +227,7 @@ public class AlgeEngine<T extends Expression<T>> {
 
     private Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
         Constant<T> ONE = Constant.ONE(TYPE);
-        if (e1.equals(Constant.ZERO(TYPE))) {
+        if (e1.equalsZero()) {
             Constant<T> const2 = e2.baseForm().getKey();
             if (const2 instanceof Infinity<T> inf) {
                 return (inf.signum(this.X()) == 1) ? e2 : this.negate(e2);
@@ -239,7 +241,7 @@ public class AlgeEngine<T extends Expression<T>> {
                     return this.negate(e2);
                 }
             }
-        } else if (e1.equals(ONE) || e2.equals(ONE)) {
+        } else if (e1.equalsOne() || e2.equalsOne()) {
             return ONE;
         } else if (e1 instanceof Constant<T> const1) {
             return const1.gcd(e2.baseForm().getKey());
@@ -258,7 +260,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 Expression<T>   e1Exponent = e1Norm.terms.get(term),
                                 e2Exponent = e2Norm.terms.get(term);
                 Expression<T> exponent = (Utils.getGrowthComparator(TYPE).compare(e1Exponent, e2Exponent) < 0) ? e1Exponent : e2Exponent;
-                if (exponent != null && !exponent.equals(Constant.ZERO(TYPE))) {
+                if (exponent != null && !exponent.equalsZero()) {
                     product = this.mul(product, this.pow(term, exponent));
                 }
             }
@@ -338,9 +340,9 @@ public class AlgeEngine<T extends Expression<T>> {
                             ring.getOrDefault(lower, ONE),
                             ring.getOrDefault(upper, ONE)
                     );
-                    allOnes &= GCD.equals(ONE);
+                    allOnes &= GCD.equalsOne();
 
-                    if (GCD.equals(ONE)) {
+                    if (GCD.equalsOne()) {
                         graph.ignoredSubsets.addAll(Utils.supersets(subset, graph.binaryRepresentation));
                     } else {
                         newRing.put(subset, GCD);
@@ -399,7 +401,7 @@ public class AlgeEngine<T extends Expression<T>> {
         ArrayList<Expression<T>> exprArgs = new ArrayList<>();
         for (Object obj : args) {
             Expression<T> exprArg = this.objectConversion(obj);
-            if (!exprArg.equals(Constant.ZERO(TYPE))) {
+            if (!exprArg.equalsZero()) {
                 exprArgs.add(exprArg);
             }
         }
@@ -413,9 +415,9 @@ public class AlgeEngine<T extends Expression<T>> {
     public Expression<T> sub(Object o1, Object o2) {
         Expression<T>   expr1 = this.objectConversion(o1),
                         expr2 = this.objectConversion(o2);
-        if (expr1.equals(Constant.ZERO(TYPE))) {
+        if (expr1.equalsZero()) {
             return this.negate(expr2);
-        } else if (expr2.equals(Constant.ZERO(TYPE))) {
+        } else if (expr2.equalsZero()) {
             return expr1;
         } else if (expr1 instanceof Constant<T> const1 && expr2 instanceof Constant<T> const2) {
             return const1.sub(const2);
@@ -428,9 +430,9 @@ public class AlgeEngine<T extends Expression<T>> {
         ArrayList<Expression<T>> exprArgs = new ArrayList<>();
         for (Object obj : args) {
             Expression<T> exprArg = this.objectConversion(obj);
-            if (exprArg.equals(Constant.ZERO(TYPE))) {
+            if (exprArg.equalsZero()) {
                 return Constant.ZERO(TYPE);
-            } else if (!exprArg.equals(Constant.ONE(TYPE))) {
+            } else if (!exprArg.equalsOne()) {
                 exprArgs.add(exprArg);
             }
         }
@@ -444,9 +446,9 @@ public class AlgeEngine<T extends Expression<T>> {
     public Expression<T> div(Object o1, Object o2) {
         Expression<T>   expr1 = this.objectConversion(o1),
                         expr2 = this.objectConversion(o2);
-        if (expr1.equals(Constant.ONE(TYPE))) {
+        if (expr1.equalsOne()) {
             return this.invert(expr2);
-        } else if (expr2.equals(Constant.ONE(TYPE))) {
+        } else if (expr2.equalsOne()) {
             return expr1;
         } else if (expr1 instanceof Constant<T> const1 && expr2 instanceof Constant<T> const2) {
             return const1.div(const2);
@@ -541,7 +543,7 @@ public class AlgeEngine<T extends Expression<T>> {
             return new Complex<>(n, 0, TYPE);
         } else {
             Expression<T> expr = (Expression<T>) obj;
-            if (expr == null || expr instanceof Univariate) {
+            if (expr == null || expr instanceof Univariate<T>) {
                 return expr;
             } else if (expr instanceof Constant<T> constExpr) {
                 return constExpr.conjugate();

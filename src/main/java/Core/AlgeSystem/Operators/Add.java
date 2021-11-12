@@ -1,4 +1,4 @@
-package Core.AlgeSystem.Functions;
+package Core.AlgeSystem.Operators;
 
 import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
@@ -39,7 +39,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         for (Entity ent : inputTerms) {
             stringTerms.add(ent.toString());
         }
-        if (constant.equals(Constant.ZERO(TYPE))) {
+        if (constant.equalsZero()) {
             return String.join(" + ", stringTerms);
         } else {
             return constant + " + " + String.join(" + ", stringTerms);
@@ -63,13 +63,13 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                     constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
                 } else {
                     terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
-                    if (terms.get(baseExpr).equals(Constant.ZERO(TYPE))) {
+                    if (terms.get(baseExpr).equalsZero()) {
                         terms.remove(baseExpr);
                     }
                 }
             } else {
                 terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
-                if (terms.get(arg).equals(Constant.ZERO(TYPE))) {
+                if (terms.get(arg).equalsZero()) {
                     terms.remove(arg);
                 }
             }
@@ -113,7 +113,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public Expression<T> close() {
         if (this.inputs.get("Terms").size() == 0) {
             return this.constant;
-        } else if (this.constant.equals(Constant.ZERO(TYPE)) && this.inputs.get("Terms").size() == 1) {
+        } else if (this.constant.equalsZero() && this.inputs.get("Terms").size() == 1) {
             return (Expression<T>) this.inputs.get("Terms").firstEntry().getElement();
         } else {
             return this;
@@ -122,7 +122,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
 
     public Factorization<T> normalize() {
         TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        if (this.constant.equals(Constant.ZERO(TYPE))) {
+        if (this.constant.equalsZero()) {
             factors.put(this, Constant.ONE(TYPE));
             return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
         } else {

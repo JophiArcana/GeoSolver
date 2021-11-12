@@ -1,4 +1,4 @@
-package Core.AlgeSystem.Functions;
+package Core.AlgeSystem.Operators;
 
 import Core.AlgeSystem.Constants.*;
 import Core.AlgeSystem.UnicardinalRings.*;
@@ -44,7 +44,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
                 stringTerms.add("(" + ent + ")");
             }
         }
-        if (this.constant.equals(Constant.ONE(TYPE))) {
+        if (this.constant.equalsOne()) {
             return String.join("", stringTerms);
         } else if (this.constant.equals(Constant.NONE(TYPE))) {
             return "-" + String.join("", stringTerms);
@@ -66,7 +66,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         // System.out.println(args + " construction progress " + this.terms);
         ArrayList<Map.Entry<Expression<T>, Constant<T>>> entrySet = new ArrayList<>(terms.entrySet());
         for (Map.Entry<Expression<T>, Constant<T>> entry : entrySet) {
-            if (entry.getValue().equals(Constant.ZERO(TYPE))) {
+            if (entry.getValue().equalsZero()) {
                 terms.remove(entry.getKey());
             }
         }
@@ -112,9 +112,9 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public Expression<T> close() {
         if (this.inputs.get("Terms").size() == 0) {
             return this.constant;
-        } else if (this.constant.equals(Constant.ZERO(TYPE))) {
+        } else if (this.constant.equalsZero()) {
             return Constant.ZERO(TYPE);
-        } else if (this.constant.equals(Constant.ONE(TYPE)) && this.inputs.get("Terms").size() == 1) {
+        } else if (this.constant.equalsOne() && this.inputs.get("Terms").size() == 1) {
             return (Expression<T>) this.inputs.get("Terms").firstEntry().getElement();
         } else {
             return this;
@@ -129,7 +129,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             coefficient = coefficient.mul(entFactor.constant);
             for (Map.Entry<Expression<T>, Constant<T>> entry : entFactor.terms.entrySet()) {
                 factors.put(entry.getKey(), factors.getOrDefault(entry.getKey(), Constant.ZERO(TYPE)).add(entry.getValue()));
-                if (factors.get(entry.getKey()).equals(Constant.ZERO(TYPE))) {
+                if (factors.get(entry.getKey()).equalsZero()) {
                     factors.remove(entry.getKey());
                 }
             }
