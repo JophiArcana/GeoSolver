@@ -10,6 +10,7 @@ import javafx.util.Pair;
 import java.util.*;
 import java.util.function.Function;
 
+
 public class AlgeEngine<T extends Expression<T>> {
     public final Class<T> TYPE;
     
@@ -47,7 +48,6 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> reduce(Expression<T> expr) {
-        Constant<T> ONE = Constant.ONE(TYPE);
         if (expr instanceof Add<T> addExpr) {
             Expression<T> gcd = this.greatestCommonDivisor(addExpr.constant,
                     this.greatestCommonDivisor(Utils.cast(addExpr.inputs.get("Terms"))));
@@ -58,10 +58,10 @@ public class AlgeEngine<T extends Expression<T>> {
                 normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
 
-                /**if (normalizedTerms.size() <= 16) {
+                if (normalizedTerms.size() <= 16) {
                     GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
                     normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
-                }*/
+                }
 
                 return new Mul<>(Arrays.asList(gcd, new Add<>(normalizedTerms, TYPE).close().reduce()), TYPE).close();
             }
@@ -286,7 +286,7 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     private static class GCDGraph<T extends Expression<T>> {
-        Expression<T>[] elements = new Expression[32];
+        Expression<T>[] elements = new Expression[16];
         int binaryRepresentation;
         TreeSet<Pair<Integer, Double>> GCDList;
 

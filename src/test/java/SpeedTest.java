@@ -23,7 +23,7 @@ public class SpeedTest {
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get("Terms"));
 
-        int cycles = 50000;
+        int cycles = 100000;
         double startTime = System.nanoTime();
         for (int i = 0; i < cycles; i++) {
             e1.GCDReduction(exprInputs);

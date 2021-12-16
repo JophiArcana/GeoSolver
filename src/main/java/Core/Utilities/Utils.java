@@ -7,7 +7,6 @@ import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.*;
 import Core.GeoSystem.Points.Functions.*;
 import Core.GeoSystem.Points.PointTypes.*;
-import com.google.common.base.CharMatcher;
 
 import java.util.*;
 import java.util.function.Function;

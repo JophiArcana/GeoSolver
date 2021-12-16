@@ -51,7 +51,7 @@ public class Test {
 
         System.out.println(e1.real(expr2));*/
 
-        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
+        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.Y);
         System.out.println(expr);
         System.out.println(e1.numberOfOperations(expr));
 

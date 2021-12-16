@@ -56,20 +56,5 @@ public interface Entity {
             return this.create(substitutionInputs);
         }
     }
-
-    default boolean containsClass(Class cls) {
-        if (this.getClass() == cls) {
-            return true;
-        } else {
-            for (String inputType : this.getInputTypes()) {
-                for (Entity input : this.getInputs().get(inputType)) {
-                    if (input.containsClass(cls)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-    }
 }
 
