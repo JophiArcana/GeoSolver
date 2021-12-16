@@ -12,17 +12,17 @@ import java.util.function.Function;
 public abstract class Immutable implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
         return this;
     }
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
-    public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
 
     public Immutable() {
         this.constrainedDegreesOfFreedom = Immutable.naturalDegreesOfFreedom;
-        for (String inputType : this.getInputTypes()) {
+        for (InputType inputType : this.getInputTypes()) {
             this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
     }
@@ -53,7 +53,7 @@ public abstract class Immutable implements Entity {
         return constraints;
     }
 
-    public HashMap<String, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
         return inputs;
     }
 }

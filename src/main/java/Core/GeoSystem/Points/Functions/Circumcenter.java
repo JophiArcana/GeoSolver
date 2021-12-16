@@ -18,8 +18,8 @@ public class Circumcenter extends Center {
         return ENGINE.imaginary(ENGINE.mul(ENGINE.conjugate(terms.get(0)), terms.get(1)));
     }
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        ArrayList<Entity> points = args.get("Points");
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        ArrayList<Entity> points = args.get(Parameter.POINTS);
         return new Circumcenter(this.name, (Point) points.get(0), (Point) points.get(1), (Point) points.get(2));
     }
 
@@ -37,7 +37,7 @@ public class Circumcenter extends Center {
 
     protected ArrayList<Unicardinal> getExpression() {
         final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get("Points"), arg -> arg.symbolic().get(0));
+        ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
         Expression<Symbolic> numerator = ENGINE.cyclicSum(Circumcenter::funcN, argTerms);
         Expression<Symbolic> denominator = ENGINE.mul(2, Constant.I(Symbolic.class), ENGINE.cyclicSum(Circumcenter::funcD, argTerms));
         return new ArrayList<>(Collections.singletonList(ENGINE.div(numerator, denominator)));

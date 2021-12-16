@@ -92,8 +92,8 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         if (this instanceof Mul<T> mulExpr) {
             Mul<T> copy = new Mul<>(mulExpr.TYPE);
             copy.terms = mulExpr.terms;
-            copy.inputs.get("Constant").add(Constant.ONE(mulExpr.TYPE));
-            copy.inputs.get("Terms").addAll(mulExpr.inputs.get("Terms"));
+            copy.inputs.get(Mul.Parameter.CONSTANT).add(Constant.ONE(mulExpr.TYPE));
+            copy.inputs.get(Mul.Parameter.TERMS).addAll(mulExpr.inputs.get(Mul.Parameter.TERMS));
             return new Pair<>(mulExpr.constant, copy.close());
         } else if (this instanceof Constant<T> constExpr) {
             return new Pair<>(constExpr, Constant.ONE(this.getType()));

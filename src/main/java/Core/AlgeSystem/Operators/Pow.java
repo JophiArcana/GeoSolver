@@ -8,10 +8,14 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
-    public static final String[] inputTypes = {"Base", "Exponent"};
+    public enum Parameter implements InputType {
+        BASE,
+        EXPONENT
+    }
+    public static final InputType[] inputTypes = {Parameter.BASE, Parameter.EXPONENT};
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return ENGINE.pow(args.get("Base").get(0), args.get("Exponent").get(0));
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return ENGINE.pow(args.get(Parameter.BASE).get(0), args.get(Parameter.EXPONENT).get(0));
     }
 
     public Expression<T> base;
@@ -26,8 +30,8 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
             this.base = base;
             this.exponent = exponent;
         }
-        this.inputs.get("Base").add(this.base);
-        this.inputs.get("Exponent").add(this.exponent);
+        this.inputs.get(Parameter.BASE).add(this.base);
+        this.inputs.get(Parameter.EXPONENT).add(this.exponent);
         // System.out.println(base + " and " + exponent + " Pow constructed");
     }
 
@@ -91,7 +95,7 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Pow.inputTypes;
     }
 }

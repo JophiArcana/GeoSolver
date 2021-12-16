@@ -9,10 +9,13 @@ import Core.GeoSystem.Points.PointTypes.Point;
 import java.util.*;
 
 public class Connect extends DefinedMulticardinal implements Line {
-    public static final String[] inputTypes = {"Points"};
+    public enum Parameter implements InputType {
+        POINTS
+    }
+    public static final InputType[] inputTypes = {Parameter.POINTS};
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return new Connect((Point) args.get("Points").get(0), (Point) args.get("Points").get(1));
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return new Connect((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
     }
 
     public Point a, b;
@@ -30,7 +33,7 @@ public class Connect extends DefinedMulticardinal implements Line {
         return null;
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Connect.inputTypes;
     }
 }

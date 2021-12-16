@@ -13,6 +13,8 @@ import javafx.util.*;
 
 
 public interface Entity {
+    interface InputType {}
+
     boolean equals(Entity ent);
 
     Entity simplify();
@@ -24,10 +26,10 @@ public interface Entity {
     int getConstrainedDegreesOfFreedom();
     ArrayList<Function<Entity, Property>> getConstraints();
 
-    Entity create(HashMap<String, ArrayList<Entity>> args);
+    Entity create(HashMap<InputType, ArrayList<Entity>> args);
 
-    HashMap<String, TreeMultiset<Entity>> getInputs();
-    String[] getInputTypes();
+    HashMap<InputType, TreeMultiset<Entity>> getInputs();
+    InputType[] getInputTypes();
 
     default TreeSet<Mutable> variables() {
         TreeSet<Mutable> vars = new TreeSet<>(Utils.PRIORITY_COMPARATOR);
@@ -49,8 +51,8 @@ public interface Entity {
         } else if (this instanceof Mutable || this instanceof Immutable) {
             return this;
         } else {
-            HashMap<String, ArrayList<Entity>> substitutionInputs = new HashMap<>();
-            for (String inputType : this.getInputTypes()) {
+            HashMap<InputType, ArrayList<Entity>> substitutionInputs = new HashMap<>();
+            for (InputType inputType : this.getInputTypes()) {
                 substitutionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), arg -> arg.substitute(entityPair)));
             }
             return this.create(substitutionInputs);

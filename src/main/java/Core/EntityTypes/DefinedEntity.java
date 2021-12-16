@@ -12,11 +12,11 @@ public abstract class DefinedEntity implements Entity {
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
-    public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
 
     public DefinedEntity() {
         this.constrainedDegreesOfFreedom = DefinedEntity.naturalDegreesOfFreedom;
-        for (String inputType : this.getInputTypes()) {
+        for (InputType inputType : this.getInputTypes()) {
             this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
     }
@@ -33,7 +33,7 @@ public abstract class DefinedEntity implements Entity {
         return this.constraints;
     }
 
-    public HashMap<String, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
         return this.inputs;
     }
 }

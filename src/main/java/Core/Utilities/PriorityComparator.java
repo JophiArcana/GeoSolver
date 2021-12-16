@@ -59,9 +59,9 @@ public class PriorityComparator implements Comparator<Entity> {
             return var1.name.compareTo(((Mutable) e2).name);
         }
         else {
-            HashMap<String, TreeMultiset<Entity>> e1Inputs = e1.getInputs();
-            HashMap<String, TreeMultiset<Entity>> e2Inputs = e2.getInputs();
-            for (String inputType : e1.getInputTypes()) {
+            HashMap<Entity.InputType, TreeMultiset<Entity>> e1Inputs = e1.getInputs();
+            HashMap<Entity.InputType, TreeMultiset<Entity>> e2Inputs = e2.getInputs();
+            for (Entity.InputType inputType : e1.getInputTypes()) {
                 Iterator<Entity> e1Descending = e1Inputs.get(inputType).descendingMultiset().iterator();
                 Iterator<Entity> e2Descending = e2Inputs.get(inputType).descendingMultiset().iterator();
                 while (e1Descending.hasNext() && e2Descending.hasNext()) {

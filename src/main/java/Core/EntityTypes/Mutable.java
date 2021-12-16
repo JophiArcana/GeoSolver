@@ -10,24 +10,27 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public abstract class Mutable implements Entity {
-    public static final String[] inputTypes = new String[] {"Variable"};
+    public enum Parameter implements InputType {
+        VAR
+    }
+    public static final InputType[] inputTypes = {Parameter.VAR};
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return args.get("Variable").get(0);
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return args.get(Parameter.VAR).get(0);
     }
 
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
-    public HashMap<String, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
     public String name;
 
     public Mutable(String n) {
         this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
-        for (String inputType : getInputTypes()) {
+        for (InputType inputType : getInputTypes()) {
             inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
         }
         this.name = n;
-        this.inputs.get("Variable").add(this);
+        this.inputs.get(Parameter.VAR).add(this);
     }
 
     public String toString() {
@@ -54,11 +57,11 @@ public abstract class Mutable implements Entity {
         return constraints;
     }
 
-    public HashMap<String, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
         return inputs;
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Mutable.inputTypes;
     }
 }

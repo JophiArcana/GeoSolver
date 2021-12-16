@@ -26,13 +26,21 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Simplification Optimization ======================================================================== */
 
     public double numberOfOperations(Expression<T> expr) {
-        if (expr instanceof Add<T> || expr instanceof Mul<T>) {
-            int operations = expr.getInputs().get("Terms").size() - 1;
-            for (Entity ent : expr.getInputs().get("Terms")) {
+        if (expr instanceof Add<T> addExpr) {
+            int operations = expr.getInputs().get(Add.Parameter.TERMS).size() - 1;
+            for (Entity ent : expr.getInputs().get(Add.Parameter.TERMS)) {
                 operations += numberOfOperations((Expression<T>) ent);
             }
-            if ((expr instanceof Add<T> addExpr && !addExpr.constant.equalsZero())
-                    || (expr instanceof Mul<T> mulExpr && !mulExpr.constant.equalsOne())) {
+            if (!addExpr.constant.equalsZero()) {
+                operations += 1;
+            }
+            return operations;
+        } else if (expr instanceof Mul<T> mulExpr) {
+            int operations = expr.getInputs().get(Mul.Parameter.TERMS).size() - 1;
+            for (Entity ent : expr.getInputs().get(Mul.Parameter.TERMS)) {
+                operations += numberOfOperations((Expression<T>) ent);
+            }
+            if (!mulExpr.constant.equalsOne()) {
                 operations += 1;
             }
             return operations;
@@ -50,12 +58,12 @@ public class AlgeEngine<T extends Expression<T>> {
     public Expression<T> reduce(Expression<T> expr) {
         if (expr instanceof Add<T> addExpr) {
             Expression<T> gcd = this.greatestCommonDivisor(addExpr.constant,
-                    this.greatestCommonDivisor(Utils.cast(addExpr.inputs.get("Terms"))));
+                    this.greatestCommonDivisor(Utils.cast(addExpr.inputs.get(Add.Parameter.TERMS))));
             ArrayList<Expression<T>> normalizedTerms;
             if (gcd.equalsOne()) {
                 return expr;
             } else {
-                normalizedTerms = Utils.map(addExpr.inputs.get("Terms"), arg -> this.div(arg, gcd));
+                normalizedTerms = Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
 
                 if (normalizedTerms.size() <= 16) {
@@ -85,14 +93,14 @@ public class AlgeEngine<T extends Expression<T>> {
 
     public Expression<T> expand(Expression<T> expr) {
         if (expr instanceof Add<T> addExpr) {
-            ArrayList<Expression<T>> expansions = Utils.map(addExpr.inputs.get("Terms"), arg -> ((Expression<T>) arg).expand());
+            ArrayList<Expression<T>> expansions = Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), arg -> ((Expression<T>) arg).expand());
             expansions.add(addExpr.constant);
             return new Add<>(expansions, TYPE).close();
         } else if (expr instanceof Mul<T> mulExpr) {
-            TreeMultiset<Entity> inputTerms = mulExpr.inputs.get("Terms");
+            TreeMultiset<Entity> inputTerms = mulExpr.inputs.get(Mul.Parameter.TERMS);
             if (inputTerms.size() == 1) {
                 return new Mul<>(Arrays.asList(mulExpr.constant,
-                        ((Expression<T>) mulExpr.inputs.get("Terms").firstEntry().getElement()).expand()), TYPE).close();
+                        ((Expression<T>) mulExpr.inputs.get(Mul.Parameter.TERMS).firstEntry().getElement()).expand()), TYPE).close();
             }
 
             ArrayList<Expression<T>> expandableTerms = new ArrayList<>(), rest = new ArrayList<>();
@@ -148,7 +156,7 @@ public class AlgeEngine<T extends Expression<T>> {
                     return product;
                 }
             } else if (powExpr.base instanceof Mul<T> mulExpr) {
-                ArrayList<Expression<T>> terms = Utils.map(mulExpr.inputs.get("Terms"), arg -> this.pow(arg, powExpr.exponent));
+                ArrayList<Expression<T>> terms = Utils.map(mulExpr.inputs.get(Mul.Parameter.TERMS), arg -> this.pow(arg, powExpr.exponent));
                 terms.add(mulExpr.constant.pow(powExpr.exponent));
                 return new Mul<>(terms, TYPE).close();
             } else {
@@ -164,7 +172,7 @@ public class AlgeEngine<T extends Expression<T>> {
     public ArrayList<Expression<T>> additiveTerms(Expression<T> expr) {
         ArrayList<Expression<T>> expansionTerms = new ArrayList<>();
         if (expr instanceof Add<T> addExpr) {
-            addExpr.inputs.get("Terms").forEach(arg -> expansionTerms.add((Expression<T>) arg));
+            addExpr.inputs.get(Add.Parameter.TERMS).forEach(arg -> expansionTerms.add((Expression<T>) arg));
             if (!addExpr.constant.equalsZero()) {
                 expansionTerms.add(addExpr.constant);
             }
@@ -185,7 +193,7 @@ public class AlgeEngine<T extends Expression<T>> {
             if (!addExpr.constant.equalsZero()) {
                 orders.put(ONE, addExpr.constant);
             }
-            for (Entity ent : addExpr.inputs.get("Terms")) {
+            for (Entity ent : addExpr.inputs.get(Add.Parameter.TERMS)) {
                 Expression<T> termOrder = this.orderOfGrowth((Expression<T>) ent, s);
                 Expression<T> baseOrder = termOrder;
                 if (termOrder instanceof Mul<T> mulOrder) {
@@ -201,7 +209,7 @@ public class AlgeEngine<T extends Expression<T>> {
             Map.Entry<Expression<T>, Constant<T>> greatestOrder = orders.lastEntry();
             return this.mul(greatestOrder.getValue(), greatestOrder.getKey());
         } else if (expr instanceof Mul<T> mulExpr) {
-            ArrayList<Expression<T>> termOrders = Utils.map(mulExpr.inputs.get("Terms"), arg ->
+            ArrayList<Expression<T>> termOrders = Utils.map(mulExpr.inputs.get(Mul.Parameter.TERMS), arg ->
                     this.orderOfGrowth((Expression<T>) arg, s));
             return this.mul(mulExpr.constant, this.mul(termOrders.toArray()));
         } else if (expr instanceof Pow<T> powExpr) {
@@ -509,7 +517,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 return this.infinity(this.real(inf.expression));
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.real(addExpr.constant),
-                        this.add(Utils.map(addExpr.inputs.get("Terms"), this::real).toArray()));
+                        this.add(Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), this::real).toArray()));
             } else {
                 return this.mul(0.5, this.add(expr, this.conjugate(expr)));
             }
@@ -531,7 +539,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 return Constant.ZERO(TYPE);
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.imaginary(addExpr.constant),
-                        this.add(Utils.map(addExpr.inputs.get("Terms"), this::imaginary).toArray()));
+                        this.add(Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), this::imaginary).toArray()));
             } else {
                 return this.mul(-0.5, Constant.I(TYPE), this.sub(expr, this.conjugate(expr)));
             }
@@ -548,8 +556,8 @@ public class AlgeEngine<T extends Expression<T>> {
             } else if (expr instanceof Constant<T> constExpr) {
                 return constExpr.conjugate();
             } else {
-                HashMap<String, ArrayList<Entity>> conjugateInputs = new HashMap<>();
-                for (String inputType : expr.getInputTypes()) {
+                HashMap<Entity.InputType, ArrayList<Entity>> conjugateInputs = new HashMap<>();
+                for (Entity.InputType inputType : expr.getInputTypes()) {
                     conjugateInputs.put(inputType, Utils.map(expr.getInputs().get(inputType), this::conjugate));
                 }
                 return (Expression<T>) expr.create(conjugateInputs);

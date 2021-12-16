@@ -9,10 +9,13 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Directed extends DefinedExpression<DirectedAngle> {
-    public static final String[] inputTypes = new String[] {"Points"};
+    public enum Parameter implements InputType {
+        POINTS
+    }
+    public static final InputType[] inputTypes = {Parameter.POINTS};
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return new Directed((Point) args.get("Points").get(0), (Point) args.get("Points").get(1));
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return new Directed((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
     }
 
     public Point a, b;
@@ -43,7 +46,7 @@ public class Directed extends DefinedExpression<DirectedAngle> {
         return Constant.ZERO(DirectedAngle.class);
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Directed.inputTypes;
     }
 }

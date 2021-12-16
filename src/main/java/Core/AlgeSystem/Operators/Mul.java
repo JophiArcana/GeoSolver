@@ -10,10 +10,14 @@ import com.google.common.collect.TreeMultiset;
 import java.util.*;
 
 public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
-    public static final String[] inputTypes = {"Terms", "Constant"};
+    public enum Parameter implements InputType {
+        TERMS,
+        CONSTANT
+    }
+    public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return ENGINE.mul(args.get("Constant").get(0), ENGINE.mul(args.get("Terms").toArray()));
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return ENGINE.mul(args.get(Parameter.CONSTANT).get(0), ENGINE.mul(args.get(Parameter.TERMS).toArray()));
     }
 
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
@@ -25,17 +29,17 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
 
     public Mul(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
-        TreeMultiset<Entity> inputTerms = this.inputs.get("Terms");
+        TreeMultiset<Entity> inputTerms = this.inputs.get(Parameter.TERMS);
         this.construct(args);
         // System.out.println(args + " constructed: " + terms);
         for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
             inputTerms.add(ENGINE.pow(entry.getKey(), entry.getValue()));
         }
-        this.inputs.get("Constant").add(this.constant);
+        this.inputs.get(Parameter.CONSTANT).add(this.constant);
     }
 
     public String toString() {
-        ArrayList<Entity> inputTerms = new ArrayList<>(this.inputs.get("Terms"));
+        ArrayList<Entity> inputTerms = new ArrayList<>(this.inputs.get(Parameter.TERMS));
         ArrayList<String> stringTerms = new ArrayList<>();
         for (Entity ent : inputTerms) {
             if (Utils.CLOSED_FORM.contains(ent.getClass())) {
@@ -77,12 +81,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Mul<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
-            if (this.inputs.get("Terms").size() == 1 && this.constant instanceof Complex<T> cpx
+            if (this.inputs.get(Parameter.TERMS).size() == 1 && this.constant instanceof Complex<T> cpx
                 && cpx.gaussianInteger() && cpx.im.equals(0)) {
                 final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
                 int n = cpx.re.intValue();
                 int k = Math.abs(n);
-                Expression<Symbolic> expr = this.inputs.get("Terms").firstEntry().getElement().symbolic().get(0);
+                Expression<Symbolic> expr = this.inputs.get(Parameter.TERMS).firstEntry().getElement().symbolic().get(0);
                 ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
                 ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
                 for (int i = 1; i <= k; i++) {
@@ -110,12 +114,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public Expression<T> close() {
-        if (this.inputs.get("Terms").size() == 0) {
+        if (this.inputs.get(Parameter.TERMS).size() == 0) {
             return this.constant;
         } else if (this.constant.equalsZero()) {
             return Constant.ZERO(TYPE);
-        } else if (this.constant.equalsOne() && this.inputs.get("Terms").size() == 1) {
-            return (Expression<T>) this.inputs.get("Terms").firstEntry().getElement();
+        } else if (this.constant.equalsOne() && this.inputs.get(Parameter.TERMS).size() == 1) {
+            return (Expression<T>) this.inputs.get(Parameter.TERMS).firstEntry().getElement();
         } else {
             return this;
         }
@@ -124,7 +128,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public Factorization<T> normalize() {
         Constant<T> coefficient = this.constant;
         TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        for (Entity ent : this.inputs.get("Terms")) {
+        for (Entity ent : this.inputs.get(Parameter.TERMS)) {
             Factorization<T> entFactor = ((Expression<T>) ent).normalize();
             coefficient = coefficient.mul(entFactor.constant);
             for (Map.Entry<Expression<T>, Constant<T>> entry : entFactor.terms.entrySet()) {
@@ -141,7 +145,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         if (!this.variables().contains(var)) {
             return Constant.ZERO(TYPE);
         } else {
-            ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")), arg ->
+            ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get(Parameter.TERMS)), arg ->
                     ENGINE.mul(this, arg.logarithmicDerivative(var)));
             return ENGINE.add(derivativeTerms.toArray());
         }
@@ -152,12 +156,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         if (!this.variables().contains(s)) {
             return Constant.ZERO(TYPE);
         } else {
-            ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get("Terms")), arg -> arg.logarithmicDerivative(s));
+            ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get(Parameter.TERMS)), arg -> arg.logarithmicDerivative(s));
             return ENGINE.add(derivativeTerms.toArray());
         }
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Mul.inputTypes;
     }
 }

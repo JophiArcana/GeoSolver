@@ -8,7 +8,10 @@ import Core.Utilities.*;
 import java.util.*;
 
 public abstract class Constant<T extends Expression<T>> extends Immutable implements Expression<T> {
-    public static final String[] inputTypes = {"Value"};
+    public enum Parameter implements InputType {
+        VAlUE
+    }
+    public static final InputType[] inputTypes = {Parameter.VAlUE};
 
     public final Class<T> TYPE;
     public final AlgeEngine<T> ENGINE;
@@ -92,7 +95,7 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
         return Constant.ZERO(TYPE);
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Constant.inputTypes;
     }
 

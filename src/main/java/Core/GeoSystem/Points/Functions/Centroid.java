@@ -9,8 +9,8 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Centroid extends Center {
-    public Entity create(HashMap<String, ArrayList<Entity>> args) {
-        return new Centroid(this.name, args.get("Points").toArray(new Point[0]));
+    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+        return new Centroid(this.name, args.get(Parameter.POINTS).toArray(new Point[0]));
     }
 
     public Centroid(String n, Point ... args) {
@@ -22,8 +22,8 @@ public class Centroid extends Center {
     }
 
     public Entity simplify() {
-        if (this.inputs.get("Points").size() == 2) {
-            TreeSet<Entity> pointSet = new TreeSet<>(this.inputs.get("Points").elementSet());
+        if (this.inputs.get(Parameter.POINTS).size() == 2) {
+            TreeSet<Entity> pointSet = new TreeSet<>(this.inputs.get(Parameter.POINTS).elementSet());
             return new Midpoint(this.name, (Point) pointSet.first(), (Point) pointSet.last());
         } else {
             return this;
@@ -32,7 +32,7 @@ public class Centroid extends Center {
 
     protected ArrayList<Unicardinal> getExpression() {
         AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        ArrayList<Unicardinal> argTerms = Utils.map(this.inputs.get("Points"), arg -> arg.symbolic().get(0));
+        ArrayList<Unicardinal> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
         return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()), argTerms.size())));
     }
 }

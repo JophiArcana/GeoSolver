@@ -8,14 +8,17 @@ import Core.GeoSystem.MulticardinalTypes.Multiconstant;
 import java.util.*;
 
 public class Coordinate extends Multiconstant implements Point {
-    public static final String[] inputTypes = new String[] {"Value"};
+    public enum Parameter implements InputType {
+        VALUE
+    }
+    public static final InputType[] inputTypes = {Parameter.VALUE};
 
     public final Constant<Symbolic> value;
 
     public Coordinate(String n, Constant<Symbolic> v) {
         super(n);
         this.value = v;
-        this.inputs.get("Value").add(this.value);
+        this.inputs.get(Parameter.VALUE).add(this.value);
     }
 
     public Coordinate(Constant<Symbolic> v) {
@@ -26,7 +29,7 @@ public class Coordinate extends Multiconstant implements Point {
         return new ArrayList<>(Collections.singletonList(this.value));
     }
 
-    public String[] getInputTypes() {
+    public InputType[] getInputTypes() {
         return Coordinate.inputTypes;
     }
 
