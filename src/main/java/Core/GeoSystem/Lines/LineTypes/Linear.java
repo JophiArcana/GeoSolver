@@ -1,7 +1,7 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.*;
 import Core.GeoSystem.MulticardinalTypes.Multivariate;
 
 import java.util.*;

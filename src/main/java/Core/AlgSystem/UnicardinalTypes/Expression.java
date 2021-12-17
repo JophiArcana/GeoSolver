@@ -1,7 +1,7 @@
-package Core.AlgeSystem.UnicardinalTypes;
+package Core.AlgSystem.UnicardinalTypes;
 
-import Core.AlgeSystem.Constants.*;
-import Core.AlgeSystem.Operators.*;
+import Core.AlgSystem.Constants.*;
+import Core.AlgSystem.Operators.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import javafx.util.Pair;

@@ -1,6 +1,6 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.*;
 import Core.Utilities.Utils;
 

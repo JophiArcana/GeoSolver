@@ -1,6 +1,6 @@
-package Core.AlgeSystem.UnicardinalTypes;
+package Core.AlgSystem.UnicardinalTypes;
 
-import Core.AlgeSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.Entity;
 
 import java.util.HashMap;

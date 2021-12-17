@@ -1,7 +1,7 @@
 package Core.GeoSystem.DirectedAngles;
 
-import Core.AlgeSystem.UnicardinalRings.*;
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Points.PointTypes.Point;
 import Core.Utilities.*;

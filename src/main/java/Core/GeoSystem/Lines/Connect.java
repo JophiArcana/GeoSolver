@@ -1,6 +1,6 @@
 package Core.GeoSystem.Lines;
 
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.Line;
 import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;

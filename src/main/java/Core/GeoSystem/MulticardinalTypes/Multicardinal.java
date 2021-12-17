@@ -1,7 +1,7 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.AlgeSystem.UnicardinalTypes.Expression;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.Expression;
 import Core.EntityTypes.Entity;
 import Core.Utilities.Utils;
 

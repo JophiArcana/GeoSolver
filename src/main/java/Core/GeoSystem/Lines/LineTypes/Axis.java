@@ -1,7 +1,7 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgeSystem.UnicardinalRings.*;
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multiconstant;
 

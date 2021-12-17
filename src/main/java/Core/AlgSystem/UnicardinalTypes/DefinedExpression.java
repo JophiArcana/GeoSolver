@@ -1,4 +1,4 @@
-package Core.AlgeSystem.UnicardinalTypes;
+package Core.AlgSystem.UnicardinalTypes;
 
 import Core.EntityTypes.*;
 import Core.Utilities.*;

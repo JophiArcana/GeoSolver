@@ -1,6 +1,6 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgSystem.UnicardinalTypes.Unicardinal;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 
 public interface Line extends Multicardinal {

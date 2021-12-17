@@ -1,7 +1,7 @@
-package Core.AlgeSystem.UnicardinalTypes;
+package Core.AlgSystem.UnicardinalTypes;
 
-import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalRings.DirectedAngle;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.EntityTypes.Mutable;
 import Core.Utilities.*;
 

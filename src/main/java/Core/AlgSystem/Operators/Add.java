@@ -1,7 +1,7 @@
-package Core.AlgeSystem.Operators;
+package Core.AlgSystem.Operators;
 
-import Core.AlgeSystem.UnicardinalRings.*;
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;

@@ -1,6 +1,6 @@
 
-import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.Utilities.AlgeEngine;
 import Core.Utilities.OrderOfGrowthComparator;
 import Core.Utilities.Utils;

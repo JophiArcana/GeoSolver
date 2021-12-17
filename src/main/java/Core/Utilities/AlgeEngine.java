@@ -1,8 +1,8 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.Constants.*;
-import Core.AlgeSystem.UnicardinalTypes.*;
-import Core.AlgeSystem.Operators.*;
+import Core.AlgSystem.Constants.*;
+import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.Operators.*;
 import Core.EntityTypes.*;
 import com.google.common.collect.TreeMultiset;
 import javafx.util.Pair;

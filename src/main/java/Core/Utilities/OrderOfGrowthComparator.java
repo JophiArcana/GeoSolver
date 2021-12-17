@@ -1,6 +1,6 @@
 package Core.Utilities;
 
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Mutable;
 
 import java.util.*;

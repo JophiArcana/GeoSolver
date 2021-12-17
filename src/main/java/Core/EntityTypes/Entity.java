@@ -1,7 +1,7 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;

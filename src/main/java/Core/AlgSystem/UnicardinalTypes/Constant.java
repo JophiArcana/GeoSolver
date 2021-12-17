@@ -1,7 +1,7 @@
-package Core.AlgeSystem.UnicardinalTypes;
+package Core.AlgSystem.UnicardinalTypes;
 
-import Core.AlgeSystem.Constants.*;
-import Core.AlgeSystem.UnicardinalRings.*;
+import Core.AlgSystem.Constants.*;
+import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 

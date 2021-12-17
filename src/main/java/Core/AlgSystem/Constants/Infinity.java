@@ -1,8 +1,8 @@
-package Core.AlgeSystem.Constants;
+package Core.AlgSystem.Constants;
 
-import Core.AlgeSystem.UnicardinalRings.DirectedAngle;
-import Core.AlgeSystem.UnicardinalRings.Symbolic;
-import Core.AlgeSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalRings.DirectedAngle;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
