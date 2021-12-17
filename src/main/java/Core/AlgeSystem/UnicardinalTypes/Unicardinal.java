@@ -6,14 +6,13 @@ import Core.EntityTypes.Entity;
 import java.util.HashMap;
 
 public interface Unicardinal extends Entity {
-    HashMap<Class<? extends Expression<?>>, String> RINGS = new HashMap<>() {{
-        put(Symbolic.class, "\u2C7D");
-        put(DirectedAngle.class, "\u1D40");
-    }};
-
-    default Unicardinal expression(String varType) {
-        return (varType.equals(this.getVarType())) ? this : null;
+    public enum UnicardinalExpressionType implements ExpressionType {
+        SYMBOLIC,
+        DIRECTED
     }
 
-    String getVarType();
+    HashMap<Class<? extends Expression<?>>, ExpressionType> RINGS = new HashMap<>() {{
+        put(Symbolic.class, UnicardinalExpressionType.SYMBOLIC);
+        put(DirectedAngle.class, UnicardinalExpressionType.DIRECTED);
+    }};
 }

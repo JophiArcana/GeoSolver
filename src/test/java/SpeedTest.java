@@ -18,7 +18,7 @@ public class SpeedTest {
         Phantom r = new Phantom("R");
         Point o = circumcenter(p, q, r);
 
-        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
+        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
         expr = e1.mul(expr, 2);
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get("Terms"));

@@ -73,6 +73,10 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         return new ArrayList<>(Collections.singletonList(this));
     }
 
+    default Unicardinal expression(ExpressionType varType) {
+        return (varType == Unicardinal.RINGS.getOrDefault(this.getType(), null)) ? this : null;
+    }
+
     Expression<T> reduce();
     Expression<T> expand();
     Expression<T> close();
@@ -134,10 +138,6 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
             expr = (Expression<T>) expr.substitute(new Pair<>(var, X));
         }
         return expr;
-    }
-
-    default String getVarType() {
-        return Unicardinal.RINGS.getOrDefault(this.getType(), "");
     }
 
     Class<T> getType();

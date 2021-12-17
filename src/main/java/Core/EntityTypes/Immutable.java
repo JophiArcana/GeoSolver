@@ -1,7 +1,5 @@
 package Core.EntityTypes;
 
-import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
-
 import Core.Property;
 import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;

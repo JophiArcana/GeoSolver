@@ -3,8 +3,7 @@ package Core.GeoSystem.Points.PointTypes;
 import Core.AlgeSystem.UnicardinalRings.*;
 import Core.AlgeSystem.UnicardinalTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multivariate;
-import Core.Utilities.AlgeEngine;
-import Core.Utilities.Utils;
+import Core.Utilities.*;
 
 import java.util.*;
 
@@ -13,8 +12,8 @@ public class Phantom extends Multivariate implements Point {
 
     public Phantom(String n) {
         super(n);
-        this.var_x = new Univariate<>(this.name + Point.varTypes[0], Symbolic.class);
-        this.var_y = new Univariate<>(this.name + Point.varTypes[1], Symbolic.class);
+        this.var_x = new Univariate<>(this.name + "\u1D6A", Symbolic.class);
+        this.var_y = new Univariate<>(this.name + "\u1D67", Symbolic.class);
     }
 
     public ArrayList<Unicardinal> expression() {

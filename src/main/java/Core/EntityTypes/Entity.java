@@ -14,12 +14,13 @@ import javafx.util.*;
 
 public interface Entity {
     interface InputType {}
+    interface ExpressionType {}
 
     boolean equals(Entity ent);
 
     Entity simplify();
     ArrayList<Unicardinal> expression();
-    Unicardinal expression(String varType);
+    Unicardinal expression(ExpressionType varType);
     ArrayList<Expression<Symbolic>> symbolic();
 
     int getNaturalDegreesOfFreedom();

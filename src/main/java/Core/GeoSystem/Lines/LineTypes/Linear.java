@@ -14,8 +14,8 @@ public class Linear extends Multivariate implements Line {
 
     public Linear(String n) {
         super(n);
-        this.var_r = new Univariate<>(this.name + Line.varTypes[0], Symbolic.class);
-        this.var_phi = new Univariate<>(this.name + Line.varTypes[1], DirectedAngle.class);
+        this.var_r = new Univariate<>(this.name + "\u1D63", Symbolic.class);
+        this.var_phi = new Univariate<>(this.name + "\u1D69", DirectedAngle.class);
     }
 
     public ArrayList<Unicardinal> expression() {

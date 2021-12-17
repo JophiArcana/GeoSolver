@@ -5,9 +5,7 @@ import Core.AlgeSystem.UnicardinalRings.Symbolic;
 import Core.EntityTypes.Mutable;
 import Core.Utilities.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Univariate<T extends Expression<T>> extends Mutable implements Expression<T> {
     public static final int naturalDegreesOfFreedom = 1;

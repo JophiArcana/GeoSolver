@@ -7,10 +7,6 @@ public abstract class Multivariate extends Mutable implements Multicardinal {
         super(n);
     }
 
-    public int getNaturalDegreesOfFreedom() {
-        return this.getVarTypes().length;
-    }
-
     public String getName() {
         return this.name;
     }

@@ -3,20 +3,23 @@ package Core.GeoSystem.Lines.LineTypes;
 import Core.AlgeSystem.UnicardinalTypes.Unicardinal;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 
-import java.util.Arrays;
-
 public interface Line extends Multicardinal {
-    String[] varTypes = new String[] {Multicardinal.R, Multicardinal.PHI};
-
-    default Unicardinal expression(String varType) {
-        return switch (Arrays.asList(Line.varTypes).indexOf(varType)) {
-            case 0 -> this.expression().get(0);
-            case 1 -> this.expression().get(1);
-            default -> null;
-        };
+    public enum LineExpressionType implements ExpressionType {
+        R, PHI
     }
 
-    default String[] getVarTypes() {
-        return Line.varTypes;
+    default Unicardinal expression(ExpressionType varType) {
+        if (varType instanceof LineExpressionType t) {
+            return switch (t) {
+                case R -> this.expression().get(0);
+                case PHI -> this.expression().get(1);
+            };
+        } else {
+            return null;
+        }
+    }
+
+    default int getNaturalDegreesOfFreedom() {
+        return LineExpressionType.values().length;
     }
 }

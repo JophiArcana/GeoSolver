@@ -9,6 +9,7 @@ import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
+
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
         Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
@@ -51,7 +52,7 @@ public class Test {
 
         System.out.println(e1.real(expr2));*/
 
-        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.Y);
+        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
         System.out.println(expr);
         System.out.println(e1.numberOfOperations(expr));
 
