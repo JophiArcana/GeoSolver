@@ -4,9 +4,10 @@ import Core.AlgSystem.UnicardinalTypes.Unicardinal;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 
 public interface Line extends Multicardinal {
-    public enum LineExpressionType implements ExpressionType {
+    enum LineExpressionType implements ExpressionType {
         R, PHI
     }
+    int naturalDegreesOfFreedom = LineExpressionType.values().length;
 
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof LineExpressionType t) {
@@ -20,6 +21,6 @@ public interface Line extends Multicardinal {
     }
 
     default int getNaturalDegreesOfFreedom() {
-        return LineExpressionType.values().length;
+        return Line.naturalDegreesOfFreedom;
     }
 }

@@ -11,16 +11,30 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class Infinity<T extends Expression<T>> extends Constant<T> {
+    /** SECTION: Instance Variables ================================================================================= */
+
     public Expression<T> expression;
 
-    public Infinity(Expression<T> expr, Class<T> type) {
-        super(type);
-        this.expression = (expr == null) ? null : (Expression<T>) expr.simplify();
+    /** SECTION: Factory Methods ==================================================================================== */
+
+    public static <T extends Expression<T>> Infinity<T> create(Class<T> type) {
+        return new Infinity<>(type);
     }
 
-    public Infinity(Class<T> type) {
+    public static <T extends Expression<T>> Constant<T> create(Expression<T> expr, Class<T> type) {
+        return (Constant<T>) new Infinity<>(expr, type).close();
+    }
+
+    /** SECTION: Private Constructors =============================================================================== */
+
+    private Infinity(Class<T> type) {
         super(type);
         this.expression = ENGINE.X();
+    }
+
+    private Infinity(Expression<T> expr, Class<T> type) {
+        super(type);
+        this.expression = (expr == null) ? null : (Expression<T>) expr.simplify();
     }
 
     public String toString() {

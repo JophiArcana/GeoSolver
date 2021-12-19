@@ -9,7 +9,7 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Centroid extends Center {
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         return new Centroid(this.name, args.get(Parameter.POINTS).toArray(new Point[0]));
     }
 

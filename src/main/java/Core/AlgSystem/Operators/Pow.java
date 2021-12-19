@@ -14,14 +14,24 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     }
     public static final InputType[] inputTypes = {Parameter.BASE, Parameter.EXPONENT};
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.pow(args.get(Parameter.BASE).get(0), args.get(Parameter.EXPONENT).get(0));
-    }
+    /** SECTION: Instance Variables ================================================================================= */
 
     public Expression<T> base;
     public Constant<T> exponent;
 
-    public Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
+    /** SECTION: Factory Methods ==================================================================================== */
+
+    public static <T extends Expression<T>> Expression<T> create(Expression<T> base, Constant<T> exponent, Class<T> type) {
+        return new Pow<>(base, exponent, type).close();
+    }
+
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
+        return ENGINE.pow(args.get(Parameter.BASE).get(0), args.get(Parameter.EXPONENT).get(0));
+    }
+
+    /** SECTION: Private Constructors =============================================================================== */
+
+    private Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
         super(type);
         if (base instanceof Pow) {
             this.base = ((Pow<T>) base).base;

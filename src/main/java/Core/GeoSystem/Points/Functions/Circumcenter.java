@@ -18,7 +18,7 @@ public class Circumcenter extends Center {
         return ENGINE.imaginary(ENGINE.mul(ENGINE.conjugate(terms.get(0)), terms.get(1)));
     }
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         ArrayList<Entity> points = args.get(Parameter.POINTS);
         return new Circumcenter(this.name, (Point) points.get(0), (Point) points.get(1), (Point) points.get(2));
     }

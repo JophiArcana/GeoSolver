@@ -34,7 +34,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
             }
             ArrayList<String> stringTerms = new ArrayList<>();
             for (Map.Entry<Expression<U>, Constant<U>> entry : terms.entrySet()) {
-                Expression<U> factor = new Pow<>(entry.getKey(), entry.getValue(), TYPE).close();
+                Expression<U> factor = Pow.create(entry.getKey(), entry.getValue(), TYPE);
                 if (Utils.CLOSED_FORM.contains(factor.getClass())) {
                     stringTerms.add(factor.toString());
                 } else {
@@ -94,7 +94,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
 
     default Pair<Constant<T>, Expression<T>> baseForm() {
         if (this instanceof Mul<T> mulExpr) {
-            Mul<T> copy = new Mul<>(mulExpr.TYPE);
+            Mul<T> copy = Mul.create(mulExpr.TYPE);
             copy.terms = mulExpr.terms;
             copy.inputs.get(Mul.Parameter.CONSTANT).add(Constant.ONE(mulExpr.TYPE));
             copy.inputs.get(Mul.Parameter.TERMS).addAll(mulExpr.inputs.get(Mul.Parameter.TERMS));

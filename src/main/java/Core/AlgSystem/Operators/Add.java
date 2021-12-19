@@ -15,18 +15,28 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     }
     public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.add(args.get(Parameter.CONSTANT).get(0), ENGINE.add(args.get(Parameter.TERMS).toArray()));
-    }
+    /** SECTION: Instance Variables ================================================================================= */
 
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ZERO(TYPE);
 
-    public Add(Class<T> type) {
+    /** SECTION: Factory Methods ==================================================================================== */
+
+    public static <T extends Expression<T>> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
+        return new Add<>(args, type).close();
+    }
+
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
+        return ENGINE.add(args.get(Parameter.CONSTANT).get(0), ENGINE.add(args.get(Parameter.TERMS).toArray()));
+    }
+
+    /** SECTION: Private Constructors =============================================================================== */
+
+    private Add(Class<T> type) {
         super(type);
     }
 
-    public Add(Iterable<Expression<T>> args, Class<T> type) {
+    private Add(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
         TreeMultiset<Entity> inputTerms = inputs.get(Parameter.TERMS);
         this.construct(args);
@@ -35,19 +45,6 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         }
         this.inputs.get(Parameter.CONSTANT).add(this.constant);
         // System.out.println("Add constructed: " + args);
-    }
-
-    public String toString() {
-        ArrayList<Entity> inputTerms = new ArrayList<>(inputs.get(Parameter.TERMS));
-        ArrayList<String> stringTerms = new ArrayList<>();
-        for (Entity ent : inputTerms) {
-            stringTerms.add(ent.toString());
-        }
-        if (constant.equalsZero()) {
-            return String.join(" + ", stringTerms);
-        } else {
-            return constant + " + " + String.join(" + ", stringTerms);
-        }
     }
 
     private void construct(Iterable<Expression<T>> args) {
@@ -77,6 +74,19 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                     terms.remove(arg);
                 }
             }
+        }
+    }
+
+    public String toString() {
+        ArrayList<Entity> inputTerms = new ArrayList<>(inputs.get(Parameter.TERMS));
+        ArrayList<String> stringTerms = new ArrayList<>();
+        for (Entity ent : inputTerms) {
+            stringTerms.add(ent.toString());
+        }
+        if (constant.equalsZero()) {
+            return String.join(" + ", stringTerms);
+        } else {
+            return constant + " + " + String.join(" + ", stringTerms);
         }
     }
 

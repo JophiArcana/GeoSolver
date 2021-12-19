@@ -16,18 +16,32 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     }
     public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.mul(args.get(Parameter.CONSTANT).get(0), ENGINE.mul(args.get(Parameter.TERMS).toArray()));
-    }
+    /** SECTION: Instance Variables ================================================================================= */
 
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ONE(TYPE);
 
-    public Mul(Class<T> type) {
+    /** SECTION: Factory Methods ==================================================================================== */
+
+    public static <T extends Expression<T>> Mul<T> create(Class<T> type) {
+        return new Mul<>(type);
+    }
+
+    public static <T extends Expression<T>> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
+        return new Mul<>(args, type).close();
+    }
+
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
+        return ENGINE.mul(args.get(Parameter.CONSTANT).get(0), ENGINE.mul(args.get(Parameter.TERMS).toArray()));
+    }
+
+    /** SECTION: Private Constructors =============================================================================== */
+
+    private Mul(Class<T> type) {
         super(type);
     }
 
-    public Mul(Iterable<Expression<T>> args, Class<T> type) {
+    private Mul(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
         TreeMultiset<Entity> inputTerms = this.inputs.get(Parameter.TERMS);
         this.construct(args);
@@ -36,25 +50,6 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             inputTerms.add(ENGINE.pow(entry.getKey(), entry.getValue()));
         }
         this.inputs.get(Parameter.CONSTANT).add(this.constant);
-    }
-
-    public String toString() {
-        ArrayList<Entity> inputTerms = new ArrayList<>(this.inputs.get(Parameter.TERMS));
-        ArrayList<String> stringTerms = new ArrayList<>();
-        for (Entity ent : inputTerms) {
-            if (Utils.CLOSED_FORM.contains(ent.getClass())) {
-                stringTerms.add(ent.toString());
-            } else {
-                stringTerms.add("(" + ent + ")");
-            }
-        }
-        if (this.constant.equalsOne()) {
-            return String.join("", stringTerms);
-        } else if (this.constant.equals(Constant.NONE(TYPE))) {
-            return "-" + String.join("", stringTerms);
-        } else {
-            return this.constant + String.join("", stringTerms);
-        }
     }
 
     private void construct(Iterable<Expression<T>> args) {
@@ -75,6 +70,25 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             }
         }
         // System.out.println(args + " construction complete");
+    }
+
+    public String toString() {
+        ArrayList<Entity> inputTerms = new ArrayList<>(this.inputs.get(Parameter.TERMS));
+        ArrayList<String> stringTerms = new ArrayList<>();
+        for (Entity ent : inputTerms) {
+            if (Utils.CLOSED_FORM.contains(ent.getClass())) {
+                stringTerms.add(ent.toString());
+            } else {
+                stringTerms.add("(" + ent + ")");
+            }
+        }
+        if (this.constant.equalsOne()) {
+            return String.join("", stringTerms);
+        } else if (this.constant.equals(Constant.NONE(TYPE))) {
+            return "-" + String.join("", stringTerms);
+        } else {
+            return this.constant + String.join("", stringTerms);
+        }
     }
 
     public ArrayList<Expression<Symbolic>> symbolic() {

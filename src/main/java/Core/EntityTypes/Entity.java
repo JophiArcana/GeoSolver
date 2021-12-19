@@ -27,7 +27,7 @@ public interface Entity {
     int getConstrainedDegreesOfFreedom();
     ArrayList<Function<Entity, Property>> getConstraints();
 
-    Entity create(HashMap<InputType, ArrayList<Entity>> args);
+    Entity createEntity(HashMap<InputType, ArrayList<Entity>> args);
 
     HashMap<InputType, TreeMultiset<Entity>> getInputs();
     InputType[] getInputTypes();
@@ -56,7 +56,7 @@ public interface Entity {
             for (InputType inputType : this.getInputTypes()) {
                 substitutionInputs.put(inputType, Utils.map(this.getInputs().get(inputType), arg -> arg.substitute(entityPair)));
             }
-            return this.create(substitutionInputs);
+            return this.createEntity(substitutionInputs);
         }
     }
 }

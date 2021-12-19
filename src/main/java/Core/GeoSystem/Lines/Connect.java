@@ -14,7 +14,7 @@ public class Connect extends DefinedMulticardinal implements Line {
     }
     public static final InputType[] inputTypes = {Parameter.POINTS};
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         return new Connect((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
     }
 

@@ -10,7 +10,7 @@ import java.util.function.Function;
 public abstract class Immutable implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         return this;
     }
 

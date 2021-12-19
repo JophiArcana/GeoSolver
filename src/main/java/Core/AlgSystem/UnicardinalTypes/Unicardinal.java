@@ -3,10 +3,10 @@ package Core.AlgSystem.UnicardinalTypes;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.Entity;
 
-import java.util.HashMap;
+import java.util.*;
 
 public interface Unicardinal extends Entity {
-    public enum UnicardinalExpressionType implements ExpressionType {
+    enum UnicardinalExpressionType implements ExpressionType {
         SYMBOLIC,
         DIRECTED
     }

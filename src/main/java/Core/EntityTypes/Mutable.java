@@ -14,7 +14,7 @@ public abstract class Mutable implements Entity {
     }
     public static final InputType[] inputTypes = {Parameter.VAR};
 
-    public Entity create(HashMap<InputType, ArrayList<Entity>> args) {
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         return args.get(Parameter.VAR).get(0);
     }
 

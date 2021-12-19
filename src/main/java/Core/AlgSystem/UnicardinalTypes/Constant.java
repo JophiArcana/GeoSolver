@@ -40,8 +40,8 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
             put(DirectedAngle.class, new Complex<>(0, 1, DirectedAngle.class));
         }});
         put("INFINITY", new HashMap<>() {{
-            put(Symbolic.class, new Infinity<>(Symbolic.class));
-            put(DirectedAngle.class, new Infinity<>(DirectedAngle.class));
+            put(Symbolic.class, Infinity.create(Symbolic.class));
+            put(DirectedAngle.class, Infinity.create(DirectedAngle.class));
         }});
         put("E", new HashMap<>() {{
             put(Symbolic.class, new Complex<>(Math.E, 0, Symbolic.class));

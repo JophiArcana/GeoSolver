@@ -6,9 +6,10 @@ import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.Utilities.Utils;
 
 public interface Point extends Multicardinal {
-    public enum PointExpressionType implements ExpressionType {
+    enum PointExpressionType implements ExpressionType {
         X, Y
     }
+    int naturalDegreesOfFreedom = Point.PointExpressionType.values().length;
 
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof PointExpressionType t) {
@@ -22,6 +23,6 @@ public interface Point extends Multicardinal {
     }
 
     default int getNaturalDegreesOfFreedom() {
-        return Point.PointExpressionType.values().length;
+        return Point.naturalDegreesOfFreedom;
     }
 }

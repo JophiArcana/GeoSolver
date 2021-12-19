@@ -53,7 +53,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         } else if (this.TYPE == DirectedAngle.class) {
             Constant<T> tan = this.tan();
             if (tan instanceof Infinity<T>) {
-                return new ArrayList<>(Collections.singletonList(new Infinity<>(Symbolic.class)));
+                return new ArrayList<>(Collections.singletonList(Infinity.create(Symbolic.class)));
             } else {
                 Complex<T> cpx = (Complex<T>) tan;
                 return new ArrayList<>(Collections.singletonList(new Complex<>(cpx.re, cpx.im, Symbolic.class)));
@@ -70,7 +70,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     im.doubleValue() + cpx.im.doubleValue());
             return new Complex<>(set[0], set[1], TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return new Infinity<>(ENGINE.add(inf.expression, this), TYPE);
+            return Infinity.create(ENGINE.add(inf.expression, this), TYPE);
         } else {
             return this;
         }
@@ -83,7 +83,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     im.doubleValue() - cpx.im.doubleValue());
             return new Complex<>(set[0], set[1], TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return new Infinity<>(ENGINE.sub(this, inf.expression), TYPE);
+            return Infinity.create(ENGINE.sub(this, inf.expression), TYPE);
         } else {
             return this;
         }
