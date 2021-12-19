@@ -1,4 +1,6 @@
 
+import Core.AlgSystem.Operators.Add;
+import Core.AlgSystem.Operators.Mul;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.GeoSystem.Points.PointTypes.*;
@@ -19,10 +21,10 @@ public class SpeedTest {
 
         Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
         expr = e1.mul(expr, 2);
-        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));
-        exprInputs = Utils.cast(exprInputs.get(0).getInputs().get("Terms"));
+        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(Mul.Parameter.TERMS));
+        exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Add.Parameter.TERMS));
 
-        int cycles = 100000;
+        int cycles = 50000;
         double startTime = System.nanoTime();
         for (int i = 0; i < cycles; i++) {
             e1.GCDReduction(exprInputs);

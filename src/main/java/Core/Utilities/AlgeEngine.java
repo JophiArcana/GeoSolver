@@ -21,7 +21,7 @@ public class AlgeEngine<T extends Expression<T>> {
     public Univariate<T> X() {
         return new Univariate<>("\u5929", TYPE);
     }
-    public static final double EPSILON = Math.pow(10, -9);
+    public static final double EPSILON = 1E-9;
 
     /** SECTION: Simplification Optimization ======================================================================== */
 
@@ -66,10 +66,10 @@ public class AlgeEngine<T extends Expression<T>> {
                 normalizedTerms = Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
 
-                if (normalizedTerms.size() <= 16) {
+                /**if (normalizedTerms.size() <= 16) {
                     GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
                     normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
-                }
+                }*/
 
                 return Mul.create(Arrays.asList(gcd, Add.create(normalizedTerms, TYPE).reduce()), TYPE);
             }
@@ -406,18 +406,8 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> add(Object ... args) {
-        ArrayList<Expression<T>> exprArgs = new ArrayList<>();
-        for (Object obj : args) {
-            Expression<T> exprArg = this.objectConversion(obj);
-            if (!exprArg.equalsZero()) {
-                exprArgs.add(exprArg);
-            }
-        }
-        return switch (exprArgs.size()) {
-            case 0 -> Constant.ZERO(TYPE);
-            case 1 -> exprArgs.get(0);
-            default -> Add.create(exprArgs, TYPE).expressionSimplify();
-        };
+        ArrayList<Expression<T>> exprArgs = Utils.map(new ArrayList<>(Arrays.asList(args)), this::objectConversion);
+        return Add.create(exprArgs, TYPE).expressionSimplify();
     }
 
     public Expression<T> sub(Object o1, Object o2) {
@@ -435,20 +425,8 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> mul(Object ... args) {
-        ArrayList<Expression<T>> exprArgs = new ArrayList<>();
-        for (Object obj : args) {
-            Expression<T> exprArg = this.objectConversion(obj);
-            if (exprArg.equalsZero()) {
-                return Constant.ZERO(TYPE);
-            } else if (!exprArg.equalsOne()) {
-                exprArgs.add(exprArg);
-            }
-        }
-        return switch (exprArgs.size()) {
-            case 0 -> Constant.ONE(TYPE);
-            case 1 -> exprArgs.get(0);
-            default -> Mul.create(exprArgs, TYPE).expressionSimplify();
-        };
+        ArrayList<Expression<T>> exprArgs = Utils.map(new ArrayList<>(Arrays.asList(args)), this::objectConversion);
+        return Mul.create(exprArgs, TYPE).expressionSimplify();
     }
 
     public Expression<T> div(Object o1, Object o2) {
@@ -490,12 +468,7 @@ public class AlgeEngine<T extends Expression<T>> {
     public Expression<T> pow(Object base, Object exponent) {
         Expression<T> baseExpr = this.objectConversion(base);
         Constant<T> exponentExpr = (Constant<T>) this.objectConversion(exponent);
-        if (baseExpr instanceof Constant<T> baseConst) {
-            return baseConst.pow(exponentExpr);
-        } else {
-            // System.out.println("Pow " + base + " " + exponent);
-            return Pow.create(baseExpr, exponentExpr, TYPE).expressionSimplify();
-        }
+        return Pow.create(baseExpr, exponentExpr, TYPE);
     }
 
     public Expression<T> exp(Object obj) {

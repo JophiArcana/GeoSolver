@@ -28,11 +28,25 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public static <T extends Expression<T>> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
-        return new Mul<>(args, type).close();
+        ArrayList<Expression<T>> exprs = new ArrayList<>();
+        for (Expression<T> arg : args) {
+            if (arg.equalsZero()) {
+                return Constant.ZERO(type);
+            } else if (!arg.equalsOne()) {
+                exprs.add(arg);
+            }
+        }
+        return switch (exprs.size()) {
+            case 0 -> Constant.ONE(type);
+            case 1 -> exprs.get(0);
+            default -> new Mul<>(exprs, type).close();
+        };
     }
 
     public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.mul(args.get(Parameter.CONSTANT).get(0), ENGINE.mul(args.get(Parameter.TERMS).toArray()));
+        ArrayList<Expression<T>> exprArgs = Utils.cast(args.get(Parameter.TERMS));
+        exprArgs.add((Constant<T>) args.get(Parameter.CONSTANT).get(0));
+        return Mul.create(exprArgs, TYPE);
     }
 
     /** SECTION: Private Constructors =============================================================================== */

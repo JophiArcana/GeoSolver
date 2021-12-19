@@ -23,11 +23,23 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     /** SECTION: Factory Methods ==================================================================================== */
 
     public static <T extends Expression<T>> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
-        return new Add<>(args, type).close();
+        ArrayList<Expression<T>> exprs = new ArrayList<>();
+        for (Expression<T> arg : args) {
+            if (!arg.equalsZero()) {
+                exprs.add(arg);
+            }
+        }
+        return switch (exprs.size()) {
+            case 0 -> Constant.ZERO(type);
+            case 1 -> exprs.get(0);
+            default -> new Add<>(exprs, type).close();
+        };
     }
 
     public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.add(args.get(Parameter.CONSTANT).get(0), ENGINE.add(args.get(Parameter.TERMS).toArray()));
+        ArrayList<Expression<T>> exprArgs = Utils.cast(args.get(Parameter.TERMS));
+        exprArgs.add((Constant<T>) args.get(Parameter.CONSTANT).get(0));
+        return Add.create(exprArgs, TYPE);
     }
 
     /** SECTION: Private Constructors =============================================================================== */

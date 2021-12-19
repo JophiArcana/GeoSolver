@@ -22,11 +22,17 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     /** SECTION: Factory Methods ==================================================================================== */
 
     public static <T extends Expression<T>> Expression<T> create(Expression<T> base, Constant<T> exponent, Class<T> type) {
-        return new Pow<>(base, exponent, type).close();
+        if (base instanceof Constant<T> baseConst) {
+            return baseConst.pow(exponent);
+        } else {
+            return new Pow<>(base, exponent, type).close();
+        }
     }
 
     public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return ENGINE.pow(args.get(Parameter.BASE).get(0), args.get(Parameter.EXPONENT).get(0));
+        Expression<T> base = (Expression<T>) args.get(Parameter.BASE).get(0);
+        Constant<T> exponent = (Constant<T>) args.get(Parameter.EXPONENT).get(0);
+        return Pow.create(base, exponent, TYPE);
     }
 
     /** SECTION: Private Constructors =============================================================================== */
