@@ -3,33 +3,32 @@ package Core.GeoSystem.DirectedAngles;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;
-import Core.GeoSystem.Points.PointTypes.Point;
+import Core.GeoSystem.Lines.LineTypes.Line;
 import Core.Utilities.*;
 
 import java.util.*;
 
 public class Directed extends DefinedExpression<DirectedAngle> {
     public enum Parameter implements InputType {
-        POINTS
+        LINE
     }
-    public static final InputType[] inputTypes = {Parameter.POINTS};
+    public static final InputType[] inputTypes = {Parameter.LINE};
 
     public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return new Directed((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
+        return new Directed((Line) args.get(Parameter.LINE).get(0));
     }
 
-    public Point a, b;
+    public Line l;
 
-    public Directed(Point a, Point b) {
+    public Directed(Line l) {
         super(DirectedAngle.class);
-        this.a = a;
-        this.b = b;
+        this.l = l;
     }
 
     public ArrayList<Expression<Symbolic>> symbolic() {
         final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        Expression<Symbolic> vector = ENGINE.sub(b.expression().get(0), a.expression().get(0));
-        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.imaginary(vector), ENGINE.real(vector))));
+        Expression<Symbolic> dualExpression = this.l.pointDual().symbolic().get(0);
+        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.real(dualExpression), ENGINE.imaginary(dualExpression))));
     }
 
     public Expression<DirectedAngle> close() {

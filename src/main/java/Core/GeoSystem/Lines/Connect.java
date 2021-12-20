@@ -29,7 +29,7 @@ public class Connect extends DefinedMulticardinal implements Line {
     }
 
     /** TODO: Fix linear representation */
-    protected ArrayList<Unicardinal> getExpression() {
+    protected ArrayList<Unicardinal> computeExpression() {
         return null;
     }
 

@@ -1,13 +1,19 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
+import Core.GeoSystem.Points.PointTypes.Point;
+
+import java.util.*;
 
 public interface Line extends Multicardinal {
     enum LineExpressionType implements ExpressionType {
         R, PHI
     }
     int naturalDegreesOfFreedom = LineExpressionType.values().length;
+
+    Point pointDual();
 
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof LineExpressionType t) {
@@ -18,6 +24,10 @@ public interface Line extends Multicardinal {
         } else {
             return null;
         }
+    }
+
+    default ArrayList<Expression<Symbolic>> symbolic() {
+        return this.pointDual().symbolic();
     }
 
     default int getNaturalDegreesOfFreedom() {

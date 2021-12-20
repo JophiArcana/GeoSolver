@@ -1,6 +1,7 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.AlgSystem.UnicardinalTypes.Unicardinal;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.Utils;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 public abstract class DefinedMulticardinal extends DefinedEntity implements Multicardinal {
     public String name;
     public ArrayList<Unicardinal> expression;
+    public ArrayList<Expression<Symbolic>> symbolic;
 
     public DefinedMulticardinal(String n) {
         super();
@@ -27,12 +29,20 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
 
     public ArrayList<Unicardinal> expression() {
         if (this.expression == null) {
-            this.expression = this.getExpression();
+            this.expression = this.computeExpression();
         }
         return this.expression;
     }
 
-    protected abstract ArrayList<Unicardinal> getExpression();
+    public ArrayList<Expression<Symbolic>> symbolic() {
+        if (this.symbolic == null) {
+            this.symbolic = this.computeSymbolic();
+        }
+        return this.symbolic;
+    }
+
+    protected abstract ArrayList<Unicardinal> computeExpression();
+    protected abstract ArrayList<Expression<Symbolic>> computeSymbolic();
 
     public boolean equals(Entity ent) {
         return Utils.compare(this, ent) == 0;
