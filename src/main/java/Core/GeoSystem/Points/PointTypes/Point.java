@@ -5,6 +5,8 @@ import Core.AlgSystem.UnicardinalTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.Utilities.Utils;
 
+import java.util.*;
+
 public interface Point extends Multicardinal {
     enum PointExpressionType implements ExpressionType {
         X, Y
@@ -20,6 +22,10 @@ public interface Point extends Multicardinal {
         } else {
             return null;
         }
+    }
+
+    default ArrayList<Expression<Symbolic>> symbolic() {
+        return Utils.cast(this.expression());
     }
 
     default int getNaturalDegreesOfFreedom() {
