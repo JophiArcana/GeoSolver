@@ -1,10 +1,8 @@
 package Core.GeoSystem.Points.PointTypes;
 
-import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
-
 import java.util.Arrays;
 
-public abstract class Center extends DefinedMulticardinal implements Point {
+public abstract class Center extends DefinedPoint {
     public enum Parameter implements InputType {
         POINTS
     }

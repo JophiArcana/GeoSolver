@@ -16,10 +16,6 @@ public class Linear extends Multivariate implements Line {
         this.pointDual = new Phantom(n + "\u209A");
     }
 
-    public ArrayList<Unicardinal> expression() {
-        return new ArrayList<>(Arrays.asList(this.var_r, this.var_phi));
-    }
-
     public Point pointDual() {
         return this.pointDual;
     }

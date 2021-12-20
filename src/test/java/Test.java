@@ -1,4 +1,5 @@
 
+import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.GeoSystem.Points.PointTypes.*;
@@ -8,7 +9,6 @@ import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
-
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
         Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
@@ -29,7 +29,7 @@ public class Test {
         Point c = centroid("C", p, m);
         Point o = circumcenter(p, q, r);
 
-        System.out.println(o.expression());
+        System.out.println(o.symbolic());
 
         // Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Multicardinal.X);
         // expr = e1.mul(expr, 2);

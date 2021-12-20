@@ -1,6 +1,5 @@
 package Core.GeoSystem.Lines;
 
-import Core.AlgSystem.UnicardinalTypes.Unicardinal;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.Line;
 import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
@@ -24,13 +23,13 @@ public class Connect extends DefinedMulticardinal implements Line {
         super(a.getName() + b.getName());
     }
 
-    public Entity simplify() {
-        return this;
+    /** TODO: Create class ConnectPointDual */
+    public Point pointDual() {
+        return null;
     }
 
-    /** TODO: Fix linear representation */
-    protected ArrayList<Unicardinal> computeExpression() {
-        return null;
+    public Entity simplify() {
+        return this;
     }
 
     public InputType[] getInputTypes() {

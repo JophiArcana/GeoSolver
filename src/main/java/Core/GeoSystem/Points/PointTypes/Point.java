@@ -16,16 +16,12 @@ public interface Point extends Multicardinal {
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof PointExpressionType t) {
             return switch (t) {
-                case X -> Utils.getEngine(Symbolic.class).real(this.expression().get(0));
-                case Y -> Utils.getEngine(Symbolic.class).imaginary(this.expression().get(0));
+                case X -> Utils.getEngine(Symbolic.class).real(this.symbolic().get(0));
+                case Y -> Utils.getEngine(Symbolic.class).imaginary(this.symbolic().get(0));
             };
         } else {
             return null;
         }
-    }
-
-    default ArrayList<Expression<Symbolic>> symbolic() {
-        return Utils.cast(this.expression());
     }
 
     default int getNaturalDegreesOfFreedom() {

@@ -1,37 +1,26 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multiconstant;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import Core.GeoSystem.Points.PointTypes.Coordinate;
+import Core.GeoSystem.Points.PointTypes.Point;
 
 public class Axis extends Multiconstant implements Line {
     public enum Parameter implements InputType {
-        RADIUS,
-        ANGLE
+        COORDINATE
     }
-    public static final InputType[] inputTypes = {Parameter.RADIUS, Parameter.ANGLE};
+    public static final InputType[] inputTypes = {Parameter.COORDINATE};
 
-    public final Constant<Symbolic> radius;
-    public final Constant<DirectedAngle> angle;
+    public final Coordinate pointDual;
 
-    public Axis(String n, Constant<Symbolic> r, Constant<DirectedAngle> a) {
+    public Axis(String n, Coordinate c) {
         super(n);
-        this.radius = r;
-        this.angle = a;
-        this.inputs.get(Parameter.RADIUS).add(this.radius);
-        this.inputs.get(Parameter.ANGLE).add(this.angle);
+        this.pointDual = c;
+        this.inputs.get(Parameter.COORDINATE).add(this.pointDual);
     }
 
-    public Axis(Constant<Symbolic> r, Constant<DirectedAngle> a) {
-        this("", r, a);
-    }
-
-    public ArrayList<Unicardinal> expression() {
-        return new ArrayList<>(Arrays.asList(this.radius, this.angle));
+    public Point pointDual() {
+        return this.pointDual;
     }
 
     public InputType[] getInputTypes() {
@@ -40,8 +29,7 @@ public class Axis extends Multiconstant implements Line {
 
     public int compareTo(Immutable immutable) {
         if (immutable instanceof Axis axis) {
-            int n = this.radius.compareTo(axis.radius);
-            return (n == 0) ? this.angle.compareTo(axis.angle) : n;
+            return this.pointDual.compareTo(axis.pointDual);
         } else {
             return Integer.MIN_VALUE;
         }

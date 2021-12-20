@@ -30,13 +30,9 @@ public class Centroid extends Center {
         }
     }
 
-    protected ArrayList<Unicardinal> computeExpression() {
-        AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        ArrayList<Unicardinal> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
-        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()), argTerms.size())));
-    }
-
     protected ArrayList<Expression<Symbolic>> computeSymbolic() {
-        return Utils.cast(this.expression());
+        AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+        ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
+        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()), argTerms.size())));
     }
 }

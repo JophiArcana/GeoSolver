@@ -19,7 +19,6 @@ public interface Entity {
     boolean equals(Entity ent);
 
     Entity simplify();
-    ArrayList<Unicardinal> expression();
     Unicardinal expression(ExpressionType varType);
     ArrayList<Expression<Symbolic>> symbolic();
 

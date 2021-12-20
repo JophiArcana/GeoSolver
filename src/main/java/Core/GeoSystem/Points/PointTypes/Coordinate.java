@@ -25,7 +25,7 @@ public class Coordinate extends Multiconstant implements Point {
         this("", v);
     }
 
-    public ArrayList<Unicardinal> expression() {
+    public ArrayList<Expression<Symbolic>> symbolic() {
         return new ArrayList<>(Collections.singletonList(this.value));
     }
 
