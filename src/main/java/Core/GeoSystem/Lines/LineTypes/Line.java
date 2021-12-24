@@ -9,16 +9,17 @@ import Core.GeoSystem.Points.PointTypes.Point;
 import java.util.*;
 
 public interface Line extends Multicardinal {
+    /** SECTION: Static Data ======================================================================================== */
     enum LineExpressionType implements ExpressionType {
         R
     }
     int naturalDegreesOfFreedom = LineExpressionType.values().length;
 
-    Point pointDual();
-
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof LineExpressionType) {
-            return new Directed(this);
+            return Directed.create(this);
         } else {
             return null;
         }
@@ -31,4 +32,7 @@ public interface Line extends Multicardinal {
     default int getNaturalDegreesOfFreedom() {
         return Line.naturalDegreesOfFreedom;
     }
+
+    /** SECTION: Interface ========================================================================================== */
+    Point pointDual();
 }

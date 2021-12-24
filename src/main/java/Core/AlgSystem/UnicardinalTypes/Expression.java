@@ -7,9 +7,11 @@ import Core.Utilities.*;
 import javafx.util.Pair;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
-public interface Expression<T extends Expression<T>> extends Unicardinal, Algebra<T> {
-    class Factorization<U extends Expression<U>> implements Algebra<U> {
+public interface Expression<T extends Expression<T>> extends Unicardinal {
+    /** SECTION: Static Data ======================================================================================== */
+    class Factorization<U extends Expression<U>> {
         public final Class<U> TYPE;
         public final AlgEngine<U> ENGINE;
 
@@ -17,17 +19,17 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
         public TreeMap<Expression<U>, Constant<U>> terms;
 
         public Factorization(Constant<U> c, TreeMap<Expression<U>, Constant<U>> t, Class<U> type) {
-            constant = c;
-            terms = t;
+            this.constant = c;
+            this.terms = t;
             this.TYPE = type;
             this.ENGINE = Utils.getEngine(TYPE);
         }
 
         public String toString() {
             String constString;
-            if (constant.equals(this.get(Constants.ONE))) {
+            if (constant.equalsOne()) {
                 constString = "";
-            } else if (constant.equals(this.get(Constants.NONE))) {
+            } else if (constant.equals(Constant.NONE(TYPE))) {
                 constString = "-";
             } else {
                 constString = constant.toString();
@@ -49,16 +51,8 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
         }
     }
 
-    default boolean equals(Entity ent) {
-        if (ent instanceof DefinedExpression) {
-            Expression<T> difference = this.getEngine().sub(this, ent).expand();
-            if (difference instanceof Constant<T>) {
-                return difference.equals(this.get(Constants.ONE));
-            }
-        }
-        return false;
-    }
-
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     default Expression<T> expressionSimplify() {
         Expression<T> reducedExpr = this.reduce();
         Expression<T> reducedExpansion = this.expand().reduce();
@@ -77,6 +71,18 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
         return (varType == Unicardinal.RINGS.getOrDefault(this.getType(), null)) ? this : null;
     }
 
+    default boolean equals(Entity ent) {
+        if (ent instanceof DefinedExpression) {
+            Expression<T> difference = this.getEngine().sub(this, ent).expand();
+            if (difference instanceof Constant<T>) {
+                return difference.equalsZero();
+            }
+        }
+        return false;
+    }
+
+    /** SECTION: Interface ========================================================================================== */
+    /** SUBSECTION: Algebra ========================================================================================= */
     Expression<T> reduce();
     Expression<T> expand();
     Expression<T> close();
@@ -85,7 +91,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
     Expression<T> derivative(Univariate<T> var);
 
     default Expression<T> derivative() {
-        return (this instanceof Constant) ? this.get(Constants.ONE) : this.derivative((Univariate<T>) this.variables().first());
+        return (this instanceof Constant) ? Constant.ZERO(this.getType()) : this.derivative((Univariate<T>) this.variables().first());
     }
 
     default Expression<T> logarithmicDerivative(Univariate<T> s) {
@@ -96,13 +102,13 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
         if (this instanceof Mul<T> mulExpr) {
             Mul<T> copy = Mul.create(mulExpr.TYPE);
             copy.terms = mulExpr.terms;
-            copy.inputs.get(Mul.Parameter.CONSTANT).add(this.get(Constants.ONE));
+            copy.inputs.get(Mul.Parameter.CONSTANT).add(Constant.ONE(mulExpr.TYPE));
             copy.inputs.get(Mul.Parameter.TERMS).addAll(mulExpr.inputs.get(Mul.Parameter.TERMS));
             return new Pair<>(mulExpr.constant, copy.close());
         } else if (this instanceof Constant<T> constExpr) {
-            return new Pair<>(constExpr, this.get(Constants.ONE));
+            return new Pair<>(constExpr, Constant.ONE(this.getType()));
         } else {
-            return new Pair<>(this.get(Constants.ONE), this);
+            return new Pair<>(Constant.ONE(this.getType()), this);
         }
     }
 
@@ -131,19 +137,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
         return this.signum((variables.size() == 0) ? null : (Univariate<T>) variables.first());
     }
 
-    default Expression<T> fullSubstitute() {
-        Expression<T> expr = this;
-        Univariate<T> X = this.getEngine().X();
-        for (Mutable var : this.variables()) {
-            expr = (Expression<T>) expr.substitute(new Pair<>(var, X));
-        }
-        return expr;
-    }
-
-    AlgEngine<T> getEngine();
-
-    /** SECTION: Optimizations ====================================================================================== */
-
+    /** SUBSECTION: Optimizations =================================================================================== */
     default boolean equalsOne() {
         return (this instanceof Complex<T> cpx) && (cpx.re.doubleValue() == 1 && cpx.im.doubleValue() == 0);
     }
@@ -151,4 +145,8 @@ public interface Expression<T extends Expression<T>> extends Unicardinal, Algebr
     default boolean equalsZero() {
         return (this instanceof Complex<T> cpx) && (cpx.re.doubleValue() == 0 && cpx.im.doubleValue() == 0);
     }
+
+    /** SUBSECTION: Metadata ======================================================================================== */
+    Class<T> getType();
+    AlgEngine<T> getEngine();
 }

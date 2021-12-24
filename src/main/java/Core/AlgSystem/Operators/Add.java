@@ -8,8 +8,10 @@ import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Add<T extends Expression<T>> extends DefinedExpression<T> {
+    /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         TERMS,
         CONSTANT
@@ -17,12 +19,10 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
     /** SECTION: Instance Variables ================================================================================= */
-
-    public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-    public Constant<T> constant = this.get(Constants.ZERO);
+    public ConcurrentSkipListMap<Expression<T>, Constant<T>> terms = new ConcurrentSkipListMap<>(Utils.PRIORITY_COMPARATOR);
+    public Constant<T> constant = Constant.ZERO(TYPE);
 
     /** SECTION: Factory Methods ==================================================================================== */
-
     public static <T extends Expression<T>> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
         ArrayList<Expression<T>> exprs = new ArrayList<>();
         for (Expression<T> arg : args) {
@@ -43,13 +43,12 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         return Add.create(exprArgs, TYPE);
     }
 
-    /** SECTION: Private Constructors =============================================================================== */
-
-    private Add(Class<T> type) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Add(Class<T> type) {
         super(type);
     }
 
-    private Add(Iterable<Expression<T>> args, Class<T> type) {
+    protected Add(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
         TreeMultiset<Entity> inputTerms = inputs.get(Parameter.TERMS);
         this.construct(args);
@@ -76,20 +75,21 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                     }
                     constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
                 } else {
-                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, this.get(Constants.ZERO))));
-                    if (terms.get(baseExpr).equalsZero()) {
-                        terms.remove(baseExpr);
-                    }
+                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
                 }
             } else {
-                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, this.get(Constants.ZERO)), this.get(Constants.ONE)));
-                if (terms.get(arg).equalsZero()) {
-                    terms.remove(arg);
-                }
+                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
+            }
+        }
+        for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
+            if (entry.getValue().equalsZero()) {
+                this.terms.remove(entry.getKey());
             }
         }
     }
 
+
+    /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         ArrayList<Entity> inputTerms = new ArrayList<>(inputs.get(Parameter.TERMS));
         ArrayList<String> stringTerms = new ArrayList<>();
@@ -103,6 +103,8 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Add<Symbolic>) this));
@@ -137,6 +139,11 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
+    public InputType[] getInputTypes() {
+        return Add.inputTypes;
+    }
+
+    /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> close() {
         if (this.inputs.get(Parameter.TERMS).size() == 0) {
             return this.constant;
@@ -150,24 +157,21 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public Factorization<T> normalize() {
         TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         if (this.constant.equalsZero()) {
-            factors.put(this, this.get(Constants.ONE));
-            return new Factorization<>(this.get(Constants.ONE), factors, TYPE);
+            factors.put(this, Constant.ONE(TYPE));
+            return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
         } else {
             ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get(Parameter.TERMS), arg ->
                     ENGINE.div(arg, this.constant));
-            normalizedTerms.add(this.get(Constants.ONE));
-            factors.put(ENGINE.add(normalizedTerms.toArray()), this.get(Constants.ONE));
+            normalizedTerms.add(Constant.ONE(TYPE));
+            factors.put(ENGINE.add(normalizedTerms.toArray()), Constant.ONE(TYPE));
             return new Factorization<>(this.constant, factors, TYPE);
         }
     }
+
 
     public Expression<T> derivative(Univariate<T> var) {
         ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get(Parameter.TERMS)),
                 arg -> arg.derivative(var));
         return ENGINE.add(derivativeTerms.toArray());
-    }
-
-    public InputType[] getInputTypes() {
-        return Add.inputTypes;
     }
 }

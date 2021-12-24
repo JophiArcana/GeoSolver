@@ -5,7 +5,7 @@ import Core.EntityTypes.Mutable;
 
 import java.util.*;
 
-public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>>, Algebra<T> {
+public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>> {
     public final Class<T> TYPE;
     public final AlgEngine<T> ENGINE;
     public Univariate<T> base;
@@ -21,9 +21,9 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
     }
 
     public int compare(Expression<T> e1, Expression<T> e2) {
-        if (e1 == null || e1.equals(this.get(Constants.ZERO))) {
+        if (e1 == null || e1.equalsZero()) {
             return -e2.signum();
-        } else if (e2 == null || e2.equals(this.get(Constants.ZERO))) {
+        } else if (e2 == null || e2.equalsZero()) {
             return e1.signum();
         } else if (this.base != null) {
             return baseCompare(e1, e2, this.base);
@@ -47,7 +47,6 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
     }
 
     private int baseCompare(Expression<T> e1, Expression<T> e2, Univariate<T> var) {
-        // System.out.println("Comparing " + e1 + " " + e2);
         e1 = ENGINE.orderOfGrowth(e1, var);
         e2 = ENGINE.orderOfGrowth(e2, var);
         e1 = ENGINE.mul(e1.signum(var), e1);
@@ -61,9 +60,5 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
         } else {
             return e1.baseForm().getKey().compareTo(e2.baseForm().getKey());
         }
-    }
-
-    public Class<T> getType() {
-        return this.TYPE;
     }
 }

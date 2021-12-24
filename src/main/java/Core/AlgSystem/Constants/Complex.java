@@ -11,23 +11,21 @@ import java.util.Collections;
 
 public class Complex<T extends Expression<T>> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
-
     public final Number re, im;
 
     /** SECTION: Factory Methods ==================================================================================== */
-
     public static <T extends Expression<T>> Complex<T> create(Number real, Number imag, Class<T> type) {
         return new Complex<>(real, imag, type);
     }
 
-    /** SECTION: Private Constructors =============================================================================== */
-
-    private Complex(Number real, Number imag, Class<T> type) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Complex(Number real, Number imag, Class<T> type) {
         super(type);
         this.re = real;
         this.im = imag;
     }
 
+    /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         String reString = (re.doubleValue() == Math.E) ? "E" : re.toString();
         if (im.doubleValue() == 0) {
@@ -57,6 +55,8 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         }
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Constant<Symbolic>) this));
@@ -73,8 +73,25 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         }
     }
 
-    /** SECTION: Basic Operations =================================================================================== */
+    /** SUBSECTION: Immutable ======================================================================================= */
+    public int compareTo(Immutable immutable) {
+        if (immutable instanceof Constant constant && this.TYPE == constant.TYPE) {
+            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) immutable);
+            if (scriptEnt.abs() < AlgEngine.EPSILON) {
+                return 0;
+            } else {
+                if (Math.abs(scriptEnt.re.doubleValue()) > AlgEngine.EPSILON) {
+                    return (int) Math.signum(scriptEnt.re.doubleValue());
+                } else {
+                    return (int) Math.signum(scriptEnt.im.doubleValue());
+                }
+            }
+        } else {
+            return Integer.MIN_VALUE;
+        }
+    }
 
+    /** SECTION: Basic Operations =================================================================================== */
     public Constant<T> add(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
             Number[] set = Utils.integerize(
@@ -196,14 +213,14 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
             } else if (cpx.div(this).isGaussianInteger()) {
                 result = this;
             } else {
-                return this.get(Constants.ONE);
+                return Constant.ONE(TYPE);
             }
             if (result.re.doubleValue() > 0) {
                 return result;
             } else if (result.re.doubleValue() == 0) {
                 return new Complex<>(Math.abs(result.im.doubleValue()), 0, TYPE);
             } else {
-                return result.mul(this.get(Constants.NONE));
+                return result.mul(Constant.NONE(TYPE));
             }
         } else {
             return this;
@@ -231,23 +248,6 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
             return (int) Math.signum(this.re.doubleValue());
         } else {
             return (int) Math.signum(this.im.doubleValue());
-        }
-    }
-
-    public int compareTo(Immutable immutable) {
-        if (immutable instanceof Constant constant && this.TYPE == constant.TYPE) {
-            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) immutable);
-            if (scriptEnt.abs() < AlgEngine.EPSILON) {
-                return 0;
-            } else {
-                if (Math.abs(scriptEnt.re.doubleValue()) > AlgEngine.EPSILON) {
-                    return (int) Math.signum(scriptEnt.re.doubleValue());
-                } else {
-                    return (int) Math.signum(scriptEnt.im.doubleValue());
-                }
-            }
-        } else {
-            return Integer.MIN_VALUE;
         }
     }
 }

@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 import javafx.util.*;
 
-
 public interface Entity {
     interface InputType {}
     interface ExpressionType {}

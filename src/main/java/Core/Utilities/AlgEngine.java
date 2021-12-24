@@ -11,24 +11,20 @@ import java.util.*;
 import java.util.function.Function;
 
 
-public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
+public class AlgEngine<T extends Expression<T>> {
     public final Class<T> TYPE;
-    
+
     public AlgEngine(Class<T> type) {
         this.TYPE = type;
     }
 
-    public Class<T> getType() {
-        return this.TYPE;
-    }
-    
     public Univariate<T> X() {
-        return new Univariate<>("\u5929", TYPE);
+        return Univariate.create("\u5929", TYPE);
     }
+
     public static final double EPSILON = 1E-9;
 
     /** SECTION: Simplification Optimization ======================================================================== */
-
     public double numberOfOperations(Expression<T> expr) {
         if (expr instanceof Add<T> addExpr) {
             int operations = expr.getInputs().get(Add.Parameter.TERMS).size() - 1;
@@ -70,10 +66,12 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
                 normalizedTerms = Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), arg -> this.div(arg, gcd));
                 normalizedTerms.add(this.div(addExpr.constant, gcd));
 
-                /**if (normalizedTerms.size() <= 16) {
-                    GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
-                    normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
-                }*/
+                /**
+                 if (normalizedTerms.size() <= 16) {
+                 GCDGraph<T> reducedGraph = this.GCDReduction(normalizedTerms);
+                 normalizedTerms = Utils.setParse(reducedGraph.elements, reducedGraph.binaryRepresentation);
+                 }
+                 */
 
                 return Mul.create(Arrays.asList(gcd, Add.create(normalizedTerms, TYPE).reduce()), TYPE);
             }
@@ -117,9 +115,9 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
             if (expandableTerms.size() == 1) {
                 return Mul.create(Arrays.asList(singleton, mulExpr.constant), TYPE);
             } else if (expandableTerms.size() == 2) {
-                ArrayList<Expression<T>>    expansion1Terms = this.additiveTerms(expandableTerms.get(0).expand()),
-                                            expansion2Terms = this.additiveTerms(expandableTerms.get(1).expand()),
-                                            expandedTerms = new ArrayList<>();
+                ArrayList<Expression<T>> expansion1Terms = this.additiveTerms(expandableTerms.get(0).expand()),
+                        expansion2Terms = this.additiveTerms(expandableTerms.get(1).expand()),
+                        expandedTerms = new ArrayList<>();
                 for (Expression<T> term1 : expansion1Terms) {
                     for (Expression<T> term2 : expansion2Terms) {
                         expandedTerms.add(Mul.create(Arrays.asList(term1, term2), TYPE));
@@ -187,9 +185,8 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     /** SECTION: Order of Growth ==================================================================================== */
-
     public Expression<T> orderOfGrowth(Expression<T> expr, Univariate<T> s) {
-        Constant<T> ONE = this.get(Constants.ONE);
+        Constant<T> ONE = Constant.ONE(TYPE);
         if (expr == null) {
             return null;
         } else if (expr instanceof Add<T> addExpr) {
@@ -202,9 +199,9 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
                 Expression<T> baseOrder = termOrder;
                 if (termOrder instanceof Mul<T> mulOrder) {
                     baseOrder = mulOrder.baseForm().getValue();
-                    orders.put(baseOrder, orders.getOrDefault(baseOrder, this.get(Constants.ZERO)).add(mulOrder.constant));
+                    orders.put(baseOrder, orders.getOrDefault(baseOrder, Constant.ZERO(TYPE)).add(mulOrder.constant));
                 } else {
-                    orders.put(termOrder, orders.getOrDefault(termOrder, this.get(Constants.ZERO)).add(ONE));
+                    orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(ONE));
                 }
                 if (orders.get(baseOrder).equalsZero()) {
                     orders.remove(baseOrder);
@@ -236,9 +233,8 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     /** SECTION: Greatest Common Divisor ============================================================================ */
-
     private Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
-        Constant<T> ONE = this.get(Constants.ONE);
+        Constant<T> ONE = Constant.ONE(TYPE);
         if (e1.equalsZero()) {
             Constant<T> const2 = e2.baseForm().getKey();
             if (const2 instanceof Infinity<T> inf) {
@@ -261,7 +257,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
             return this.greatestCommonDivisor(e2, e1);
         } else {
             Expression.Factorization<T> e1Norm = e1.normalize(),
-                                        e2Norm = e2.normalize();
+                    e2Norm = e2.normalize();
             Constant<T> constant = e1Norm.constant.gcd(e2Norm.constant);
             Expression<T> product = ONE;
             TreeSet<Expression<T>> terms = new TreeSet<>(Utils.PRIORITY_COMPARATOR) {{
@@ -269,8 +265,8 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
                 addAll(e2Norm.terms.keySet());
             }};
             for (Expression<T> term : terms) {
-                Expression<T>   e1Exponent = e1Norm.terms.get(term),
-                                e2Exponent = e2Norm.terms.get(term);
+                Expression<T> e1Exponent = e1Norm.terms.get(term),
+                        e2Exponent = e2Norm.terms.get(term);
                 Expression<T> exponent = (Utils.getGrowthComparator(TYPE).compare(e1Exponent, e2Exponent) < 0) ? e1Exponent : e2Exponent;
                 if (exponent != null && !exponent.equalsZero()) {
                     product = this.mul(product, this.pow(term, exponent));
@@ -282,7 +278,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
 
     public Expression<T> greatestCommonDivisor(List<Expression<T>> args) {
         return switch (args.size()) {
-            case 1 -> (args.get(0).baseForm().getKey().compareTo(this.get(Constants.ZERO)) < 0) ? this.negate(args.get(0)) : args.get(0);
+            case 1 -> (args.get(0).baseForm().getKey().compareTo(Constant.ZERO(TYPE)) < 0) ? this.negate(args.get(0)) : args.get(0);
             case 2 -> this.greatestCommonDivisor(args.get(0), args.get(1));
             default -> this.greatestCommonDivisor(this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
                     this.greatestCommonDivisor(args.subList(args.size() / 2, args.size())));
@@ -322,7 +318,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
             return Double.compare(o2.getValue(), o1.getValue());
         } else {
             int size1 = Utils.countSetBits(o1.getKey()),
-                size2 = Utils.countSetBits(o2.getKey());
+                    size2 = Utils.countSetBits(o2.getKey());
             if (size1 != size2) {
                 return size1 - size2;
             } else {
@@ -332,7 +328,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     };
 
     private void addToGCDGraph(ArrayList<ArrayList<Integer>> subsets, int anchor, GCDGraph<T> graph) {
-        Constant<T> ONE = this.get(Constants.ONE);
+        Constant<T> ONE = Constant.ONE(TYPE);
         HashMap<Integer, Expression<T>> ring = Utils.setMap(graph.elements, graph.binaryRepresentation);
 
         int zeroAnchor = (anchor == 0) ? 0 : 1;
@@ -400,7 +396,6 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     /** SECTION: Basic operations =================================================================================== */
-
     public Constant<T> complex(Number re, Number im) {
         return Complex.create(re, im, TYPE);
     }
@@ -409,14 +404,14 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
         return (Constant<T>) Infinity.create(expr, TYPE).expressionSimplify();
     }
 
-    public Expression<T> add(Object ... args) {
+    public Expression<T> add(Object... args) {
         ArrayList<Expression<T>> exprArgs = Utils.map(new ArrayList<>(Arrays.asList(args)), this::objectConversion);
         return Add.create(exprArgs, TYPE).expressionSimplify();
     }
 
     public Expression<T> sub(Object o1, Object o2) {
-        Expression<T>   expr1 = this.objectConversion(o1),
-                        expr2 = this.objectConversion(o2);
+        Expression<T> expr1 = this.objectConversion(o1),
+                expr2 = this.objectConversion(o2);
         if (expr1.equalsZero()) {
             return this.negate(expr2);
         } else if (expr2.equalsZero()) {
@@ -428,14 +423,14 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
         }
     }
 
-    public Expression<T> mul(Object ... args) {
+    public Expression<T> mul(Object... args) {
         ArrayList<Expression<T>> exprArgs = Utils.map(new ArrayList<>(Arrays.asList(args)), this::objectConversion);
         return Mul.create(exprArgs, TYPE).expressionSimplify();
     }
 
     public Expression<T> div(Object o1, Object o2) {
-        Expression<T>   expr1 = this.objectConversion(o1),
-                        expr2 = this.objectConversion(o2);
+        Expression<T> expr1 = this.objectConversion(o1),
+                expr2 = this.objectConversion(o2);
         if (expr1.equalsOne()) {
             return this.invert(expr2);
         } else if (expr2.equalsOne()) {
@@ -449,15 +444,14 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     public Expression<T> negate(Object obj) {
-        return this.mul(this.objectConversion(obj), this.get(Constants.NONE));
+        return this.mul(this.objectConversion(obj), Constant.NONE(TYPE));
     }
 
     public Expression<T> invert(Object obj) {
-        return this.pow(this.objectConversion(obj), this.get(Constants.NONE));
+        return this.pow(this.objectConversion(obj), Constant.NONE(TYPE));
     }
 
     /** SECTION: Cyclic Sum ========================================================================================= */
-
     public Expression<T> cyclicSum(Function<ArrayList<Expression<T>>, Expression<T>> func, ArrayList<Expression<T>> args) {
         ArrayList<Expression<T>> terms = new ArrayList<>();
         for (int i = 0; i < args.size(); i++) {
@@ -468,7 +462,6 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     /** SECTION: Exponential Functions ============================================================================== */
-
     public Expression<T> pow(Object base, Object exponent) {
         Expression<T> baseExpr = this.objectConversion(base);
         Constant<T> exponentExpr = (Constant<T>) this.objectConversion(exponent);
@@ -476,11 +469,10 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     public Expression<T> exp(Object obj) {
-        return this.pow(this.get(Constants.E), obj);
+        return this.pow(Constant.E(TYPE), obj);
     }
 
     /** SECTION: Real, Imaginary, Conjugate ========================================================================= */
-
     public Expression<T> real(Object obj) {
         if (obj instanceof Number n) {
             return Complex.create(n, 0, TYPE);
@@ -503,7 +495,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
 
     public Expression<T> imaginary(Object obj) {
         if (obj instanceof Number) {
-            return this.get(Constants.ZERO);
+            return Constant.ZERO(TYPE);
         } else {
             Expression<T> expr = (Expression<T>) obj;
             if (expr == null) {
@@ -513,12 +505,12 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
             } else if (expr instanceof Infinity<T> inf) {
                 return this.infinity(this.imaginary(inf.expression));
             } else if (expr instanceof Univariate<T>) {
-                return this.get(Constants.ZERO);
+                return Constant.ZERO(TYPE);
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.imaginary(addExpr.constant),
                         this.add(Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), this::imaginary).toArray()));
             } else {
-                return this.mul(-0.5, this.get(Constants.I), this.sub(expr, this.conjugate(expr)));
+                return this.mul(-0.5, Constant.I(TYPE), this.sub(expr, this.conjugate(expr)));
             }
         }
     }
@@ -553,7 +545,6 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     }
 
     /** SECTION: Object Conversion ================================================================================== */
-    
     public Expression<T> objectConversion(Object obj) {
         assert obj instanceof Number || obj instanceof Expression || obj == null;
         if (obj instanceof Number n) {
@@ -561,8 +552,7 @@ public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
         } else if (obj != null) {
             return (Expression<T>) obj;
         } else {
-            return this.get(Constants.ZERO);
+            return Constant.ZERO(TYPE);
         }
     }
 }
-

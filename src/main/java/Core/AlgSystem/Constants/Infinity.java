@@ -12,11 +12,9 @@ import java.util.Collections;
 
 public class Infinity<T extends Expression<T>> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
-
     public Expression<T> expression;
 
     /** SECTION: Factory Methods ==================================================================================== */
-
     public static <T extends Expression<T>> Infinity<T> create(Class<T> type) {
         return new Infinity<>(type);
     }
@@ -25,9 +23,8 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         return (Constant<T>) new Infinity<>(expr, type).close();
     }
 
-    /** SECTION: Private Constructors =============================================================================== */
-
-    private Infinity(Class<T> type) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Infinity(Class<T> type) {
         super(type);
         this.expression = ENGINE.X();
     }
@@ -37,10 +34,13 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         this.expression = (expr == null) ? null : (Expression<T>) expr.simplify();
     }
 
+    /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         return "Infinity(" + this.expression + ")";
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     @Override
     public Entity simplify() {
         if (this.expression instanceof Complex) {
@@ -60,6 +60,7 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         }
     }
 
+    /** SUBSECTION: Expression ====================================================================================== */
     @Override
     public Expression<T> reduce() {
         return new Infinity<>(this.expression.reduce(), TYPE).close();
@@ -79,8 +80,16 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         }
     }
 
-    /** SECTION: Basic Operations =================================================================================== */
+    /** SUBSECTION: Immutable ======================================================================================= */
+    public int compareTo(Immutable immutable) {
+        if (immutable instanceof Infinity) {
+            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) immutable).expression);
+        } else {
+            return Integer.MIN_VALUE;
+        }
+    }
 
+    /** SECTION: Basic Operations =================================================================================== */
     public Constant<T> add(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
             return new Infinity<>(ENGINE.add(this.expression, cpx), TYPE);
@@ -181,13 +190,5 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
 
     public boolean isPositiveInteger() {
         return false;
-    }
-
-    public int compareTo(Immutable immutable) {
-        if (immutable instanceof Infinity) {
-            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) immutable).expression);
-        } else {
-            return Integer.MIN_VALUE;
-        }
     }
 }

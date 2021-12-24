@@ -9,18 +9,26 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Centroid extends Center {
+    /** SECTION: Factory Methods ==================================================================================== */
+    public static Centroid create(String n, Point ... args) {
+        return (Centroid) new Centroid(n, args).simplify();
+    }
+
+    public static Centroid create(Point ... args) {
+        return (Centroid) new Centroid("", args).simplify();
+    }
+
     public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
         return new Centroid(this.name, args.get(Parameter.POINTS).toArray(new Point[0]));
     }
 
-    public Centroid(String n, Point ... args) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Centroid(String n, Point ... args) {
         super(n, args);
     }
 
-    public Centroid(Point ... args) {
-        super("", args);
-    }
-
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public Entity simplify() {
         if (this.inputs.get(Parameter.POINTS).size() == 2) {
             TreeSet<Entity> pointSet = new TreeSet<>(this.inputs.get(Parameter.POINTS).elementSet());
@@ -30,6 +38,7 @@ public class Centroid extends Center {
         }
     }
 
+    /** SUBSECTION: DefinedPoint ==================================================================================== */
     protected ArrayList<Expression<Symbolic>> computeSymbolic() {
         AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
         ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));

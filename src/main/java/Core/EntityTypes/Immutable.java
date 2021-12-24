@@ -8,16 +8,20 @@ import java.util.*;
 import java.util.function.Function;
 
 public abstract class Immutable implements Entity {
+    /** SECTION: Static Data ======================================================================================== */
     public static final int naturalDegreesOfFreedom = 0;
 
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return this;
-    }
-
+    /** SECTION: Instance Variables ================================================================================= */
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
 
+    /** SECTION: Factory Methods ==================================================================================== */
+    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
+        return this;
+    }
+
+    /** SECTION: Abstract Constructor =============================================================================== */
     public Immutable() {
         this.constrainedDegreesOfFreedom = Immutable.naturalDegreesOfFreedom;
         for (InputType inputType : this.getInputTypes()) {
@@ -25,7 +29,11 @@ public abstract class Immutable implements Entity {
         }
     }
 
-    public abstract int compareTo(Immutable immutable);
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
+    public Entity simplify() {
+        return this;
+    }
 
     public boolean equals(Entity ent) {
         if (ent instanceof Immutable immutable) {
@@ -35,25 +43,24 @@ public abstract class Immutable implements Entity {
         }
     }
 
-    public Entity simplify() {
-        return this;
-    }
-
     public int getNaturalDegreesOfFreedom() {
         return Immutable.naturalDegreesOfFreedom;
     }
 
     public int getConstrainedDegreesOfFreedom() {
-        return constrainedDegreesOfFreedom;
+        return this.constrainedDegreesOfFreedom;
     }
 
     public ArrayList<Function<Entity, Property>> getConstraints() {
-        return constraints;
+        return this.constraints;
     }
 
     public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
-        return inputs;
+        return this.inputs;
     }
+
+    /** SECTION: Comparison ========================================================================================= */
+    public abstract int compareTo(Immutable immutable);
 }
 
 

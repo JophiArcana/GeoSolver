@@ -8,11 +8,14 @@ import Core.Utilities.Utils;
 import java.util.*;
 
 public interface Point extends Multicardinal {
+    /** SECTION: Static Data ======================================================================================== */
     enum PointExpressionType implements ExpressionType {
         X, Y
     }
     int naturalDegreesOfFreedom = Point.PointExpressionType.values().length;
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     default Unicardinal expression(ExpressionType varType) {
         if (varType instanceof PointExpressionType t) {
             return switch (t) {

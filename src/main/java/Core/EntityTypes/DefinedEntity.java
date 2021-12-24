@@ -8,12 +8,15 @@ import java.util.*;
 import java.util.function.Function;
 
 public abstract class DefinedEntity implements Entity {
+    /** SECTION: Static Data ======================================================================================== */
     public static final int naturalDegreesOfFreedom = 0;
 
+    /** SECTION: Instance Variables ================================================================================= */
     public int constrainedDegreesOfFreedom;
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
 
+    /** SECTION: Abstract Constructor =============================================================================== */
     public DefinedEntity() {
         this.constrainedDegreesOfFreedom = DefinedEntity.naturalDegreesOfFreedom;
         for (InputType inputType : this.getInputTypes()) {
@@ -21,6 +24,8 @@ public abstract class DefinedEntity implements Entity {
         }
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public int getNaturalDegreesOfFreedom() {
         return DefinedEntity.naturalDegreesOfFreedom;
     }

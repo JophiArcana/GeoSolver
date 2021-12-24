@@ -8,6 +8,7 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
+    /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         BASE,
         EXPONENT
@@ -15,12 +16,10 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     public static final InputType[] inputTypes = {Parameter.BASE, Parameter.EXPONENT};
 
     /** SECTION: Instance Variables ================================================================================= */
-
     public Expression<T> base;
     public Constant<T> exponent;
 
     /** SECTION: Factory Methods ==================================================================================== */
-
     public static <T extends Expression<T>> Expression<T> create(Expression<T> base, Constant<T> exponent, Class<T> type) {
         if (base instanceof Constant<T> baseConst) {
             return baseConst.pow(exponent);
@@ -35,9 +34,8 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         return Pow.create(base, exponent, TYPE);
     }
 
-    /** SECTION: Private Constructors =============================================================================== */
-
-    private Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
         super(type);
         if (base instanceof Pow) {
             this.base = ((Pow<T>) base).base;
@@ -51,6 +49,7 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         // System.out.println(base + " and " + exponent + " Pow constructed");
     }
 
+    /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         String baseString = this.base.toString();
         String exponentString = this.exponent.toString();
@@ -63,6 +62,8 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         return baseString + " ** " + exponentString;
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Pow<Symbolic>) this));
@@ -73,6 +74,11 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
+    public InputType[] getInputTypes() {
+        return Pow.inputTypes;
+    }
+
+    /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> close() {
         if (this.exponent.equalsOne() || this.base.equalsZero() || this.base.equalsOne()) {
             return this.base;
@@ -109,10 +115,6 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
         } else {
             return ENGINE.mul(this.exponent, this.base.logarithmicDerivative(s));
         }
-    }
-
-    public InputType[] getInputTypes() {
-        return Pow.inputTypes;
     }
 }
 

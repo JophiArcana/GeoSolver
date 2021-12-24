@@ -8,9 +8,9 @@ import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
-        Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
-        Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
-        Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
+        Univariate<Symbolic> x = Univariate.create("x", Symbolic.class);
+        Univariate<Symbolic> y = Univariate.create("y", Symbolic.class);
+        Univariate<Symbolic> z = Univariate.create("z", Symbolic.class);
         AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
 
         /** Expression<Symbolic> term1 = e1.mul(x, new Complex<>(0, -1, Symbolic.class));
@@ -21,12 +21,12 @@ public class Test {
 
         // System.out.println(e1.expand(e1.mul(e1.add(e1.mul(2, x), y), e1.add(x, y))));
 
-        Phantom p = new Phantom("P");
-        Phantom q = new Phantom("Q");
-        Phantom r = new Phantom("R");
+        Phantom p = Phantom.create("P");
+        Phantom q = Phantom.create("Q");
+        Phantom r = Phantom.create("R");
         Point m = centroid("M", p, q);
         Point c = centroid("C", p, m);
-        Point o = circumcenter(p, q, r);
+        Point o = circumcenter("O", p, q, r);
 
         System.out.println(o.symbolic());
 

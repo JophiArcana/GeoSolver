@@ -8,15 +8,25 @@ import Core.Utilities.*;
 import java.util.*;
 
 public class Univariate<T extends Expression<T>> extends Mutable implements Expression<T> {
+    /** SECTION: Static Data ======================================================================================== */
     public static final int naturalDegreesOfFreedom = 1;
 
+    /** SECTION: Instance Variables ================================================================================= */
     public final Class<T> TYPE;
 
-    public Univariate(String n, Class<T> type) {
+    /** SECTION: Factory Methods ==================================================================================== */
+    public static <T extends Expression<T>> Univariate<T> create(String n, Class<T> type) {
+        return new Univariate<>(n, type);
+    }
+
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Univariate(String n, Class<T> type) {
         super(n);
         this.TYPE = type;
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Univariate<Symbolic>) this));
@@ -27,6 +37,7 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
         }
     }
 
+    /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> reduce() {
         return this;
     }

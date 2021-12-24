@@ -7,12 +7,16 @@ import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
 import java.util.ArrayList;
 
 public abstract class DefinedPoint extends DefinedMulticardinal implements Point {
+    /** SECTION: Instance Variables ================================================================================= */
     public ArrayList<Expression<Symbolic>> symbolic;
 
+    /** SECTION: Abstract Constructor =============================================================================== */
     public DefinedPoint(String n) {
         super(n);
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.symbolic == null) {
             this.symbolic = this.computeSymbolic();
@@ -20,5 +24,6 @@ public abstract class DefinedPoint extends DefinedMulticardinal implements Point
         return this.symbolic;
     }
 
+    /** SECTION: Interface ========================================================================================== */
     protected abstract ArrayList<Expression<Symbolic>> computeSymbolic();
 }

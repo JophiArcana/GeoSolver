@@ -8,8 +8,10 @@ import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
+    /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         TERMS,
         CONSTANT
@@ -17,12 +19,10 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
     /** SECTION: Instance Variables ================================================================================= */
-
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ONE(TYPE);
 
     /** SECTION: Factory Methods ==================================================================================== */
-
     public static <T extends Expression<T>> Mul<T> create(Class<T> type) {
         return new Mul<>(type);
     }
@@ -49,13 +49,12 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         return Mul.create(exprArgs, TYPE);
     }
 
-    /** SECTION: Private Constructors =============================================================================== */
-
-    private Mul(Class<T> type) {
+    /** SECTION: Protected Constructors ============================================================================= */
+    protected Mul(Class<T> type) {
         super(type);
     }
 
-    private Mul(Iterable<Expression<T>> args, Class<T> type) {
+    protected Mul(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
         TreeMultiset<Entity> inputTerms = this.inputs.get(Parameter.TERMS);
         this.construct(args);
@@ -70,22 +69,23 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         // System.out.println("Constructing " + args);
         for (Expression<T> arg : args) {
             Factorization<T> argFactor = arg.normalize();
-            constant = constant.mul(argFactor.constant);
+            this.constant = this.constant.mul(argFactor.constant);
             for (Map.Entry<Expression<T>, Constant<T>> entry : argFactor.terms.entrySet()) {
-                terms.put(entry.getKey(), entry.getValue().add(terms.getOrDefault(entry.getKey(), Constant.ZERO(TYPE))));
+                this.terms.put(entry.getKey(), entry.getValue().add(this.terms.getOrDefault(entry.getKey(), Constant.ZERO(TYPE))));
             }
             // System.out.println(arg + " of " + args + " constructed");
         }
         // System.out.println(args + " construction progress " + this.terms);
-        ArrayList<Map.Entry<Expression<T>, Constant<T>>> entrySet = new ArrayList<>(terms.entrySet());
+        ArrayList<Map.Entry<Expression<T>, Constant<T>>> entrySet = new ArrayList<>(this.terms.entrySet());
         for (Map.Entry<Expression<T>, Constant<T>> entry : entrySet) {
             if (entry.getValue().equalsZero()) {
-                terms.remove(entry.getKey());
+                this.terms.remove(entry.getKey());
             }
         }
         // System.out.println(args + " construction complete");
     }
 
+    /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         ArrayList<Entity> inputTerms = new ArrayList<>(this.inputs.get(Parameter.TERMS));
         ArrayList<String> stringTerms = new ArrayList<>();
@@ -98,13 +98,15 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         }
         if (this.constant.equalsOne()) {
             return String.join("", stringTerms);
-        } else if (this.constant.equals(this.get(Constants.NONE))) {
+        } else if (this.constant.equals(Constant.NONE(TYPE))) {
             return "-" + String.join("", stringTerms);
         } else {
             return this.constant + String.join("", stringTerms);
         }
     }
 
+    /** SECTION: Implementation ===================================================================================== */
+    /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Mul<Symbolic>) this));
@@ -141,6 +143,11 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         }
     }
 
+    public InputType[] getInputTypes() {
+        return Mul.inputTypes;
+    }
+
+    /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> close() {
         if (this.inputs.get(Parameter.TERMS).size() == 0) {
             return this.constant;
@@ -187,9 +194,5 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             ArrayList<Expression<T>> derivativeTerms = Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get(Parameter.TERMS)), arg -> arg.logarithmicDerivative(s));
             return ENGINE.add(derivativeTerms.toArray());
         }
-    }
-
-    public InputType[] getInputTypes() {
-        return Mul.inputTypes;
     }
 }
