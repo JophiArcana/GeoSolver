@@ -1,7 +1,6 @@
 package Core.AlgSystem.UnicardinalTypes;
 
 import Core.AlgSystem.Constants.*;
-import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
@@ -13,66 +12,15 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
     }
     public static final InputType[] inputTypes = {Parameter.VAlUE};
 
+    /** SECTION: Instance Variables ================================================================================= */
+
     public final Class<T> TYPE;
-    public final AlgeEngine<T> ENGINE;
+    public final AlgEngine<T> ENGINE;
 
     public Constant(Class<T> type) {
         super();
         this.TYPE = type;
         this.ENGINE = Utils.getEngine(TYPE);
-    }
-
-    private final static HashMap<String, HashMap<Class<? extends Expression<?>>, Constant<? extends Expression<?>>>> constants = new HashMap<>() {{
-        put("ZERO", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(0, 0, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(0, 0, DirectedAngle.class));
-        }});
-        put("ONE", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(1, 0, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(1, 0, DirectedAngle.class));
-        }});
-        put("NONE", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(-1, 0, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(-1, 0, DirectedAngle.class));
-        }});
-        put("I", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(0, 1, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(0, 1, DirectedAngle.class));
-        }});
-        put("INFINITY", new HashMap<>() {{
-            put(Symbolic.class, Infinity.create(Symbolic.class));
-            put(DirectedAngle.class, Infinity.create(DirectedAngle.class));
-        }});
-        put("E", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(Math.E, 0, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(Math.E, 0, DirectedAngle.class));
-        }});
-        put("PI", new HashMap<>() {{
-            put(Symbolic.class, new Complex<>(Math.PI, 0, Symbolic.class));
-            put(DirectedAngle.class, new Complex<>(Math.PI, 0, DirectedAngle.class));
-        }});
-    }};
-
-    public static <U extends Expression<U>> Constant<U> ZERO(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("ZERO").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> ONE(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("ONE").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> NONE(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("NONE").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> I(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("I").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> INFINITY(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("INFINITY").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> E(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("E").getOrDefault(type, null);
-    }
-    public static <U extends Expression<U>> Constant<U> PI(Class<U> type) {
-        return (Constant<U>) Constant.constants.get("PI").getOrDefault(type, null);
     }
 
     public Expression<T> reduce() {
@@ -92,7 +40,7 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
     }
 
     public Expression<T> derivative(Univariate<T> var) {
-        return Constant.ZERO(TYPE);
+        return Complex.create(0, 0, TYPE);
     }
 
     public InputType[] getInputTypes() {
@@ -115,15 +63,15 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
 
     public abstract Constant<T> gcd(Constant<T> c);
 
-    public abstract boolean gaussianInteger();
-    public abstract boolean integer();
-    public abstract boolean positiveInteger();
+    public abstract boolean isGaussianInteger();
+    public abstract boolean isInteger();
+    public abstract boolean isPositiveInteger();
 
     public Class<T> getType() {
         return this.TYPE;
     }
 
-    public AlgeEngine<T> getEngine() {
+    public AlgEngine<T> getEngine() {
         return this.ENGINE;
     }
 }

@@ -2,6 +2,7 @@ package Core.AlgSystem.UnicardinalTypes;
 
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.Entity;
+import Core.Utilities.Algebra;
 
 import java.util.*;
 

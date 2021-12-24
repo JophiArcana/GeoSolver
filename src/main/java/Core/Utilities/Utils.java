@@ -41,9 +41,9 @@ public class Utils {
             Univariate.class
     ));
 
-    private static final HashMap<Class<? extends Expression<?>>, AlgeEngine> ENGINES = new HashMap<>() {{
+    private static final HashMap<Class<? extends Expression<?>>, AlgEngine> ENGINES = new HashMap<>() {{
         for (Class cls : Unicardinal.RINGS.keySet()) {
-            put(cls, new AlgeEngine<>(cls));
+            put(cls, new AlgEngine<>(cls));
         }
     }};
 
@@ -53,7 +53,7 @@ public class Utils {
         }
     }};
 
-    public static <T extends Expression<T>> AlgeEngine<T> getEngine(Class<T> type) {
+    public static <T extends Expression<T>> AlgEngine<T> getEngine(Class<T> type) {
         return Utils.ENGINES.get(type);
     }
 
@@ -91,7 +91,7 @@ public class Utils {
     }
 
     public static Number integerize(Number arg) {
-        if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < AlgeEngine.EPSILON) {
+        if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < AlgEngine.EPSILON) {
             return (int) Math.round(arg.doubleValue());
         } else {
             return arg;
@@ -223,5 +223,13 @@ public class Utils {
             set &= (set - 1);
         }
         return elements;
+    }
+
+    public static String overline(String s) {
+        String overlined = "";
+        for (char c : s.toCharArray()) {
+            overlined += (c + "\u0305");
+        }
+        return overlined;
     }
 }

@@ -1,10 +1,7 @@
 package Core.GeoSystem.Lines.LineTypes;
 
-import Core.AlgSystem.UnicardinalTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multivariate;
 import Core.GeoSystem.Points.PointTypes.*;
-
-import java.util.*;
 
 public class Linear extends Multivariate implements Line {
     public static final int naturalDegreesOfFreedom = 2;

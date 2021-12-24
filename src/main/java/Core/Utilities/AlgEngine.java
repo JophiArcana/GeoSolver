@@ -11,11 +11,15 @@ import java.util.*;
 import java.util.function.Function;
 
 
-public class AlgeEngine<T extends Expression<T>> {
+public class AlgEngine<T extends Expression<T>> implements Algebra<T> {
     public final Class<T> TYPE;
     
-    public AlgeEngine(Class<T> type) {
+    public AlgEngine(Class<T> type) {
         this.TYPE = type;
+    }
+
+    public Class<T> getType() {
+        return this.TYPE;
     }
     
     public Univariate<T> X() {
@@ -133,7 +137,7 @@ public class AlgeEngine<T extends Expression<T>> {
             }
         } else if (expr instanceof Pow<T> powExpr) {
             if (powExpr.base instanceof Add<T> addExpr && powExpr.exponent instanceof Complex<T> cpx
-                    && cpx.integer() && cpx.re.intValue() > 0) {
+                    && cpx.isInteger() && cpx.re.intValue() > 0) {
                 // System.out.println("Expanding " + addExpr + " " + cpx);
                 int n = cpx.re.intValue();
                 if (n == 2) {
@@ -185,7 +189,7 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Order of Growth ==================================================================================== */
 
     public Expression<T> orderOfGrowth(Expression<T> expr, Univariate<T> s) {
-        Constant<T> ONE = Constant.ONE(TYPE);
+        Constant<T> ONE = this.get(Constants.ONE);
         if (expr == null) {
             return null;
         } else if (expr instanceof Add<T> addExpr) {
@@ -198,9 +202,9 @@ public class AlgeEngine<T extends Expression<T>> {
                 Expression<T> baseOrder = termOrder;
                 if (termOrder instanceof Mul<T> mulOrder) {
                     baseOrder = mulOrder.baseForm().getValue();
-                    orders.put(baseOrder, orders.getOrDefault(baseOrder, Constant.ZERO(TYPE)).add(mulOrder.constant));
+                    orders.put(baseOrder, orders.getOrDefault(baseOrder, this.get(Constants.ZERO)).add(mulOrder.constant));
                 } else {
-                    orders.put(termOrder, orders.getOrDefault(termOrder, Constant.ZERO(TYPE)).add(ONE));
+                    orders.put(termOrder, orders.getOrDefault(termOrder, this.get(Constants.ZERO)).add(ONE));
                 }
                 if (orders.get(baseOrder).equalsZero()) {
                     orders.remove(baseOrder);
@@ -234,7 +238,7 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Greatest Common Divisor ============================================================================ */
 
     private Expression<T> greatestCommonDivisor(Expression<T> e1, Expression<T> e2) {
-        Constant<T> ONE = Constant.ONE(TYPE);
+        Constant<T> ONE = this.get(Constants.ONE);
         if (e1.equalsZero()) {
             Constant<T> const2 = e2.baseForm().getKey();
             if (const2 instanceof Infinity<T> inf) {
@@ -244,7 +248,7 @@ public class AlgeEngine<T extends Expression<T>> {
                 if (cpx.re.doubleValue() > 0) {
                     return e2;
                 } else if (cpx.re.doubleValue() == 0) {
-                    return this.div(e2, new Complex<>(0, (int) Math.signum(cpx.im.doubleValue()), TYPE));
+                    return this.div(e2, Complex.create(0, (int) Math.signum(cpx.im.doubleValue()), TYPE));
                 } else {
                     return this.negate(e2);
                 }
@@ -278,7 +282,7 @@ public class AlgeEngine<T extends Expression<T>> {
 
     public Expression<T> greatestCommonDivisor(List<Expression<T>> args) {
         return switch (args.size()) {
-            case 1 -> (args.get(0).baseForm().getKey().compareTo(Constant.ZERO(TYPE)) < 0) ? this.negate(args.get(0)) : args.get(0);
+            case 1 -> (args.get(0).baseForm().getKey().compareTo(this.get(Constants.ZERO)) < 0) ? this.negate(args.get(0)) : args.get(0);
             case 2 -> this.greatestCommonDivisor(args.get(0), args.get(1));
             default -> this.greatestCommonDivisor(this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
                     this.greatestCommonDivisor(args.subList(args.size() / 2, args.size())));
@@ -328,7 +332,7 @@ public class AlgeEngine<T extends Expression<T>> {
     };
 
     private void addToGCDGraph(ArrayList<ArrayList<Integer>> subsets, int anchor, GCDGraph<T> graph) {
-        Constant<T> ONE = Constant.ONE(TYPE);
+        Constant<T> ONE = this.get(Constants.ONE);
         HashMap<Integer, Expression<T>> ring = Utils.setMap(graph.elements, graph.binaryRepresentation);
 
         int zeroAnchor = (anchor == 0) ? 0 : 1;
@@ -398,7 +402,7 @@ public class AlgeEngine<T extends Expression<T>> {
     /** SECTION: Basic operations =================================================================================== */
 
     public Constant<T> complex(Number re, Number im) {
-        return new Complex<>(re, im, TYPE);
+        return Complex.create(re, im, TYPE);
     }
 
     public Constant<T> infinity(Expression<T> expr) {
@@ -445,11 +449,11 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> negate(Object obj) {
-        return this.mul(this.objectConversion(obj), Constant.NONE(TYPE));
+        return this.mul(this.objectConversion(obj), this.get(Constants.NONE));
     }
 
     public Expression<T> invert(Object obj) {
-        return this.pow(this.objectConversion(obj), Constant.NONE(TYPE));
+        return this.pow(this.objectConversion(obj), this.get(Constants.NONE));
     }
 
     /** SECTION: Cyclic Sum ========================================================================================= */
@@ -472,14 +476,14 @@ public class AlgeEngine<T extends Expression<T>> {
     }
 
     public Expression<T> exp(Object obj) {
-        return this.pow(Constant.E(TYPE), obj);
+        return this.pow(this.get(Constants.E), obj);
     }
 
     /** SECTION: Real, Imaginary, Conjugate ========================================================================= */
 
     public Expression<T> real(Object obj) {
         if (obj instanceof Number n) {
-            return new Complex<>(n, 0, TYPE);
+            return Complex.create(n, 0, TYPE);
         } else {
             Expression<T> expr = (Expression<T>) obj;
             if (expr == null || expr instanceof Univariate) {
@@ -499,7 +503,7 @@ public class AlgeEngine<T extends Expression<T>> {
 
     public Expression<T> imaginary(Object obj) {
         if (obj instanceof Number) {
-            return Constant.ZERO(TYPE);
+            return this.get(Constants.ZERO);
         } else {
             Expression<T> expr = (Expression<T>) obj;
             if (expr == null) {
@@ -509,19 +513,19 @@ public class AlgeEngine<T extends Expression<T>> {
             } else if (expr instanceof Infinity<T> inf) {
                 return this.infinity(this.imaginary(inf.expression));
             } else if (expr instanceof Univariate<T>) {
-                return Constant.ZERO(TYPE);
+                return this.get(Constants.ZERO);
             } else if (expr instanceof Add<T> addExpr) {
                 return this.add(this.imaginary(addExpr.constant),
                         this.add(Utils.map(addExpr.inputs.get(Add.Parameter.TERMS), this::imaginary).toArray()));
             } else {
-                return this.mul(-0.5, Constant.I(TYPE), this.sub(expr, this.conjugate(expr)));
+                return this.mul(-0.5, this.get(Constants.I), this.sub(expr, this.conjugate(expr)));
             }
         }
     }
 
     public Expression<T> conjugate(Object obj) {
         if (obj instanceof Number n) {
-            return new Complex<>(n, 0, TYPE);
+            return Complex.create(n, 0, TYPE);
         } else {
             Expression<T> expr = (Expression<T>) obj;
             if (expr == null || expr instanceof Univariate<T>) {
@@ -553,11 +557,11 @@ public class AlgeEngine<T extends Expression<T>> {
     public Expression<T> objectConversion(Object obj) {
         assert obj instanceof Number || obj instanceof Expression || obj == null;
         if (obj instanceof Number n) {
-            return new Complex<>(n, 0, TYPE);
+            return Complex.create(n, 0, TYPE);
         } else if (obj != null) {
             return (Expression<T>) obj;
         } else {
-            return Constant.ZERO(TYPE);
+            return this.get(Constants.ZERO);
         }
     }
 }

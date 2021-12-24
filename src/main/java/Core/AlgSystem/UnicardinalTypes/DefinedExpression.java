@@ -5,7 +5,7 @@ import Core.Utilities.*;
 
 public abstract class DefinedExpression<T extends Expression<T>> extends DefinedEntity implements Expression<T> {
     public final Class<T> TYPE;
-    public final AlgeEngine<T> ENGINE;
+    public final AlgEngine<T> ENGINE;
     public Expression<T> reduction, expansion;
 
     public DefinedExpression(Class<T> type) {
@@ -32,7 +32,7 @@ public abstract class DefinedExpression<T extends Expression<T>> extends Defined
         return this.TYPE;
     }
 
-    public AlgeEngine<T> getEngine() {
+    public AlgEngine<T> getEngine() {
         return this.ENGINE;
     }
 }

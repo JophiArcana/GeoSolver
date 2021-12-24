@@ -12,7 +12,7 @@ import static Core.Utilities.GeoEngine.*;
 
 public class SpeedTest {
     public static void main(String[] args) {
-        AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
+        AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
 
         Phantom p = new Phantom("P");
         Phantom q = new Phantom("Q");

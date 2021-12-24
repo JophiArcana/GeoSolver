@@ -1,13 +1,13 @@
 
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.Utilities.AlgeEngine;
+import Core.Utilities.AlgEngine;
 import Core.Utilities.OrderOfGrowthComparator;
 import Core.Utilities.Utils;
 
 public class DivisionTest {
     public static void main(String[] args) {
-        AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
+        AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
         OrderOfGrowthComparator<Symbolic> c1 = Utils.getGrowthComparator(Symbolic.class);
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);

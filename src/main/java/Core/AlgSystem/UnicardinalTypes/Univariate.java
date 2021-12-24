@@ -57,7 +57,7 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
         return this.TYPE;
     }
 
-    public AlgeEngine<T> getEngine() {
+    public AlgEngine<T> getEngine() {
         return Utils.getEngine(TYPE);
     }
 }

@@ -8,10 +8,10 @@ import javafx.util.Pair;
 
 import java.util.*;
 
-public interface Expression<T extends Expression<T>> extends Unicardinal {
-    class Factorization<U extends Expression<U>> {
+public interface Expression<T extends Expression<T>> extends Unicardinal, Algebra<T> {
+    class Factorization<U extends Expression<U>> implements Algebra<U> {
         public final Class<U> TYPE;
-        public final AlgeEngine<U> ENGINE;
+        public final AlgEngine<U> ENGINE;
 
         public Constant<U> constant;
         public TreeMap<Expression<U>, Constant<U>> terms;
@@ -25,9 +25,9 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
 
         public String toString() {
             String constString;
-            if (constant.equals(Constant.ONE(TYPE))) {
+            if (constant.equals(this.get(Constants.ONE))) {
                 constString = "";
-            } else if (constant.equals(Constant.NONE(TYPE))) {
+            } else if (constant.equals(this.get(Constants.NONE))) {
                 constString = "-";
             } else {
                 constString = constant.toString();
@@ -43,13 +43,17 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
             }
             return constString + String.join("", stringTerms);
         }
+
+        public Class<U> getType() {
+            return this.TYPE;
+        }
     }
 
     default boolean equals(Entity ent) {
         if (ent instanceof DefinedExpression) {
             Expression<T> difference = this.getEngine().sub(this, ent).expand();
             if (difference instanceof Constant<T>) {
-                return difference.equals(Constant.ZERO(this.getType()));
+                return difference.equals(this.get(Constants.ONE));
             }
         }
         return false;
@@ -81,7 +85,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
     Expression<T> derivative(Univariate<T> var);
 
     default Expression<T> derivative() {
-        return (this instanceof Constant) ? Constant.ZERO(this.getType()) : this.derivative((Univariate<T>) this.variables().first());
+        return (this instanceof Constant) ? this.get(Constants.ONE) : this.derivative((Univariate<T>) this.variables().first());
     }
 
     default Expression<T> logarithmicDerivative(Univariate<T> s) {
@@ -92,13 +96,13 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         if (this instanceof Mul<T> mulExpr) {
             Mul<T> copy = Mul.create(mulExpr.TYPE);
             copy.terms = mulExpr.terms;
-            copy.inputs.get(Mul.Parameter.CONSTANT).add(Constant.ONE(mulExpr.TYPE));
+            copy.inputs.get(Mul.Parameter.CONSTANT).add(this.get(Constants.ONE));
             copy.inputs.get(Mul.Parameter.TERMS).addAll(mulExpr.inputs.get(Mul.Parameter.TERMS));
             return new Pair<>(mulExpr.constant, copy.close());
         } else if (this instanceof Constant<T> constExpr) {
-            return new Pair<>(constExpr, Constant.ONE(this.getType()));
+            return new Pair<>(constExpr, this.get(Constants.ONE));
         } else {
-            return new Pair<>(Constant.ONE(this.getType()), this);
+            return new Pair<>(this.get(Constants.ONE), this);
         }
     }
 
@@ -136,8 +140,7 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         return expr;
     }
 
-    Class<T> getType();
-    AlgeEngine<T> getEngine();
+    AlgEngine<T> getEngine();
 
     /** SECTION: Optimizations ====================================================================================== */
 

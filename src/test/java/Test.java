@@ -1,5 +1,4 @@
 
-import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.GeoSystem.Points.PointTypes.*;
@@ -12,7 +11,7 @@ public class Test {
         Univariate<Symbolic> x = new Univariate<>("x", Symbolic.class);
         Univariate<Symbolic> y = new Univariate<>("y", Symbolic.class);
         Univariate<Symbolic> z = new Univariate<>("z", Symbolic.class);
-        AlgeEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
+        AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
 
         /** Expression<Symbolic> term1 = e1.mul(x, new Complex<>(0, -1, Symbolic.class));
         Expression<Symbolic> term2 = y;

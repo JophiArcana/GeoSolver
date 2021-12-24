@@ -5,9 +5,9 @@ import Core.EntityTypes.Mutable;
 
 import java.util.*;
 
-public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>> {
+public class OrderOfGrowthComparator<T extends Expression<T>> implements Comparator<Expression<T>>, Algebra<T> {
     public final Class<T> TYPE;
-    public final AlgeEngine<T> ENGINE;
+    public final AlgEngine<T> ENGINE;
     public Univariate<T> base;
 
     public OrderOfGrowthComparator(Univariate<T> x, Class<T> type) {
@@ -21,9 +21,9 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
     }
 
     public int compare(Expression<T> e1, Expression<T> e2) {
-        if (e1 == null || e1.equals(Constant.ZERO(TYPE))) {
+        if (e1 == null || e1.equals(this.get(Constants.ZERO))) {
             return -e2.signum();
-        } else if (e2 == null || e2.equals(Constant.ZERO(TYPE))) {
+        } else if (e2 == null || e2.equals(this.get(Constants.ZERO))) {
             return e1.signum();
         } else if (this.base != null) {
             return baseCompare(e1, e2, this.base);
@@ -61,50 +61,9 @@ public class OrderOfGrowthComparator<T extends Expression<T>> implements Compara
         } else {
             return e1.baseForm().getKey().compareTo(e2.baseForm().getKey());
         }
+    }
 
-        /**Pair<Constant<T>, Expression<T>> baseForm1 = e1.baseForm();
-        Pair<Constant<T>, Expression<T>> baseForm2 = e2.baseForm();
-        if (baseForm1.getValue().equals(baseForm2.getValue())) {
-            return baseForm1.getKey().compareTo(baseForm2.getKey());
-        } else {
-            Expression<T> logDerivative1 = e1.logarithmicDerivative(var);
-            Expression<T> logDerivative2 = e2.logarithmicDerivative(var);
-            return logDerivative1.baseForm().getKey().compareTo(logDerivative2.baseForm().getKey());
-            int sign1 = logDerivative1.signum(var);
-            int sign2 = logDerivative2.signum(var);
-            Constant<T> NONE = Constant.NONE(TYPE);
-            if (sign1 != sign2) {
-                return sign1 - sign2;
-            } else if (sign1 == 0) {
-                return 0;
-            } else if (sign1 == -1) {
-                return this.baseCompare(ENGINE.mul(NONE, logDerivative2), ENGINE.mul(NONE, logDerivative1), var);
-            } else {
-                return this.baseCompare(logDerivative1, logDerivative2, var);
-            }
-        }*/
-        /**e1 = ENGINE.orderOfGrowth(e1, var);
-        e2 = ENGINE.orderOfGrowth(e2, var);
-        System.out.println(e1 + " and " + e2 + " comparison with " + var);
-        Expression<T> comparison = ENGINE.div(e1, e2);
-        //System.out.println(e1 + " and " + e2 + " comparison: " + comparison);
-        if (comparison instanceof Constant) {
-            return e1.normalize().constant.compareTo(e2.normalize().constant);
-        } else if (!comparison.variables().contains(var)) {
-            return 0;
-        } else {
-            System.out.println("Here: " + e1 + " and " + e2);
-            Expression<T> logDerivative = comparison.logarithmicDerivative(var);
-            Expression<T> logOrder = ENGINE.orderOfGrowth(logDerivative, var);
-            if (logOrder instanceof Pow || logOrder instanceof Log || logOrder instanceof Univariate) {
-                return 1;
-            } else if (logOrder instanceof Mul<T> mulExpr) {
-                return mulExpr.constant.compareTo(Constant.ZERO(TYPE));
-            } else if (logOrder instanceof Constant<T> constExpr) {
-                return constExpr.compareTo(Constant.ZERO(TYPE));
-            } else {
-                return 0;
-            }
-        }*/
+    public Class<T> getType() {
+        return this.TYPE;
     }
 }

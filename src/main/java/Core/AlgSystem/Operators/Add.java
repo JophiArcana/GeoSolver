@@ -1,5 +1,6 @@
 package Core.AlgSystem.Operators;
 
+import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
@@ -18,7 +19,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     /** SECTION: Instance Variables ================================================================================= */
 
     public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-    public Constant<T> constant = Constant.ZERO(TYPE);
+    public Constant<T> constant = this.get(Constants.ZERO);
 
     /** SECTION: Factory Methods ==================================================================================== */
 
@@ -30,7 +31,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
             }
         }
         return switch (exprs.size()) {
-            case 0 -> Constant.ZERO(type);
+            case 0 -> Complex.create(0, 0, type);
             case 1 -> exprs.get(0);
             default -> new Add<>(exprs, type).close();
         };
@@ -75,13 +76,13 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
                     }
                     constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
                 } else {
-                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
+                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, this.get(Constants.ZERO))));
                     if (terms.get(baseExpr).equalsZero()) {
                         terms.remove(baseExpr);
                     }
                 }
             } else {
-                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
+                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, this.get(Constants.ZERO)), this.get(Constants.ONE)));
                 if (terms.get(arg).equalsZero()) {
                     terms.remove(arg);
                 }
@@ -106,12 +107,12 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(Collections.singletonList((Add<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class){
-            final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+            final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
             ArrayList<Expression<T>> terms = new ArrayList<>(Collections.singletonList(this.constant));
             terms.addAll(Utils.cast(this.inputs.get(Parameter.TERMS)));
             ArrayList<ArrayList<HashSet<Expression<T>>>> subsets = Utils.sortedSubsets(terms);
             ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
-            ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
+            ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Complex.create(1, 0, Symbolic.class)));
             for (int i = 1; i < subsets.size(); i++) {
                 ArrayList<Expression<Symbolic>> symbolics = new ArrayList<>();
                 for (HashSet<Expression<T>> subset : subsets.get(i)) {
@@ -149,13 +150,13 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public Factorization<T> normalize() {
         TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         if (this.constant.equalsZero()) {
-            factors.put(this, Constant.ONE(TYPE));
-            return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
+            factors.put(this, this.get(Constants.ONE));
+            return new Factorization<>(this.get(Constants.ONE), factors, TYPE);
         } else {
             ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get(Parameter.TERMS), arg ->
                     ENGINE.div(arg, this.constant));
-            normalizedTerms.add(Constant.ONE(TYPE));
-            factors.put(ENGINE.add(normalizedTerms.toArray()), Constant.ONE(TYPE));
+            normalizedTerms.add(this.get(Constants.ONE));
+            factors.put(ENGINE.add(normalizedTerms.toArray()), this.get(Constants.ONE));
             return new Factorization<>(this.constant, factors, TYPE);
         }
     }

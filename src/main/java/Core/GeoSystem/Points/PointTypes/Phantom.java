@@ -17,7 +17,7 @@ public class Phantom extends Multivariate implements Point {
     }
 
     public ArrayList<Expression<Symbolic>> symbolic() {
-        AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+        AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
         return new ArrayList<>(Collections.singletonList(ENGINE.add(this.var_x, ENGINE.mul(this.var_y, Constant.I(Symbolic.class)))));
     }
 }

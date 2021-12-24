@@ -101,9 +101,7 @@ public class Experimenting {
         //subsetList.forEach(subsets -> subsets.forEach(Experimenting::printByteBuffer));
         // System.out.println(Utils.subsets(37));
         // System.out.println(Utils.binarySortedSubsets(4095).get(3).size());
-        System.out.println(sortedSubsets(5));
-        Number x = 1.0;
-        x = x.intValue();
-        System.out.println(x.getClass());
+        System.out.println("y" + "\u0305" + "x" + "\u0305");
+        System.out.println(Utils.overline("AB"));
     }
 }

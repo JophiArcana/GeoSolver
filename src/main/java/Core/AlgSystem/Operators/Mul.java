@@ -98,7 +98,7 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
         }
         if (this.constant.equalsOne()) {
             return String.join("", stringTerms);
-        } else if (this.constant.equals(Constant.NONE(TYPE))) {
+        } else if (this.constant.equals(this.get(Constants.NONE))) {
             return "-" + String.join("", stringTerms);
         } else {
             return this.constant + String.join("", stringTerms);
@@ -110,13 +110,13 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
             return new ArrayList<>(Collections.singletonList((Mul<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
             if (this.inputs.get(Parameter.TERMS).size() == 1 && this.constant instanceof Complex<T> cpx
-                && cpx.gaussianInteger() && cpx.im.equals(0)) {
-                final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+                && cpx.isGaussianInteger() && cpx.im.equals(0)) {
+                final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
                 int n = cpx.re.intValue();
                 int k = Math.abs(n);
                 Expression<Symbolic> expr = this.inputs.get(Parameter.TERMS).firstEntry().getElement().symbolic().get(0);
                 ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
-                ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Constant.ONE(Symbolic.class)));
+                ArrayList<Expression<Symbolic>> denominatorTerms = new ArrayList<>(Collections.singletonList(Complex.create(1, 0, Symbolic.class)));
                 for (int i = 1; i <= k; i++) {
                     Expression<Symbolic> symbolic = ENGINE.mul(Utils.binomial(k, i), ENGINE.pow(expr, i));
                     switch (i % 4) {

@@ -79,6 +79,8 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         }
     }
 
+    /** SECTION: Basic Operations =================================================================================== */
+
     public Constant<T> add(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
             return new Infinity<>(ENGINE.add(this.expression, cpx), TYPE);
@@ -169,15 +171,15 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         return Double.MAX_VALUE;
     }
 
-    public boolean gaussianInteger() {
+    public boolean isGaussianInteger() {
         return false;
     }
 
-    public boolean integer() {
+    public boolean isInteger() {
         return false;
     }
 
-    public boolean positiveInteger() {
+    public boolean isPositiveInteger() {
         return false;
     }
 

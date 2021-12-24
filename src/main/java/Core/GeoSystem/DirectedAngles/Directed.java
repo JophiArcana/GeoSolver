@@ -26,7 +26,7 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     }
 
     public ArrayList<Expression<Symbolic>> symbolic() {
-        final AlgeEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
+        final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
         Expression<Symbolic> dualExpression = this.l.pointDual().symbolic().get(0);
         return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.real(dualExpression), ENGINE.imaginary(dualExpression))));
     }
