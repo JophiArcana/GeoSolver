@@ -16,9 +16,9 @@ public interface Expression<T extends Expression<T>> extends Unicardinal {
         public final AlgEngine<U> ENGINE;
 
         public Constant<U> constant;
-        public TreeMap<Expression<U>, Constant<U>> terms;
+        public Map<Expression<U>, Constant<U>> terms;
 
-        public Factorization(Constant<U> c, TreeMap<Expression<U>, Constant<U>> t, Class<U> type) {
+        public Factorization(Constant<U> c, Map<Expression<U>, Constant<U>> t, Class<U> type) {
             this.constant = c;
             this.terms = t;
             this.TYPE = type;

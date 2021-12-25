@@ -51,9 +51,7 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
     }
 
     public Factorization<T> normalize() {
-        TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        factors.put(this, Constant.ONE(TYPE));
-        return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
+        return new Factorization<>(Constant.ONE(TYPE), SingletonMap.of(this, Constant.ONE(TYPE)), TYPE);
     }
 
     public Expression<T> derivative(Univariate<T> var) {

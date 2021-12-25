@@ -163,16 +163,25 @@ public class Mul<T extends Expression<T>> extends DefinedExpression<T> {
     public Factorization<T> normalize() {
         Constant<T> coefficient = this.constant;
         TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        for (Entity ent : this.inputs.get(Parameter.TERMS)) {
-            Factorization<T> entFactor = ((Expression<T>) ent).normalize();
-            coefficient = coefficient.mul(entFactor.constant);
-            for (Map.Entry<Expression<T>, Constant<T>> entry : entFactor.terms.entrySet()) {
-                factors.put(entry.getKey(), factors.getOrDefault(entry.getKey(), Constant.ZERO(TYPE)).add(entry.getValue()));
-                if (factors.get(entry.getKey()).equalsZero()) {
+        for (Map.Entry<Expression<T>, Constant<T>> entryTerm : this.terms.entrySet()) {
+            Factorization<T> exprFactor = entryTerm.getKey().normalize();
+            coefficient = coefficient.mul(exprFactor.constant.pow(entryTerm.getValue()));
+            for (Map.Entry<Expression<T>, Constant<T>> entry : exprFactor.terms.entrySet()) {
+                Constant<T> result = factors.getOrDefault(entry.getKey(),
+                        Constant.ZERO(TYPE)).add(entry.getValue().mul(entryTerm.getValue()));
+                if (result.equalsZero()) {
                     factors.remove(entry.getKey());
+                } else {
+                    factors.put(entry.getKey(), result);
                 }
             }
         }
+        /**Set<Map.Entry<Expression<T>, Constant<T>>> entrySet = factors.entrySet();
+        for (Map.Entry<Expression<T>, Constant<T>> entry : entrySet) {
+            if (entry.getValue().equalsZero()) {
+                factors.remove(entry.getKey());
+            }
+        }*/
         return new Factorization<>(coefficient, factors, TYPE);
     }
 

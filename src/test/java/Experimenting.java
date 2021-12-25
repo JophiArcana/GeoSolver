@@ -1,3 +1,4 @@
+import Core.Utilities.SingletonMap;
 import Core.Utilities.Utils;
 
 import java.nio.ByteBuffer;
@@ -103,5 +104,12 @@ public class Experimenting {
         // System.out.println(Utils.binarySortedSubsets(4095).get(3).size());
         System.out.println("y" + "\u0305" + "x" + "\u0305");
         System.out.println(Utils.overline("AB"));
+
+        SingletonMap<Integer, Integer> m = SingletonMap.of(1, 1);
+        System.out.println(m);
+        for (Map.Entry<Integer, Integer> entry : m.entrySet()) {
+            entry.setValue(2);
+        }
+        System.out.println(m);
     }
 }

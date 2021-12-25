@@ -94,8 +94,12 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     public Factorization<T> normalize() {
         Factorization<T> baseFactorization = this.base.normalize();
         baseFactorization.constant = baseFactorization.constant.pow(this.exponent);
-        for (Map.Entry<Expression<T>, Constant<T>> entry : baseFactorization.terms.entrySet()) {
-            entry.setValue(entry.getValue().mul(this.exponent));
+        if (baseFactorization.terms instanceof SingletonMap<Expression<T>, Constant<T>> m) {
+            m.entry.setValue(m.entry.getValue().mul(this.exponent));
+        } else {
+            for (Map.Entry<Expression<T>, Constant<T>> entry : baseFactorization.terms.entrySet()) {
+                entry.setValue(entry.getValue().mul(this.exponent));
+            }
         }
         return baseFactorization;
     }

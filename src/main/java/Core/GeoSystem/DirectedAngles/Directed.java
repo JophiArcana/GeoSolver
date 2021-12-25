@@ -51,9 +51,7 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     }
 
     public Factorization<DirectedAngle> normalize() {
-        TreeMap<Expression<DirectedAngle>, Constant<DirectedAngle>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
-        terms.put(this, Constant.ONE(DirectedAngle.class));
-        return new Factorization<>(Constant.ONE(DirectedAngle.class), terms, DirectedAngle.class);
+        return new Factorization<>(Constant.ONE(DirectedAngle.class), SingletonMap.of(this, Constant.ONE(DirectedAngle.class)), DirectedAngle.class);
     }
 
     public Expression<DirectedAngle> derivative(Univariate<DirectedAngle> var) {

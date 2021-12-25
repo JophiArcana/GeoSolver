@@ -98,7 +98,7 @@ public abstract class Constant<T extends Expression<T>> extends Immutable implem
     }
 
     public Factorization<T> normalize() {
-        return new Factorization<>(this, new TreeMap<>(Utils.PRIORITY_COMPARATOR), TYPE);
+        return new Factorization<>(this, Map.of(), TYPE);
     }
 
     public Expression<T> derivative(Univariate<T> var) {

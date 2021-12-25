@@ -19,7 +19,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     public static final InputType[] inputTypes = {Parameter.TERMS, Parameter.CONSTANT};
 
     /** SECTION: Instance Variables ================================================================================= */
-    public ConcurrentSkipListMap<Expression<T>, Constant<T>> terms = new ConcurrentSkipListMap<>(Utils.PRIORITY_COMPARATOR);
+    public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
     public Constant<T> constant = Constant.ZERO(TYPE);
 
     /** SECTION: Factory Methods ==================================================================================== */
@@ -50,7 +50,7 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
 
     protected Add(Iterable<Expression<T>> args, Class<T> type) {
         super(type);
-        TreeMultiset<Entity> inputTerms = inputs.get(Parameter.TERMS);
+        TreeMultiset<Entity> inputTerms = this.inputs.get(Parameter.TERMS);
         this.construct(args);
         for (Map.Entry<Expression<T>, Constant<T>> entry : terms.entrySet()) {
             inputTerms.add(ENGINE.mul(entry.getKey(), entry.getValue()));
@@ -62,30 +62,43 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     private void construct(Iterable<Expression<T>> args) {
         for (Expression<T> arg : args) {
             if (arg instanceof Constant<T> constArg) {
-                constant = constant.add(constArg);
+                this.constant = this.constant.add(constArg);
             } else if (arg instanceof Add<T> addArg) {
-                constant = constant.add(addArg.constant);
+                this.constant = this.constant.add(addArg.constant);
                 this.construct(Utils.cast(addArg.inputs.get(Parameter.TERMS)));
             } else if (arg instanceof Mul<T> mulArg) {
                 Expression<T> baseExpr = mulArg.baseForm().getValue();
                 Constant<T> baseConst = mulArg.baseForm().getKey();
                 if (baseExpr instanceof Add<T> baseAdd) {
                     for (Entity ent : baseAdd.inputs.get(Parameter.TERMS)) {
-                        this.construct(new ArrayList<>(Collections.singletonList(ENGINE.mul(baseConst, ent))));
+                        this.construct(new ArrayList<>(List.of(ENGINE.mul(baseConst, ent))));
                     }
-                    constant = constant.add((Constant<T>) ENGINE.mul(baseConst, baseAdd.constant));
+                    this.constant = this.constant.add(baseConst.mul(baseAdd.constant));
                 } else {
-                    terms.put(baseExpr, (Constant<T>) ENGINE.add(mulArg.constant, terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
+                    Constant<T> result = mulArg.constant.add(this.terms.getOrDefault(baseExpr, Constant.ZERO(TYPE)));
+                    if (result.equalsZero()) {
+                        this.terms.remove(baseExpr);
+                    } else {
+                        this.terms.put(baseExpr, result);
+                    }
+                    // this.terms.put(baseExpr, mulArg.constant.add(this.terms.getOrDefault(baseExpr, Constant.ZERO(TYPE))));
                 }
             } else {
-                terms.put(arg, (Constant<T>) ENGINE.add(terms.getOrDefault(arg, Constant.ZERO(TYPE)), Constant.ONE(TYPE)));
+                Constant<T> result = Constant.ONE(TYPE).add(this.terms.getOrDefault(arg, Constant.ZERO(TYPE)));
+                if (result.equalsZero()) {
+                    this.terms.remove(arg);
+                } else {
+                    this.terms.put(arg, result);
+                }
+                // this.terms.put(arg, Constant.ONE(TYPE).add(this.terms.getOrDefault(arg, Constant.ZERO(TYPE))));
             }
         }
-        for (Map.Entry<Expression<T>, Constant<T>> entry : this.terms.entrySet()) {
+        /**ArrayList<Map.Entry<Expression<T>, Constant<T>>> entrySet = new ArrayList<>(this.terms.entrySet());
+        for (Map.Entry<Expression<T>, Constant<T>> entry : entrySet) {
             if (entry.getValue().equalsZero()) {
                 this.terms.remove(entry.getKey());
             }
-        }
+        }*/
     }
 
 
@@ -96,10 +109,10 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
         for (Entity ent : inputTerms) {
             stringTerms.add(ent.toString());
         }
-        if (constant.equalsZero()) {
+        if (this.constant.equalsZero()) {
             return String.join(" + ", stringTerms);
         } else {
-            return constant + " + " + String.join(" + ", stringTerms);
+            return this.constant + " + " + String.join(" + ", stringTerms);
         }
     }
 
@@ -155,16 +168,13 @@ public class Add<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     public Factorization<T> normalize() {
-        TreeMap<Expression<T>, Constant<T>> factors = new TreeMap<>(Utils.PRIORITY_COMPARATOR);
         if (this.constant.equalsZero()) {
-            factors.put(this, Constant.ONE(TYPE));
-            return new Factorization<>(Constant.ONE(TYPE), factors, TYPE);
+            return new Factorization<>(Constant.ONE(TYPE), SingletonMap.of(this, Constant.ONE(TYPE)), TYPE);
         } else {
             ArrayList<Expression<T>> normalizedTerms = Utils.map(this.inputs.get(Parameter.TERMS), arg ->
                     ENGINE.div(arg, this.constant));
             normalizedTerms.add(Constant.ONE(TYPE));
-            factors.put(ENGINE.add(normalizedTerms.toArray()), Constant.ONE(TYPE));
-            return new Factorization<>(this.constant, factors, TYPE);
+            return new Factorization<>(this.constant, Collections.singletonMap(ENGINE.add(normalizedTerms.toArray()), Constant.ONE(TYPE)), TYPE);
         }
     }
 
