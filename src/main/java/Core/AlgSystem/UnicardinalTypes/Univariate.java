@@ -3,11 +3,10 @@ package Core.AlgSystem.UnicardinalTypes;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.EntityTypes.Mutable;
-import Core.Utilities.*;
 
 import java.util.*;
 
-public class Univariate<T extends Expression<T>> extends Mutable implements Expression<T> {
+public class Univariate<T> extends Mutable implements Expression<T> {
     /** SECTION: Static Data ======================================================================================== */
     public static final int naturalDegreesOfFreedom = 1;
 
@@ -15,7 +14,7 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
     public final Class<T> TYPE;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T extends Expression<T>> Univariate<T> create(String n, Class<T> type) {
+    public static <T> Univariate<T> create(String n, Class<T> type) {
         return new Univariate<>(n, type);
     }
 
@@ -29,9 +28,9 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
     /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
-            return new ArrayList<>(Collections.singletonList((Univariate<Symbolic>) this));
+            return new ArrayList<>(List.of((Univariate<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
-            return new ArrayList<>(Collections.singletonList(new Univariate<>(this.name + "\u24E3", Symbolic.class)));
+            return new ArrayList<>(List.of(new Univariate<>(this.name + "\u209C", Symbolic.class)));
         } else {
             return null;
         }
@@ -50,12 +49,20 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
         return this;
     }
 
-    public Factorization<T> normalize() {
-        return new Factorization<>(Constant.ONE(TYPE), SingletonMap.of(this, Constant.ONE(TYPE)), TYPE);
+    public int signum(Univariate<T> var) {
+        if (this.name.equals(var.name)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    public Expression<T> derivative(Univariate<T> var) {
-        return this.name.equals(var.name) ? Constant.ONE(TYPE) : Constant.ZERO(TYPE);
+    public int getDegree() {
+        if (this.name.charAt(this.name.length() - 1) == '\u209C') {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 
     public int getNaturalDegreesOfFreedom() {
@@ -66,7 +73,4 @@ public class Univariate<T extends Expression<T>> extends Mutable implements Expr
         return this.TYPE;
     }
 
-    public AlgEngine<T> getEngine() {
-        return Utils.getEngine(TYPE);
-    }
 }

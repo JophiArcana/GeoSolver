@@ -1,5 +1,7 @@
 package Core.GeoSystem.Points.Functions;
 
+import Core.AlgSystem.Operators.Add;
+import Core.AlgSystem.Operators.Scale;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;
@@ -16,10 +18,6 @@ public class Centroid extends Center {
 
     public static Centroid create(Point ... args) {
         return (Centroid) new Centroid("", args).simplify();
-    }
-
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return new Centroid(this.name, args.get(Parameter.POINTS).toArray(new Point[0]));
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -42,6 +40,6 @@ public class Centroid extends Center {
     protected ArrayList<Expression<Symbolic>> computeSymbolic() {
         AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
         ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
-        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.add(argTerms.toArray()), argTerms.size())));
+        return new ArrayList<>(List.of(Scale.create(1.0 / argTerms.size(), Add.create(argTerms, Symbolic.class), Symbolic.class)));
     }
 }

@@ -27,11 +27,6 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public boolean equals(Entity ent) {
-        return Utils.compare(this, ent) == 0;
-    }
-
     /** SUBSECTION: Multicardinal =================================================================================== */
     public String getName() {
         return this.name;

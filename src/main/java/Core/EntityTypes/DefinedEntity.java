@@ -20,12 +20,16 @@ public abstract class DefinedEntity implements Entity {
     public DefinedEntity() {
         this.constrainedDegreesOfFreedom = DefinedEntity.naturalDegreesOfFreedom;
         for (InputType inputType : this.getInputTypes()) {
-            this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
+            this.inputs.put(inputType, TreeMultiset.create());
         }
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
+    public boolean equals(Entity ent) {
+        return Utils.PRIORITY_COMPARATOR.compare(this, ent) == 0;
+    }
+
     public int getNaturalDegreesOfFreedom() {
         return DefinedEntity.naturalDegreesOfFreedom;
     }

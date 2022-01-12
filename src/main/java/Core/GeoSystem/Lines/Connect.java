@@ -26,10 +26,6 @@ public class Connect extends DefinedMulticardinal implements Line {
             return new ConnectPointDual(a, b);
         }
 
-        public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-            return new ConnectPointDual((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
-        }
-
         /** SUBSECTION: Factory Methods ============================================================================= */
         private ConnectPointDual(Point a, Point b) {
             super(Utils.overline(a.getName() + b.getName()) + "\u209A");
@@ -64,10 +60,6 @@ public class Connect extends DefinedMulticardinal implements Line {
     /** SECTION: Factory Methods ==================================================================================== */
     public static Connect create(Point a, Point b) {
         return new Connect(a, b);
-    }
-
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return new Connect((Point) args.get(Parameter.POINTS).get(0), (Point) args.get(Parameter.POINTS).get(1));
     }
 
     /** SECTION: Protected Constructors ============================================================================= */

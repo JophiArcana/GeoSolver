@@ -1,5 +1,6 @@
 package Core.AlgSystem.Operators;
 
+import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;
@@ -7,7 +8,7 @@ import Core.Utilities.*;
 
 import java.util.*;
 
-public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
+public class Pow<T> extends DefinedExpression<T> {
     /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         BASE,
@@ -17,56 +18,48 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
 
     /** SECTION: Instance Variables ================================================================================= */
     public Expression<T> base;
-    public Constant<T> exponent;
+    public double exponent;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T extends Expression<T>> Expression<T> create(Expression<T> base, Constant<T> exponent, Class<T> type) {
-        if (base instanceof Constant<T> baseConst) {
-            return baseConst.pow(exponent);
-        } else {
-            return new Pow<>(base, exponent, type).close();
-        }
+    public static <T> Expression<T> create(Expression<T> base, Complex<T> exponent, Class<T> type) {
+        return new Pow<>(base, (double) exponent.re, type).close();
     }
 
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        Expression<T> base = (Expression<T>) args.get(Parameter.BASE).get(0);
-        Constant<T> exponent = (Constant<T>) args.get(Parameter.EXPONENT).get(0);
-        return Pow.create(base, exponent, TYPE);
+    public static <T> Expression<T> create(Expression<T> base, double exponent, Class<T> type) {
+        return new Pow<>(base, exponent, type).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Pow(Expression<T> base, Constant<T> exponent, Class<T> type) {
+    protected Pow(Expression<T> base, double exponent, Class<T> type) {
         super(type);
-        if (base instanceof Pow) {
-            this.base = ((Pow<T>) base).base;
-            this.exponent = ((Pow<T>) base).exponent.mul(exponent);
+        if (base instanceof Pow<T> powExpr) {
+            this.base = powExpr.base;
+            this.exponent = powExpr.exponent * exponent;
+        } else if (base instanceof Constant<T> constExpr) {
+            this.base = constExpr.pow(exponent);
+            this.exponent = 1;
         } else {
             this.base = base;
             this.exponent = exponent;
         }
         this.inputs.get(Parameter.BASE).add(this.base);
-        this.inputs.get(Parameter.EXPONENT).add(this.exponent);
-        // System.out.println(base + " and " + exponent + " Pow constructed");
+        this.inputs.get(Parameter.EXPONENT).add(Complex.create(this.exponent, 0, TYPE));
     }
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         String baseString = this.base.toString();
-        String exponentString = this.exponent.toString();
         if (!Utils.CLOSED_FORM.contains(this.base.getClass())) {
             baseString = "(" + baseString + ")";
         }
-        if (!Utils.CLOSED_FORM.contains(this.exponent.getClass())) {
-            exponentString = "(" + exponentString + ")";
-        }
-        return baseString + " ** " + exponentString;
+        return baseString + " ** " + this.exponent;
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
-            return new ArrayList<>(Collections.singletonList((Pow<Symbolic>) this));
+            return new ArrayList<>(List.of((Pow<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
             return null;
         } else {
@@ -79,46 +72,70 @@ public class Pow<T extends Expression<T>> extends DefinedExpression<T> {
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
+    public Expression<T> reduce() {
+        if (this.reduction == null) {
+            this.reduction = Pow.create(this.base.reduce(), this.exponent, TYPE);
+        }
+        return this.reduction;
+    }
+
+    public Expression<T> expand() {
+        if (this.expansion == null) {
+            if (this.base instanceof Mul<T> mulExpr) {
+                this.expansion = Mul.create(Utils.map(Utils.<Entity, Expression<T>>cast(mulExpr.inputs.get(Mul.Parameter.TERMS)),
+                        arg -> Pow.create(arg, this.exponent, TYPE)), TYPE).expand();
+            } else if (this.base instanceof Scale<T> scaleExpr) {
+                this.expansion = Scale.create(scaleExpr.coefficient.pow(this.exponent),
+                        Pow.create(scaleExpr.expression, this.exponent, TYPE).expand(), TYPE);
+            } else if (this.exponent >= 1 && this.base instanceof Add<T> addExpr) {
+                ArrayList<Expression<T>> expandedTerms = this.expandHelper(Utils.cast(addExpr.inputs.get(Accumulation.Parameter.TERMS)), (int) this.exponent);
+                this.expansion = Add.create(expandedTerms, TYPE);
+                if (this.exponent % 1 != 0) {
+                    this.expansion = Mul.create(List.of(Pow.create(this.base, this.exponent % 1, TYPE), this.expansion), TYPE);
+                }
+            } else {
+                this.expansion = this;
+            }
+        }
+        return this.expansion;
+    }
+
+    private ArrayList<Expression<T>> expandHelper(ArrayList<Expression<T>> terms, int n) {
+        if (n == 1) {
+            return terms;
+        } else {
+            ArrayList<Expression<T>> sqrt = expandHelper(terms, n / 2);
+            ArrayList<Expression<T>> result = new ArrayList<>();
+            for (int i = 0; i < sqrt.size(); i++) {
+                for (int j = 0; j < i; j++) {
+                    result.add(Scale.create(2, Mul.create(List.of(sqrt.get(i), sqrt.get(j)), TYPE), TYPE));
+                }
+                result.add(Pow.create(sqrt.get(i), 2, TYPE));
+            }
+            if (n % 2 == 0) {
+                return result;
+            } else {
+                ArrayList<Expression<T>> newResult = new ArrayList<>();
+                for (Expression<T> term : terms) {
+                    result.forEach(arg -> newResult.add(Mul.create(List.of(term, arg), TYPE)));
+                }
+                return newResult;
+            }
+        }
+    }
+
     public Expression<T> close() {
-        if (this.exponent.equalsOne() || this.base.equalsZero() || this.base.equalsOne()) {
+        if (this.exponent == 1 || this.base.equalsZero() || this.base.equalsOne()) {
             return this.base;
-        } else if (this.exponent.equalsZero()) {
+        } else if (this.exponent == 0) {
             return Constant.ONE(TYPE);
-        } else if (this.base instanceof Constant<T> baseConst) {
-            return baseConst.pow(this.exponent);
         } else {
             return this;
         }
     }
 
-    public Factorization<T> normalize() {
-        Factorization<T> baseFactorization = this.base.normalize();
-        baseFactorization.constant = baseFactorization.constant.pow(this.exponent);
-        if (baseFactorization.terms instanceof SingletonMap<Expression<T>, Constant<T>> m) {
-            m.entry.setValue(m.entry.getValue().mul(this.exponent));
-        } else {
-            for (Map.Entry<Expression<T>, Constant<T>> entry : baseFactorization.terms.entrySet()) {
-                entry.setValue(entry.getValue().mul(this.exponent));
-            }
-        }
-        return baseFactorization;
-    }
-
-    public Expression<T> derivative(Univariate<T> var) {
-        if (!this.variables().contains(var)) {
-            return Constant.ZERO(TYPE);
-        } else {
-            return ENGINE.mul(this.exponent, ENGINE.pow(this.base, ENGINE.sub(this.exponent, 1)), this.base.derivative(var));
-        }
-    }
-
-    @Override
-    public Expression<T> logarithmicDerivative(Univariate<T> s) {
-        if (!this.variables().contains(s)) {
-            return Constant.ZERO(TYPE);
-        } else {
-            return ENGINE.mul(this.exponent, this.base.logarithmicDerivative(s));
-        }
+    public int getDegree() {
+        return (int) (this.exponent * this.base.getDegree());
     }
 }
 

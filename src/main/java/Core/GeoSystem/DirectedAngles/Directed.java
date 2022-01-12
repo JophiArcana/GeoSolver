@@ -2,7 +2,6 @@ package Core.GeoSystem.DirectedAngles;
 
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.Line;
 import Core.Utilities.*;
 
@@ -21,10 +20,6 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     /** SECTION: Factory Methods ==================================================================================== */
     public static Directed create(Line l) {
         return new Directed(l);
-    }
-
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return new Directed((Line) args.get(Parameter.LINE).get(0));
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -48,13 +43,5 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression<DirectedAngle> close() {
         return this;
-    }
-
-    public Factorization<DirectedAngle> normalize() {
-        return new Factorization<>(Constant.ONE(DirectedAngle.class), SingletonMap.of(this, Constant.ONE(DirectedAngle.class)), DirectedAngle.class);
-    }
-
-    public Expression<DirectedAngle> derivative(Univariate<DirectedAngle> var) {
-        return Constant.ZERO(DirectedAngle.class);
     }
 }

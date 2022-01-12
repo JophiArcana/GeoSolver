@@ -21,16 +21,11 @@ public abstract class Mutable implements Entity {
     public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
     public String name;
 
-    /** SECTION: Factory Methods ==================================================================================== */
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return args.get(Parameter.VAR).get(0);
-    }
-
     /** SECTION: Abstract Constructor =============================================================================== */
     public Mutable(String n) {
         this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
         for (InputType inputType : getInputTypes()) {
-            inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
+            inputs.put(inputType, TreeMultiset.create());
         }
         this.name = n;
         this.inputs.get(Parameter.VAR).add(this);

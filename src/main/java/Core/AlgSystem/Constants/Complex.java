@@ -1,20 +1,20 @@
 package Core.AlgSystem.Constants;
 
+import Core.AlgSystem.Operators.Add;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
-public class Complex<T extends Expression<T>> extends Constant<T> {
+public class Complex<T> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
     public final Number re, im;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T extends Expression<T>> Complex<T> create(Number real, Number imag, Class<T> type) {
+    public static <T> Complex<T> create(Number real, Number imag, Class<T> type) {
         return new Complex<>(real, imag, type);
     }
 
@@ -59,14 +59,14 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
     /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
-            return new ArrayList<>(Collections.singletonList((Constant<Symbolic>) this));
+            return new ArrayList<>(List.of((Constant<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
             Constant<T> tan = this.tan();
             if (tan instanceof Infinity<T>) {
-                return new ArrayList<>(Collections.singletonList(Infinity.create(Symbolic.class)));
+                return new ArrayList<>(List.of(Infinity.create(Symbolic.class)));
             } else {
                 Complex<T> cpx = (Complex<T>) tan;
-                return new ArrayList<>(Collections.singletonList(new Complex<>(cpx.re, cpx.im, Symbolic.class)));
+                return new ArrayList<>(List.of(new Complex<>(cpx.re, cpx.im, Symbolic.class)));
             }
         } else {
             return null;
@@ -74,21 +74,12 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
     }
 
     /** SUBSECTION: Immutable ======================================================================================= */
-    public int compareTo(Immutable immutable) {
-        if (immutable instanceof Constant constant && this.TYPE == constant.TYPE) {
-            Complex<T> scriptEnt = (Complex<T>) this.sub((Complex<T>) immutable);
-            if (scriptEnt.abs() < AlgEngine.EPSILON) {
-                return 0;
-            } else {
-                if (Math.abs(scriptEnt.re.doubleValue()) > AlgEngine.EPSILON) {
-                    return (int) Math.signum(scriptEnt.re.doubleValue());
-                } else {
-                    return (int) Math.signum(scriptEnt.im.doubleValue());
-                }
-            }
-        } else {
-            return Integer.MIN_VALUE;
-        }
+    public boolean equalsZero() {
+        return this.re.equals(0) && this.im.equals(0);
+    }
+
+    public boolean equalsOne() {
+        return this.re.equals(1) && this.im.equals(0);
     }
 
     /** SECTION: Basic Operations =================================================================================== */
@@ -99,7 +90,7 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     im.doubleValue() + cpx.im.doubleValue());
             return new Complex<>(set[0], set[1], TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return Infinity.create(ENGINE.add(inf.expression, this), TYPE);
+            return Infinity.create(Add.create(List.of(inf.expression, this), TYPE), TYPE);
         } else {
             return this;
         }
@@ -160,14 +151,8 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
         return new Complex<>(set[0], set[1], TYPE);
     }
 
-    public Constant<T> pow(Constant<T> x) {
-        if (x instanceof Complex) {
-            return this.log().mul(x).exp();
-        } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.pow(this, inf.expression));
-        } else {
-            return this;
-        }
+    public Constant<T> pow(double x) {
+        return this.log().mul(Complex.create(x, 0, TYPE)).exp();
     }
 
     public Constant<T> sin() {
@@ -208,10 +193,6 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
                     lower = remainder;
                 }
                 result = lower;
-            } else if ((this.div(cpx)).isGaussianInteger()) {
-                result = cpx;
-            } else if (cpx.div(this).isGaussianInteger()) {
-                result = this;
             } else {
                 return Constant.ONE(TYPE);
             }
@@ -233,10 +214,6 @@ public class Complex<T extends Expression<T>> extends Constant<T> {
 
     public boolean isInteger() {
         return this.re instanceof Integer && this.im.equals(0);
-    }
-
-    public boolean isPositiveInteger() {
-        return this.re instanceof Integer && this.re.intValue() > 0 && this.im.equals(0);
     }
 
     public Complex<T> round() {

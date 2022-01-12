@@ -47,18 +47,8 @@ public class Utils {
         }
     }};
 
-    private static final HashMap<Class<? extends Expression<?>>, OrderOfGrowthComparator> GROWTH_COMPARATORS = new HashMap<>() {{
-        for (Class cls : Unicardinal.RINGS.keySet()) {
-            put(cls, new OrderOfGrowthComparator<>(cls));
-        }
-    }};
-
-    public static <T extends Expression<T>> AlgEngine<T> getEngine(Class<T> type) {
+    public static <T> AlgEngine<T> getEngine(Class<T> type) {
         return Utils.ENGINES.get(type);
-    }
-
-    public static <T extends Expression<T>> OrderOfGrowthComparator<T> getGrowthComparator(Class<T> type) {
-        return Utils.GROWTH_COMPARATORS.get(type);
     }
 
     public static String className(Object o) {
@@ -72,10 +62,6 @@ public class Utils {
 
     public static int classCode(Object o) {
         return Utils.CLASS_IDS.indexOf(o.getClass());
-    }
-
-    public static int compare(Entity e1, Entity e2) {
-        return Utils.PRIORITY_COMPARATOR.compare(e1, e2);
     }
 
     public static <T, S> ArrayList<S> map(Iterable<T> list, Function<T, S> function) {
@@ -226,10 +212,10 @@ public class Utils {
     }
 
     public static String overline(String s) {
-        String overlined = "";
+        StringBuilder overlined = new StringBuilder();
         for (char c : s.toCharArray()) {
-            overlined += (c + "\u0305");
+            overlined.append(c).append("\u0305");
         }
-        return overlined;
+        return overlined.toString();
     }
 }

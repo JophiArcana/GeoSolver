@@ -14,6 +14,10 @@ public class Coordinate extends Multiconstant implements Point {
     }
     public static final InputType[] inputTypes = {Parameter.VALUE};
 
+    public static int compare(Coordinate c1, Coordinate c2) {
+        return Constant.compare(c1.value, c2.value);
+    }
+
     /** SECTION: Instance Variables ================================================================================= */
     public final Constant<Symbolic> value;
 
@@ -41,14 +45,5 @@ public class Coordinate extends Multiconstant implements Point {
 
     public InputType[] getInputTypes() {
         return Coordinate.inputTypes;
-    }
-
-    /** SUBSECTION: Immutable ======================================================================================= */
-    public int compareTo(Immutable immutable) {
-        if (immutable instanceof Coordinate coordinate) {
-            return this.value.compareTo(coordinate.value);
-        } else {
-            return Integer.MIN_VALUE;
-        }
     }
 }

@@ -16,16 +16,11 @@ public abstract class Immutable implements Entity {
     public ArrayList<Function<Entity, Property>> constraints = new ArrayList<>();
     public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
 
-    /** SECTION: Factory Methods ==================================================================================== */
-    public Entity createEntity(HashMap<InputType, ArrayList<Entity>> args) {
-        return this;
-    }
-
     /** SECTION: Abstract Constructor =============================================================================== */
     public Immutable() {
         this.constrainedDegreesOfFreedom = Immutable.naturalDegreesOfFreedom;
         for (InputType inputType : this.getInputTypes()) {
-            this.inputs.put(inputType, TreeMultiset.create(Utils.PRIORITY_COMPARATOR));
+            this.inputs.put(inputType, TreeMultiset.create());
         }
     }
 
@@ -58,9 +53,6 @@ public abstract class Immutable implements Entity {
     public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
         return this.inputs;
     }
-
-    /** SECTION: Comparison ========================================================================================= */
-    public abstract int compareTo(Immutable immutable);
 }
 
 

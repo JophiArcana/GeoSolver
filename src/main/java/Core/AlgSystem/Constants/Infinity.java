@@ -1,25 +1,24 @@
 package Core.AlgSystem.Constants;
 
+import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
 import Core.Utilities.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
-public class Infinity<T extends Expression<T>> extends Constant<T> {
+public class Infinity<T> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
     public Expression<T> expression;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T extends Expression<T>> Infinity<T> create(Class<T> type) {
+    public static <T> Infinity<T> create(Class<T> type) {
         return new Infinity<>(type);
     }
 
-    public static <T extends Expression<T>> Constant<T> create(Expression<T> expr, Class<T> type) {
+    public static <T> Constant<T> create(Expression<T> expr, Class<T> type) {
         return (Constant<T>) new Infinity<>(expr, type).close();
     }
 
@@ -52,7 +51,7 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
 
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.TYPE == Symbolic.class) {
-            return new ArrayList<>(Collections.singletonList((Constant<Symbolic>) this));
+            return new ArrayList<>(List.of((Constant<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
             return null;
         } else {
@@ -80,21 +79,12 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         }
     }
 
-    /** SUBSECTION: Immutable ======================================================================================= */
-    public int compareTo(Immutable immutable) {
-        if (immutable instanceof Infinity) {
-            return Utils.getGrowthComparator(TYPE).compare(this.expression, ((Infinity<T>) immutable).expression);
-        } else {
-            return Integer.MIN_VALUE;
-        }
-    }
-
     /** SECTION: Basic Operations =================================================================================== */
     public Constant<T> add(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
-            return new Infinity<>(ENGINE.add(this.expression, cpx), TYPE);
+            return new Infinity<>(Add.create(List.of(this.expression, cpx), TYPE), TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.add(this.expression, inf.expression));
+            return Infinity.create(Add.create(List.of(this.expression, inf.expression), TYPE), TYPE);
         } else {
             return this;
         }
@@ -188,7 +178,4 @@ public class Infinity<T extends Expression<T>> extends Constant<T> {
         return false;
     }
 
-    public boolean isPositiveInteger() {
-        return false;
-    }
 }
