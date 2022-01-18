@@ -2,9 +2,13 @@ package Core.GeoSystem.Points.PointTypes;
 
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.Expression;
+import Core.EntityTypes.Entity;
 import Core.GeoSystem.MulticardinalTypes.DefinedMulticardinal;
+import Core.Utilities.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Function;
 
 public abstract class DefinedPoint extends DefinedMulticardinal implements Point {
     /** SECTION: Instance Variables ================================================================================= */
@@ -19,11 +23,15 @@ public abstract class DefinedPoint extends DefinedMulticardinal implements Point
     /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         if (this.symbolic == null) {
-            this.symbolic = this.computeSymbolic();
+            HashMap<InputType, ArrayList<ArrayList<Expression<Symbolic>>>> args = new HashMap<>();
+            for (InputType inputType : this.getInputTypes()) {
+                args.put(inputType, Utils.map(this.inputs.get(inputType), Entity::symbolic));
+            }
+            this.symbolic = this.getFormula().apply(args);
         }
         return this.symbolic;
     }
 
     /** SECTION: Interface ========================================================================================== */
-    protected abstract ArrayList<Expression<Symbolic>> computeSymbolic();
+    public abstract Function<HashMap<InputType, ArrayList<ArrayList<Expression<Symbolic>>>>, ArrayList<Expression<Symbolic>>> getFormula();
 }

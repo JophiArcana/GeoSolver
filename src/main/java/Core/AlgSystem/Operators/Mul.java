@@ -13,7 +13,7 @@ public class Mul<T> extends Accumulation<T> {
     private static Constant constant;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public TreeMap<Expression<T>, Double> terms = new TreeMap<>();
+    public TreeMap<Expression<T>, Double> terms;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static <T> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
@@ -41,23 +41,27 @@ public class Mul<T> extends Accumulation<T> {
     }
 
     protected void construct(Iterable<Expression<T>> args) {
-        Mul.constant = Constant.ONE(TYPE);
+        if (this.terms == null) {
+            this.terms = new TreeMap<>();
+            this.degree = 0;
+            Mul.constant = Constant.ONE(TYPE);
+        }
         // System.out.println("Constructing " + args);
         for (Expression<T> arg : args) {
-            this.degree += arg.getDegree();
-            if (arg instanceof Scale<T> sc) {
-                Mul.constant = Mul.constant.mul(sc.coefficient);
-                this.terms.put(sc.expression, this.terms.getOrDefault(sc.expression, 0.0) + 1);
-            } else if (arg instanceof Mul<T> m) {
-                Constant<T> current = Mul.constant;
-                this.construct(Utils.cast(m.inputs.get(Parameter.TERMS)));
-                Mul.constant = Mul.constant.mul(current);
-            } else if (arg instanceof Pow<T> p) {
-                this.terms.put(p.base, this.terms.getOrDefault(p.base, 0.0) + p.exponent);
-            } else if (arg instanceof Constant<T> c) {
-                Mul.constant = Mul.constant.mul(c);
+            if (arg instanceof Mul<T> m) {
+                this.construct(Utils.cast(m.inputs.get(Accumulation.Parameter.TERMS)));
             } else {
-                this.terms.put(arg, this.terms.getOrDefault(arg, 0.0) + 1);
+                this.degree += arg.getDegree();
+                if (arg instanceof Scale<T> sc) {
+                    Mul.constant = Mul.constant.mul(sc.coefficient);
+                    this.terms.put(sc.expression, this.terms.getOrDefault(sc.expression, 0.0) + 1);
+                } else if (arg instanceof Pow<T> p) {
+                    this.terms.put(p.base, this.terms.getOrDefault(p.base, 0.0) + p.exponent);
+                } else if (arg instanceof Constant<T> c) {
+                    Mul.constant = Mul.constant.mul(c);
+                } else {
+                    this.terms.put(arg, this.terms.getOrDefault(arg, 0.0) + 1);
+                }
             }
         }
         // System.out.println(args + " construction complete");

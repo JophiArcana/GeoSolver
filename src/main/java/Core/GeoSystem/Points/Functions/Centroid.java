@@ -1,16 +1,23 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgSystem.Operators.Add;
-import Core.AlgSystem.Operators.Scale;
-import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.Operators.*;
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.Expression;
 import Core.EntityTypes.Entity;
 import Core.GeoSystem.Points.PointTypes.*;
-import Core.Utilities.*;
+import Core.Utilities.Utils;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class Centroid extends Center {
+    /** SECTION: Static Data ======================================================================================== */
+    private static ArrayList<Expression<Symbolic>> formula(HashMap<InputType, ArrayList<ArrayList<Expression<Symbolic>>>> args) {
+        ArrayList<Expression<Symbolic>> terms = Utils.map(args.get(Parameter.POINTS), arg -> arg.get(0));
+        return new ArrayList<>(List.of(Scale.create(1.0 / terms.size(), Add.create(terms, Symbolic.class), Symbolic.class)));
+    }
+
+
     /** SECTION: Factory Methods ==================================================================================== */
     public static Centroid create(String n, Point ... args) {
         return (Centroid) new Centroid(n, args).simplify();
@@ -37,9 +44,7 @@ public class Centroid extends Center {
     }
 
     /** SUBSECTION: DefinedPoint ==================================================================================== */
-    protected ArrayList<Expression<Symbolic>> computeSymbolic() {
-        AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        ArrayList<Expression<Symbolic>> argTerms = Utils.map(this.inputs.get(Parameter.POINTS), arg -> arg.symbolic().get(0));
-        return new ArrayList<>(List.of(Scale.create(1.0 / argTerms.size(), Add.create(argTerms, Symbolic.class), Symbolic.class)));
+    public Function<HashMap<InputType, ArrayList<ArrayList<Expression<Symbolic>>>>, ArrayList<Expression<Symbolic>>> getFormula() {
+        return Centroid::formula;
     }
 }

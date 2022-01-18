@@ -17,31 +17,21 @@ public class PriorityComparator implements Comparator<Entity> {
         } else {
             if (e1 instanceof Expression) {
                 if (((Expression<?>) e1).getType() == Symbolic.class) {
-                    final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-
                     Expression<Symbolic> expr1 = (Expression<Symbolic>) e1, expr2 = (Expression<Symbolic>) e2;
                     if (expr1 instanceof Constant<Symbolic> c1 && expr2 instanceof Constant<Symbolic> c2) {
                         return Constant.compare(c1, c2);
                     } else {
-                        Pair<Constant<Symbolic>, Double> o1 = ENGINE.orderOfGrowth(expr1), o2 = ENGINE.orderOfGrowth(expr2);
-                        if (Double.compare(o1.getValue(), o2.getValue()) != 0) {
-                            return -Double.compare(o1.getValue(), o2.getValue());
-                        } else if (Constant.compare(o1.getKey(), o2.getKey()) != 0) {
-                            return -Constant.compare(o1.getKey(), o2.getKey());
+                        if (expr1.getDegree() - expr2.getDegree() != 0) {
+                            return -(expr1.getDegree() - expr2.getDegree());
                         }
                     }
                 } else {
-                    final AlgEngine<DirectedAngle> ENGINE = Utils.getEngine(DirectedAngle.class);
-
                     Expression<DirectedAngle> expr1 = (Expression<DirectedAngle>) e1, expr2 = (Expression<DirectedAngle>) e2;
                     if (expr1 instanceof Constant<DirectedAngle> c1 && expr2 instanceof Constant<DirectedAngle> c2) {
                         return Constant.compare(c1, c2);
                     } else {
-                        Pair<Constant<DirectedAngle>, Double> o1 = ENGINE.orderOfGrowth(expr1), o2 = ENGINE.orderOfGrowth(expr2);
-                        if (Double.compare(o1.getValue(), o2.getValue()) != 0) {
-                            return -Double.compare(o1.getValue(), o2.getValue());
-                        } else if (Constant.compare(o1.getKey(), o2.getKey()) != 0) {
-                            return -Constant.compare(o1.getKey(), o2.getKey());
+                        if (expr1.getDegree() - expr2.getDegree() != 0) {
+                            return -(expr1.getDegree() - expr2.getDegree());
                         }
                     }
                 }

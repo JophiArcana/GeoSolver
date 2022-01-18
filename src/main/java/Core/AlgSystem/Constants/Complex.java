@@ -1,56 +1,63 @@
 package Core.AlgSystem.Constants;
 
 import Core.AlgSystem.Operators.Add;
+import Core.AlgSystem.Operators.Scale;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.*;
 import Core.Utilities.*;
 
 import java.util.*;
 
 public class Complex<T> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
-    public final Number re, im;
+    public final double re, im;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T> Complex<T> create(Number real, Number imag, Class<T> type) {
+    public static <T> Complex<T> create(double real, double imag, Class<T> type) {
         return new Complex<>(real, imag, type);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Complex(Number real, Number imag, Class<T> type) {
+    protected Complex(double real, double imag, Class<T> type) {
         super(type);
-        this.re = real;
-        this.im = imag;
+        if (Math.abs(real - Math.round(real)) < AlgEngine.EPSILON) {
+            this.re = Math.round(real);
+        } else {
+            this.re = real;
+        }
+        if (Math.abs(imag - Math.round(imag)) < AlgEngine.EPSILON) {
+            this.im = (long) imag;
+        } else {
+            this.im = imag;
+        }
+        assert !(Double.isNaN(this.re) || Double.isNaN(this.im)): real + ", " + imag;
     }
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
-        String reString = (re.doubleValue() == Math.E) ? "E" : re.toString();
-        if (im.doubleValue() == 0) {
+        String reString = "" + this.re;
+        if (this.im == 0) {
             return reString + "";
-        } else if (re.doubleValue() == 0) {
-            if (im.doubleValue() == 1) {
+        } else if (this.re == 0) {
+            if (this.im == 1) {
                 return "i";
-            } else if (im.doubleValue() == -1) {
+            } else if (this.im == -1) {
                 return "-i";
             } else {
-                return im + "i";
+                return this.im + "i";
             }
-        } else if (im.doubleValue() < 0) {
-            if (im.doubleValue() == -1) {
+        } else if (this.im < 0) {
+            if (this.im == -1) {
                 return "(" + reString + " - i)";
-            } else if (im.getClass() == Integer.class) {
-                return "(" + reString + " - " + -im.intValue() + "i)";
             } else {
-                return "(" + reString + " - " + -im.doubleValue() + "i)";
+                return "(" + reString + " - " + -this.im + "i)";
             }
         } else {
-            if (im.doubleValue() == 1) {
+            if (this.im == 1) {
                 return "(" + reString + " + i)";
             } else {
-                return "(" + reString + " + " + im + "i)";
+                return "(" + reString + " + " + this.im + "i)";
             }
         }
     }
@@ -61,12 +68,11 @@ public class Complex<T> extends Constant<T> {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(List.of((Constant<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
-            Constant<T> tan = this.tan();
-            if (tan instanceof Infinity<T>) {
+            assert this.im == 0 : "Nonzero imaginary in DirectedAngle expression";
+            if (Math.cos(this.re) == 0) {
                 return new ArrayList<>(List.of(Infinity.create(Symbolic.class)));
             } else {
-                Complex<T> cpx = (Complex<T>) tan;
-                return new ArrayList<>(List.of(new Complex<>(cpx.re, cpx.im, Symbolic.class)));
+                return new ArrayList<>(List.of(Complex.create(Math.tan(this.re), 0, Symbolic.class)));
             }
         } else {
             return null;
@@ -75,48 +81,43 @@ public class Complex<T> extends Constant<T> {
 
     /** SUBSECTION: Immutable ======================================================================================= */
     public boolean equalsZero() {
-        return this.re.equals(0) && this.im.equals(0);
+        return this.re == 0 && this.im == 0;
     }
 
     public boolean equalsOne() {
-        return this.re.equals(1) && this.im.equals(0);
+        return this.re == 1 && this.im == 0;
     }
 
     /** SECTION: Basic Operations =================================================================================== */
     public Constant<T> add(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
-            Number[] set = Utils.integerize(
-                    re.doubleValue() + cpx.re.doubleValue(),
-                    im.doubleValue() + cpx.im.doubleValue());
-            return new Complex<>(set[0], set[1], TYPE);
-        } else if (x instanceof Infinity<T> inf) {
-            return Infinity.create(Add.create(List.of(inf.expression, this), TYPE), TYPE);
+            return new Complex<>(this.re + cpx.re, this.im + cpx.im, TYPE);
         } else {
-            return this;
+            if (((Infinity<T>) x).degree > 0) {
+                return x;
+            } else {
+                return this;
+            }
         }
     }
 
     public Constant<T> sub(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
-            Number[] set = Utils.integerize(
-                    re.doubleValue() - cpx.re.doubleValue(),
-                    im.doubleValue() - cpx.im.doubleValue());
-            return new Complex<>(set[0], set[1], TYPE);
-        } else if (x instanceof Infinity<T> inf) {
-            return Infinity.create(ENGINE.sub(this, inf.expression), TYPE);
+            return new Complex<>(this.re - cpx.re, this.im - cpx.im, TYPE);
         } else {
-            return this;
+            if (((Infinity<T>) x).degree > 0) {
+                return x.negate();
+            } else {
+                return this;
+            }
         }
     }
 
     public Constant<T> mul(Constant<T> x) {
         if (x instanceof Complex<T> cpx) {
-            Number[] set = Utils.integerize(
-                    re.doubleValue() * cpx.re.doubleValue() - im.doubleValue() * cpx.im.doubleValue(),
-                    re.doubleValue() * cpx.im.doubleValue() + im.doubleValue() * cpx.re.doubleValue());
-            return new Complex<>(set[0], set[1], TYPE);
+            return new Complex<>(this.re * cpx.re - this.im * cpx.im, this.re * cpx.im + this.im * cpx.re, TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.mul(this, inf.expression));
+            return Infinity.create((Complex<T>) this.mul(inf.coefficient), inf.degree, TYPE);
         } else {
             return this;
         }
@@ -126,57 +127,42 @@ public class Complex<T> extends Constant<T> {
         return this.mul(x.inverse());
     }
 
+    public Constant<T> negate() {
+        return new Complex<>(-this.re, -this.im, TYPE);
+    }
+
     public Constant<T> inverse() {
-        double k = Math.pow(re.doubleValue(), 2) + Math.pow(im.doubleValue(), 2);
-        Number[] set = Utils.integerize(re.doubleValue() / k, -im.doubleValue() / k);
-        return new Complex<>(set[0], set[1], TYPE);
+        double k = this.re * this.re + this.im * this.im;
+        return new Complex<>(this.re / k, -this.im / k, TYPE);
     }
 
     public Constant<T> conjugate() {
-        if (im.getClass() == Integer.class) {
-            return new Complex<>(re, -im.intValue(), TYPE);
-        } else {
-            return new Complex<>(re, -im.doubleValue(), TYPE);
-        }
+        return new Complex<>(this.re, -this.im, TYPE);
     }
 
-    public Constant<T> exp() {
-        double k = Math.exp(re.doubleValue());
-        Number[] set = Utils.integerize(k * Math.cos(im.doubleValue()), k * Math.sin(im.doubleValue()));
-        return new Complex<>(set[0], set[1], TYPE);
+    public Complex<T> exp() {
+        double k = Math.exp(this.re);
+        return new Complex<>(k * Math.cos(this.im), k * Math.sin(this.im), TYPE);
     }
 
     public Constant<T> log() {
-        Number[] set = Utils.integerize(Math.log(this.abs()), this.phase());
-        return new Complex<>(set[0], set[1], TYPE);
+        return new Complex<>(Math.log(this.abs()), Math.atan2(this.im, this.re), TYPE);
     }
 
     public Constant<T> pow(double x) {
-        return this.log().mul(Complex.create(x, 0, TYPE)).exp();
-    }
-
-    public Constant<T> sin() {
-        Number[] set = Utils.integerize(Math.sin(re.doubleValue()) * Math.cosh(im.doubleValue()),
-                Math.cos(re.doubleValue()) * Math.sinh(im.doubleValue()));
-        return new Complex<>(set[0], set[1], TYPE);
-    }
-
-    public Constant<T> cos() {
-        Number[] set = Utils.integerize(Math.cos(re.doubleValue()) * Math.cosh(im.doubleValue()),
-                -Math.sin(re.doubleValue()) * Math.sinh(im.doubleValue()));
-        return new Complex<>(set[0], set[1], TYPE);
-    }
-
-    public Constant<T> tan() {
-        return sin().div(cos());
+        if (this.equalsZero()) {
+            if (x > 0) {
+                return this;
+            } else {
+                return Infinity.create(Constant.ONE(TYPE), -x, TYPE);
+            }
+        } else {
+            return ((Complex<T>) this.log().mul(Complex.create(x, 0, TYPE))).exp();
+        }
     }
 
     public double abs() {
-        return Utils.integerize(Math.hypot(re.doubleValue(), im.doubleValue())).doubleValue();
-    }
-
-    public double phase() {
-        return Utils.integerize(Math.atan2(im.doubleValue(), re.doubleValue())).doubleValue();
+        return Math.hypot(this.re, this.im);
     }
 
     public Constant<T> gcd(Constant<T> c) {
@@ -196,10 +182,10 @@ public class Complex<T> extends Constant<T> {
             } else {
                 return Constant.ONE(TYPE);
             }
-            if (result.re.doubleValue() > 0) {
+            if (result.re > 0) {
                 return result;
-            } else if (result.re.doubleValue() == 0) {
-                return new Complex<>(Math.abs(result.im.doubleValue()), 0, TYPE);
+            } else if (result.re == 0) {
+                return new Complex<>(Math.abs(result.im), 0, TYPE);
             } else {
                 return result.mul(Constant.NONE(TYPE));
             }
@@ -209,22 +195,14 @@ public class Complex<T> extends Constant<T> {
     }
 
     public boolean isGaussianInteger() {
-        return this.re instanceof Integer && this.im instanceof Integer;
+        return this.re % 1 == 0 && this.im % 1 == 0;
     }
 
     public boolean isInteger() {
-        return this.re instanceof Integer && this.im.equals(0);
+        return this.re % 1 == 0 && this.im == 0;
     }
 
     public Complex<T> round() {
-        return new Complex<>((int) Math.round(this.re.doubleValue()), (int) Math.round(this.im.doubleValue()), TYPE);
-    }
-
-    public int signum() {
-        if (this.re.doubleValue() != 0) {
-            return (int) Math.signum(this.re.doubleValue());
-        } else {
-            return (int) Math.signum(this.im.doubleValue());
-        }
+        return new Complex<>((int) Math.round(this.re), (int) Math.round(this.im), TYPE);
     }
 }

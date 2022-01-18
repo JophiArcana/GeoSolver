@@ -1,9 +1,12 @@
 package Core.GeoSystem.MulticardinalTypes;
 
+import Core.AlgSystem.UnicardinalRings.Symbolic;
+import Core.AlgSystem.UnicardinalTypes.Expression;
 import Core.EntityTypes.*;
 import Core.Utilities.Utils;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.function.Function;
 
 public abstract class DefinedMulticardinal extends DefinedEntity implements Multicardinal {
     /** SECTION: Instance Variables ================================================================================= */
@@ -17,7 +20,7 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
-        ArrayList<String> allInputs = new ArrayList<>(0);
+        ArrayList<String> allInputs = new ArrayList<>();
         for (InputType inputType : this.getInputTypes()) {
             for (Entity ent : this.getInputs().get(inputType)) {
                 allInputs.add(ent.toString());

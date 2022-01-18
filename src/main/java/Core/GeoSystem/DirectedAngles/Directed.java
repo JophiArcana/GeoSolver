@@ -2,10 +2,13 @@ package Core.GeoSystem.DirectedAngles;
 
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
+import Core.EntityTypes.Entity;
 import Core.GeoSystem.Lines.LineTypes.Line;
+import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.Utilities.*;
 
 import java.util.*;
+import javafx.util.Pair;
 
 public class Directed extends DefinedExpression<DirectedAngle> {
     /** SECTION: Static Data ======================================================================================== */
@@ -41,7 +44,19 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
+    public Expression<DirectedAngle> reduce() {
+        return this;
+    }
+
+    public Expression<DirectedAngle> expand() {
+        return this;
+    }
+
     public Expression<DirectedAngle> close() {
         return this;
+    }
+
+    public int getDegree() {
+        return 0;
     }
 }

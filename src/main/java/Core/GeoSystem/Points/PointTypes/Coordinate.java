@@ -2,7 +2,6 @@ package Core.GeoSystem.Points.PointTypes;
 
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.*;
 import Core.GeoSystem.MulticardinalTypes.Multiconstant;
 
 import java.util.*;

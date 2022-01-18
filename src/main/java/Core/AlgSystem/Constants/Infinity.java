@@ -11,39 +11,44 @@ import java.util.*;
 
 public class Infinity<T> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
-    public Expression<T> expression;
+    public Complex<T> coefficient;
+    public double degree;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static <T> Infinity<T> create(Class<T> type) {
         return new Infinity<>(type);
     }
 
-    public static <T> Constant<T> create(Expression<T> expr, Class<T> type) {
-        return (Constant<T>) new Infinity<>(expr, type).close();
+    public static <T> Constant<T> create(Complex<T> cpx, double d, Class<T> type) {
+        return (Constant<T>) new Infinity<>(cpx, d, type).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Infinity(Class<T> type) {
         super(type);
-        this.expression = ENGINE.X();
+        this.coefficient = Constant.ONE(TYPE);
+        this.degree = 1;
     }
 
-    private Infinity(Expression<T> expr, Class<T> type) {
+    protected Infinity(Complex<T> cpx, double d, Class<T> type) {
         super(type);
-        this.expression = (expr == null) ? null : (Expression<T>) expr.simplify();
+        this.coefficient = cpx;
+        this.degree = d;
     }
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
-        return "Infinity(" + this.expression + ")";
+        return "Infinity(" + this.coefficient + " * \u221E ** " + this.degree + ")";
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     @Override
     public Entity simplify() {
-        if (this.expression instanceof Complex) {
-            return this.expression;
+        if (this.degree == 0) {
+            return this.coefficient;
+        } else if (this.coefficient.equalsZero()) {
+            return this.coefficient;
         } else {
             return this;
         }
@@ -61,19 +66,11 @@ public class Infinity<T> extends Constant<T> {
 
     /** SUBSECTION: Expression ====================================================================================== */
     @Override
-    public Expression<T> reduce() {
-        return new Infinity<>(this.expression.reduce(), TYPE).close();
-    }
-
-    @Override
-    public Expression<T> expand() {
-        return new Infinity<>(this.expression.expand(), TYPE).close();
-    }
-
-    @Override
     public Expression<T> close() {
-        if (this.expression instanceof Complex) {
-            return this.expression;
+        if (this.degree == 0) {
+            return this.coefficient;
+        } else if (this.coefficient.equalsZero()) {
+            return this.coefficient;
         } else {
             return this;
         }
@@ -81,30 +78,46 @@ public class Infinity<T> extends Constant<T> {
 
     /** SECTION: Basic Operations =================================================================================== */
     public Constant<T> add(Constant<T> x) {
-        if (x instanceof Complex<T> cpx) {
-            return new Infinity<>(Add.create(List.of(this.expression, cpx), TYPE), TYPE);
-        } else if (x instanceof Infinity<T> inf) {
-            return Infinity.create(Add.create(List.of(this.expression, inf.expression), TYPE), TYPE);
+        if (x instanceof Infinity<T> inf) {
+            if (inf.degree > this.degree) {
+                return inf;
+            } else if (inf.degree == this.degree) {
+                return Infinity.create((Complex<T>) this.coefficient.add(inf.coefficient), this.degree, TYPE);
+            } else {
+                return this;
+            }
         } else {
-            return this;
+            if (this.degree > 0) {
+                return this;
+            } else {
+                return x;
+            }
         }
     }
 
     public Constant<T> sub(Constant<T> x) {
-        if (x instanceof Complex<T> cpx) {
-            return new Infinity<>(ENGINE.sub(this.expression, cpx), TYPE);
-        } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.sub(this.expression, inf.expression));
+        if (x instanceof Infinity<T> inf) {
+            if (inf.degree > this.degree) {
+                return inf.negate();
+            } else if (inf.degree == this.degree) {
+                return Infinity.create((Complex<T>) this.coefficient.sub(inf.coefficient), this.degree, TYPE);
+            } else {
+                return this;
+            }
         } else {
-            return this;
+            if (this.degree > 0) {
+                return this;
+            } else {
+                return x.negate();
+            }
         }
     }
 
     public Constant<T> mul(Constant<T> x) {
-        if (x instanceof Complex<T> cpx) {
-            return new Infinity<>(ENGINE.mul(this.expression, cpx), TYPE);
+        if (x instanceof Complex<T>) {
+            return Infinity.create((Complex<T>) this.coefficient.mul(x), this.degree, TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.mul(this.expression, inf.expression));
+            return Infinity.create((Complex<T>) this.coefficient.mul(inf.coefficient), this.degree + inf.degree, TYPE);
         } else {
             return this;
         }
@@ -114,60 +127,44 @@ public class Infinity<T> extends Constant<T> {
         return this.mul(x.inverse());
     }
 
+    public Constant<T> negate() {
+        return new Infinity<>((Complex<T>) this.coefficient.negate(), this.degree, TYPE);
+    }
+
     public Constant<T> inverse() {
-        return new Infinity<>(ENGINE.div(Constant.ONE(TYPE), this.expression), TYPE);
+        return new Infinity<>(this.coefficient, -this.degree, TYPE);
     }
 
     public Constant<T> conjugate() {
-        return new Infinity<>(ENGINE.conjugate(this.expression), TYPE);
+        return new Infinity<>((Complex<T>) this.coefficient.conjugate(), this.degree, TYPE);
     }
 
-    public Constant<T> exp() {
-        return new Infinity<>(ENGINE.pow(Constant.E(TYPE), this.expression), TYPE);
-    }
-
-    public Constant<T> pow(Constant<T> x) {
-        return ENGINE.infinity(ENGINE.pow(this.expression, x));
-    }
-
-    /** TODO: Implement sine function */
-    public Constant<T> sin() {
-        return null;
-    }
-
-    /** TODO: Implement cosine function */
-    public Constant<T> cos() {
-        return null;
-    }
-
-    /** TODO: Implement tangent function */
-    public Constant<T> tan() {
-        return null;
+    public Constant<T> pow(double x) {
+        return Infinity.create((Complex<T>) this.coefficient.pow(x), this.degree * x, TYPE);
     }
 
     /** TODO: Fix after implementing normalize */
 
     public double abs() {
-        Expression<T> order = ENGINE.orderOfGrowth(this.expression, ENGINE.X());
-        return switch ((int) Math.signum(Utils.getGrowthComparator(TYPE).compare(order, Constant.ONE(TYPE)))) {
-            case 1 -> Integer.MAX_VALUE;
-            case 0 -> ((Constant<T>) order).abs();
-            case -1 -> 0;
-            default -> Integer.MIN_VALUE;
-        };
+        if (this.degree > 0) {
+            return Double.MAX_VALUE;
+        } else {
+            return 0;
+        }
     }
 
     public Constant<T> gcd(Constant<T> c) {
         if (c instanceof Infinity<T> inf) {
-            return ENGINE.infinity(ENGINE.greatestCommonDivisor(Arrays.asList(this.expression, inf.expression)));
+            if (inf.degree > this.degree) {
+                return this;
+            } else if (inf.degree == this.degree) {
+                return new Infinity((Complex<T>) this.coefficient.gcd(inf.coefficient), this.degree, TYPE);
+            } else {
+                return inf;
+            }
         } else {
             return c;
         }
-    }
-
-    /** TODO: Implement argument function */
-    public double phase() {
-        return Double.MAX_VALUE;
     }
 
     public boolean isGaussianInteger() {
@@ -177,5 +174,4 @@ public class Infinity<T> extends Constant<T> {
     public boolean isInteger() {
         return false;
     }
-
 }

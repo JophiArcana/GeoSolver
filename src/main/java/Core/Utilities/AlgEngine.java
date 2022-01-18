@@ -3,7 +3,6 @@ package Core.Utilities;
 import Core.AlgSystem.Constants.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.Operators.*;
-import Core.EntityTypes.*;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -20,7 +19,6 @@ public class AlgEngine<T> {
     public Univariate<T> X() {
         return Univariate.create("\u5929", TYPE);
     }
-
     public static final double EPSILON = 1E-9;
 
     /** SECTION: Simplification Optimization ======================================================================== */
@@ -29,53 +27,19 @@ public class AlgEngine<T> {
             ArrayList<Expression<T>> terms = Utils.cast(accExpr.inputs.get(Accumulation.Parameter.TERMS));
             double operations = (double) terms.size() - 1;
             for (Expression<T> term : terms) {
-                operations += numberOfOperations(term);
+                operations += this.numberOfOperations(term);
             }
             return operations;
         } else if (expr instanceof Scale<T> scaleExpr) {
             return Math.abs(Math.log(scaleExpr.coefficient.abs()) / Math.log(2)) + this.numberOfOperations(scaleExpr.expression);
         } else if (expr instanceof Pow<T> powExpr) {
-            return this.numberOfOperations(powExpr.base) + Math.abs(Math.log(powExpr.exponent) / Math.log(2));
+            return this.numberOfOperations(powExpr.base) + Math.abs(Math.log(Math.abs(powExpr.exponent)) / Math.log(2));
         } else if (expr instanceof Univariate<T>) {
             return 1;
         } else if (expr instanceof Constant<T>) {
             return 0;
         } else {
-            return Integer.MAX_VALUE;
-        }
-    }
-
-    /** SECTION: Order of Growth ==================================================================================== */
-    public Pair<Constant<T>, Double> orderOfGrowth(Expression<T> expr) {
-        if (expr instanceof Add<T> addExpr) {
-            Constant<T> coefficient = Constant.ZERO(TYPE);
-            final double exponent = this.orderOfGrowth(addExpr.terms.firstKey()).getValue();
-            for (Expression<T> term : Utils.<Entity, Expression<T>>cast(addExpr.inputs.get(Accumulation.Parameter.TERMS))) {
-                coefficient = coefficient.add(this.orderOfGrowth(term).getKey());
-            }
-            return new Pair<>(coefficient, exponent);
-        } else if (expr instanceof Scale<T> scaleExpr) {
-            Pair<Constant<T>, Double> order = this.orderOfGrowth(scaleExpr.expression);
-            return new Pair<>(scaleExpr.coefficient.mul(order.getKey()), order.getValue());
-        } else if (expr instanceof Mul<T> mulExpr) {
-            Constant<T> coefficient = Constant.ZERO(TYPE);
-            double exponent = 0;
-            for (Expression<T> term : Utils.<Entity, Expression<T>>cast(mulExpr.inputs.get(Accumulation.Parameter.TERMS))) {
-                Pair<Constant<T>, Double> order = this.orderOfGrowth(term);
-                coefficient = coefficient.add(order.getKey());
-                exponent += order.getValue();
-            }
-            return new Pair<>(coefficient, exponent);
-        } else if (expr instanceof Pow<T> powExpr) {
-            Pair<Constant<T>, Double> order = this.orderOfGrowth(powExpr.base);
-            return new Pair<>(order.getKey().pow(powExpr.exponent), order.getValue() * powExpr.exponent);
-        } else if (expr instanceof Univariate<T>) {
-            return new Pair<>(Constant.ONE(TYPE), 1.0);
-        } else if (expr instanceof Constant<T> c) {
-            return new Pair<>(c, 0.0);
-        } else {
-            /** TODO: Implement Order of Growth for other Functions */
-            return null;
+            return Double.MAX_VALUE;
         }
     }
 
@@ -94,7 +58,7 @@ public class AlgEngine<T> {
 
             HashMap<Expression<T>, Double> result = new HashMap<>();
             for (Expression<T> term : terms) {
-                double exponent = Math.max(factors1.getOrDefault(term, 0.0), factors2.getOrDefault(term, 0.0));
+                double exponent = Math.min(factors1.getOrDefault(term, 0.0), factors2.getOrDefault(term, 0.0));
                 if (exponent != 0) {
                     result.put(term, exponent);
                 }
@@ -103,7 +67,7 @@ public class AlgEngine<T> {
         }
     }
 
-    private HashMap<Expression<T>, Double> form(Expression<T> expr) {
+    public HashMap<Expression<T>, Double> form(Expression<T> expr) {
         if (expr instanceof Pow<T> p) {
             return new HashMap<>(Map.of(p.base, p.exponent));
         } else if (expr instanceof Mul<T> m) {
@@ -116,20 +80,14 @@ public class AlgEngine<T> {
     public Expression<T> greatestCommonDivisor(List<Expression<T>> args) {
         if (args.size() == 2) {
             return this.greatestCommonDivisor(args.get(0), args.get(1));
+        } else if (args.size() == 3) {
+            return this.greatestCommonDivisor(this.greatestCommonDivisor(args.get(0), args.get(1)), args.get(2));
         } else {
             return this.greatestCommonDivisor(
                     this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
                     this.greatestCommonDivisor(args.subList(args.size() / 2, args.size()))
             );
         }
-    }
-
-    public Constant<T> constantGreatestCommonDivisor(List<Constant<T>> args) {
-        Constant<T> GCD = args.get(0);
-        for (Constant<T> arg : args.subList(1, args.size())) {
-            GCD = GCD.gcd(arg);
-        }
-        return GCD;
     }
 
     private static class GCDGraph<T> {
@@ -235,14 +193,6 @@ public class AlgEngine<T> {
     }
 
     /** SECTION: Basic operations =================================================================================== */
-    public Constant<T> complex(Number re, Number im) {
-        return Complex.create(re, im, TYPE);
-    }
-
-    public Constant<T> infinity(Expression<T> expr) {
-        return Infinity.create(expr, TYPE);
-    }
-
     public Expression<T> add(Iterable<Expression<T>> args) {
         return Add.create(args, TYPE);
     }
@@ -280,12 +230,14 @@ public class AlgEngine<T> {
     }
 
     /** SECTION: Cyclic Sum ========================================================================================= */
-    public Expression<T> cyclicSum(Function<ArrayList<Expression<T>>, Expression<T>> func, ArrayList<Expression<T>> args) {
+    public <U> Expression<T> cyclicSum(Function<ArrayList<U>, Expression<T>> func, ArrayList<U> args) {
+        // System.out.println("\tArguments: " + args);
         ArrayList<Expression<T>> terms = new ArrayList<>();
         for (int i = 0; i < args.size(); i++) {
             terms.add(func.apply(args));
             args.add(0, args.remove(args.size() - 1));
         }
+        // System.out.println("\tResult: " + terms);
         return Add.create(terms, TYPE);
     }
 
@@ -296,18 +248,18 @@ public class AlgEngine<T> {
         } else if (arg instanceof Complex<T> cpx) {
             return Complex.create(cpx.re, 0, TYPE);
         } else if (arg instanceof Infinity<T> inf) {
-            return Infinity.create(this.real(inf.expression), TYPE);
+            return Infinity.create(Complex.create(inf.coefficient.re, 0, TYPE), 1, TYPE);
         } else if (arg instanceof Add<T> addExpr) {
             return Add.create(Utils.map(Utils.cast(addExpr.inputs.get(Accumulation.Parameter.TERMS)), this::real), TYPE);
         } else if (arg instanceof Scale<T> scaleExpr && scaleExpr.coefficient instanceof Complex<T> cpx) {
-            if (cpx.re.equals(0)) {
-                return Scale.create(Complex.create(-cpx.im.doubleValue(), 0, TYPE), this.imaginary(scaleExpr.expression), TYPE);
-            } else if (cpx.im.equals(0)) {
-                return Scale.create(Complex.create(cpx.re.doubleValue(), 0, TYPE), this.real(scaleExpr.expression), TYPE);
+            if (cpx.re == 0) {
+                return Scale.create(Complex.create(-cpx.im, 0, TYPE), this.imaginary(scaleExpr.expression), TYPE);
+            } else if (cpx.im == 0) {
+                return Scale.create(Complex.create(cpx.re, 0, TYPE), this.real(scaleExpr.expression), TYPE);
             } else {
                 return Add.create(List.of(
-                        Scale.create(Complex.create(cpx.re.doubleValue(), 0, TYPE), this.real(scaleExpr.expression), TYPE),
-                        Scale.create(Complex.create(-cpx.im.doubleValue(), 0, TYPE), this.imaginary(scaleExpr.expression), TYPE)
+                        Scale.create(Complex.create(cpx.re, 0, TYPE), this.real(scaleExpr.expression), TYPE),
+                        Scale.create(Complex.create(-cpx.im, 0, TYPE), this.imaginary(scaleExpr.expression), TYPE)
                 ), TYPE);
             }
         } else {
@@ -319,20 +271,20 @@ public class AlgEngine<T> {
         if (arg instanceof Complex<T> cpx) {
             return Complex.create(cpx.im, 0, TYPE);
         } else if (arg instanceof Infinity<T> inf) {
-            return Infinity.create(this.imaginary(inf.expression), TYPE);
+            return Infinity.create(Complex.create(inf.coefficient.im, 0, TYPE), 1, TYPE);
         } else if (arg instanceof Univariate<T>) {
             return Constant.ZERO(TYPE);
         } else if (arg instanceof Add<T> addExpr) {
             return Add.create(Utils.map(Utils.cast(addExpr.inputs.get(Accumulation.Parameter.TERMS)), this::imaginary), TYPE);
         } else if (arg instanceof Scale<T> scaleExpr && scaleExpr.coefficient instanceof Complex<T> cpx) {
-            if (cpx.re.equals(0)) {
-                return Scale.create(Complex.create(cpx.im.doubleValue(), 0, TYPE), this.real(scaleExpr.expression), TYPE);
-            } else if (cpx.im.equals(0)) {
-                return Scale.create(Complex.create(cpx.re.doubleValue(), 0, TYPE), this.imaginary(scaleExpr.expression), TYPE);
+            if (cpx.re == 0) {
+                return Scale.create(Complex.create(cpx.im, 0, TYPE), this.real(scaleExpr.expression), TYPE);
+            } else if (cpx.im == 0) {
+                return Scale.create(Complex.create(cpx.re, 0, TYPE), this.imaginary(scaleExpr.expression), TYPE);
             } else {
                 return Add.create(List.of(
-                        Scale.create(Complex.create(cpx.re.doubleValue(), 0, TYPE), this.imaginary(scaleExpr.expression), TYPE),
-                        Scale.create(Complex.create(cpx.im.doubleValue(), 0, TYPE), this.real(scaleExpr.expression), TYPE)
+                        Scale.create(Complex.create(cpx.re, 0, TYPE), this.imaginary(scaleExpr.expression), TYPE),
+                        Scale.create(Complex.create(cpx.im, 0, TYPE), this.real(scaleExpr.expression), TYPE)
                 ), TYPE);
             }
         } else {
@@ -354,13 +306,6 @@ public class AlgEngine<T> {
         } else {
             return arg;
         }
-    }
-
-    public Expression<T> norm(Expression<T> arg) {
-        return Pow.create(Add.create(List.of(
-                Pow.create(this.real(arg), 2, TYPE),
-                Pow.create(this.imaginary(arg), 2, TYPE)
-        ), TYPE), 0.5, TYPE);
     }
 
     public Expression<T> norm2(Expression<T> arg) {

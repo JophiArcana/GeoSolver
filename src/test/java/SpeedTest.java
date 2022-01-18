@@ -1,4 +1,5 @@
 
+import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;
@@ -19,7 +20,7 @@ public class SpeedTest {
         Point o = circumcenter("O", p, q, r);
 
         Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
-        expr = e1.mul(expr, 2);
+        expr = Scale.create(2, expr, Symbolic.class);
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(Mul.Parameter.TERMS));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Accumulation.Parameter.TERMS));
 

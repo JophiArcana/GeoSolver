@@ -12,7 +12,7 @@ import java.util.*;
 
 public class Add<T> extends Accumulation<T> {
     /** SECTION: Instance Variables ================================================================================= */
-    public TreeMap<Expression<T>, Constant<T>> terms = new TreeMap<>();
+    public TreeMap<Expression<T>, Constant<T>> terms;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static <T> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
@@ -34,11 +34,23 @@ public class Add<T> extends Accumulation<T> {
     }
 
     protected void construct(Iterable<Expression<T>> args) {
-        this.degree = args.iterator().next().getDegree();
+        if (this.terms == null) {
+            this.terms = new TreeMap<>();
+        }
+        ArrayList<Expression<T>> validArgs = new ArrayList<>();
+        args.forEach(arg -> {
+            if (!arg.equalsZero()) {
+                validArgs.add(arg);
+            }
+        });
+        if (validArgs.size() == 0) {
+            return;
+        }
+        this.degree = validArgs.get(0).getDegree();
         boolean directed = TYPE != Symbolic.class;
         final Constant<T> ZERO = Constant.ZERO(TYPE);
-        for (Expression<T> arg : args) {
-            assert directed || arg.getDegree() == this.degree : "Degree mismatch: deg(" + arg + ") \u2260 " + this.degree;
+        for (Expression<T> arg : validArgs) {
+            assert directed || arg.getDegree() == this.degree: args + ": Degree mismatch: deg(" + arg + ") \u2260 " + this.degree + ", deg(" + validArgs.get(0) + ")";
             if (arg instanceof Add<T> addExpr) {
                 this.construct(Utils.cast(addExpr.inputs.get(Parameter.TERMS)));
             } else if (arg instanceof Scale<T> sc) {

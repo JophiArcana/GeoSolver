@@ -22,7 +22,12 @@ public interface Entity extends Comparable<Entity> {
     Unicardinal expression(ExpressionType varType);
     ArrayList<Expression<Symbolic>> symbolic();
 
-    Entity substitute(Pair<Multicardinal, Multicardinal> multicardinalPair);
+    default void substitute(InputType inputType, Pair<Multicardinal, Multicardinal> multicardinalPair) {
+        TreeMultiset<Entity> elements = this.getInputs().get(inputType);
+        if (elements.remove(multicardinalPair.getKey())) {
+            elements.add(multicardinalPair.getValue());
+        }
+    }
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();

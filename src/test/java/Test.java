@@ -1,8 +1,12 @@
 
+import Core.AlgSystem.Constants.Complex;
+import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.GeoSystem.Points.PointTypes.*;
 import Core.Utilities.*;
+
+import java.util.*;
 
 import static Core.Utilities.GeoEngine.*;
 
@@ -12,6 +16,10 @@ public class Test {
         Univariate<Symbolic> y = Univariate.create("y", Symbolic.class);
         Univariate<Symbolic> z = Univariate.create("z", Symbolic.class);
         AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
+
+
+
+
 
         /** Expression<Symbolic> term1 = e1.mul(x, new Complex<>(0, -1, Symbolic.class));
         Expression<Symbolic> term2 = y;
@@ -24,6 +32,20 @@ public class Test {
         Phantom p = Phantom.create("P");
         Phantom q = Phantom.create("Q");
         Phantom r = Phantom.create("R");
+
+        /**Expression<Symbolic> p_expr = p.symbolic().get(0);
+        Expression<Symbolic> q_expr = q.symbolic().get(0);
+
+        Expression<Symbolic> expr = Mul.create(List.of(e1.conjugate(p_expr), q_expr), Symbolic.class);
+        System.out.println(expr);
+        System.out.println(e1.conjugate(expr));
+
+        Expression<Symbolic> k = e1.sub(expr, e1.conjugate(expr));
+
+        System.out.println(k);
+        System.out.println(k.expand());
+        System.out.println(e1.imaginary(expr).expressionSimplify());*/
+
         Point m = centroid("M", p, q);
         Point c = centroid("C", p, m);
         Point o = circumcenter("O", p, q, r);
@@ -50,9 +72,23 @@ public class Test {
 
         System.out.println(e1.real(expr2));*/
 
-        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
+        System.out.println();
+
+        /** Add<Symbolic> expr = (Add<Symbolic>) Scale.create(2, (Expression<Symbolic>) o.expression(Point.PointExpressionType.X), Symbolic.class);
         System.out.println(expr);
         System.out.println(e1.numberOfOperations(expr));
+
+        System.out.println();
+
+        ArrayList<Mul<Symbolic>> terms = Utils.cast(expr.inputs.get(Accumulation.Parameter.TERMS));
+
+        System.out.println(terms.get(0).expand());
+        System.out.println("\n" + terms.get(1).expand()); */
+
+        /**System.out.println();
+
+        Scale<Symbolic> sc = (Scale<Symbolic>) ((Pow<Symbolic>) terms.get(0).inputs.get(Accumulation.Parameter.TERMS).lastEntry().getElement()).base;
+        System.out.println(sc.expression);*/
 
         /**expr = e1.mul(expr, 2);
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get("Terms"));

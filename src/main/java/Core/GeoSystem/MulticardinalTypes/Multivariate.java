@@ -1,6 +1,7 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.EntityTypes.Mutable;
+import Core.EntityTypes.*;
+import javafx.util.Pair;
 
 public abstract class Multivariate extends Mutable implements Multicardinal {
     /** SECTION: Abstract Constructor =============================================================================== */

@@ -1,5 +1,6 @@
 package Core.AlgSystem.Operators;
 
+import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;
 
 public abstract class Accumulation<T> extends DefinedExpression<T> {
@@ -29,6 +30,10 @@ public abstract class Accumulation<T> extends DefinedExpression<T> {
 
     /** SUBSECTION: Expression ====================================================================================== */
     public int getDegree() {
-        return this.degree;
+        if (this.TYPE == Symbolic.class) {
+            return this.degree;
+        } else {
+            return 0;
+        }
     }
 }

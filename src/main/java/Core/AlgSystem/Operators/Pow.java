@@ -22,7 +22,7 @@ public class Pow<T> extends DefinedExpression<T> {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static <T> Expression<T> create(Expression<T> base, Complex<T> exponent, Class<T> type) {
-        return new Pow<>(base, (double) exponent.re, type).close();
+        return new Pow<>(base, exponent.re, type).close();
     }
 
     public static <T> Expression<T> create(Expression<T> base, double exponent, Class<T> type) {
@@ -52,7 +52,11 @@ public class Pow<T> extends DefinedExpression<T> {
         if (!Utils.CLOSED_FORM.contains(this.base.getClass())) {
             baseString = "(" + baseString + ")";
         }
-        return baseString + " ** " + this.exponent;
+        if (this.exponent % 1 == 0) {
+            return baseString + " ** " + (int) this.exponent;
+        } else {
+            return baseString + " ** " + this.exponent;
+        }
     }
 
     /** SECTION: Implementation ===================================================================================== */
@@ -135,7 +139,11 @@ public class Pow<T> extends DefinedExpression<T> {
     }
 
     public int getDegree() {
-        return (int) (this.exponent * this.base.getDegree());
+        if (this.TYPE == Symbolic.class) {
+            return (int) (this.exponent * this.base.getDegree());
+        } else {
+            return 0;
+        }
     }
 }
 

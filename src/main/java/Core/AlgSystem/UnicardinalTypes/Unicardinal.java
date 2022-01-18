@@ -12,7 +12,7 @@ public interface Unicardinal extends Entity {
         DIRECTED
     }
 
-    HashMap<Class<? extends Expression<?>>, ExpressionType> RINGS = new HashMap<>() {{
+    HashMap<Class<?>, ExpressionType> RINGS = new HashMap<>() {{
         put(Symbolic.class, UnicardinalExpressionType.SYMBOLIC);
         put(DirectedAngle.class, UnicardinalExpressionType.DIRECTED);
     }};

@@ -3,6 +3,7 @@ package Core.AlgSystem.UnicardinalTypes;
 import Core.AlgSystem.Constants.*;
 import Core.AlgSystem.Operators.*;
 import Core.EntityTypes.*;
+import Core.GeoSystem.MulticardinalTypes.Multicardinal;
 import Core.Utilities.*;
 import javafx.util.Pair;
 
@@ -13,8 +14,7 @@ public interface Expression<T> extends Unicardinal {
     default Expression<T> expressionSimplify() {
         Expression<T> reducedExpr = this.reduce();
         Expression<T> reducedExpansion = this.expand().reduce();
-        AlgEngine<T> ENGINE = Utils.getEngine(this.getType());
-        if (ENGINE.numberOfOperations(reducedExpr) > ENGINE.numberOfOperations(reducedExpansion)) {
+        if (Utils.getEngine(this.getType()).numberOfOperations(reducedExpr) > Utils.getEngine(this.getType()).numberOfOperations(reducedExpansion)) {
             return reducedExpansion;
         } else {
             return reducedExpr;

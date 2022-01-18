@@ -49,7 +49,17 @@ public class Scale<T> extends DefinedExpression<T> {
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
-        return this.coefficient.toString() + this.expression.toString();
+        if (this.coefficient instanceof Complex<T> cpx) {
+            if (cpx.re != 0 && cpx.im != 0) {
+                return "(" + this.coefficient + ")" + this.expression;
+            } else if (cpx.re == -1) {
+                return "-" + this.expression;
+            } else {
+                return "" + this.coefficient + this.expression;
+            }
+        } else {
+            return "" + this.coefficient + this.expression;
+        }
     }
 
     /** SECTION: Implementation ===================================================================================== */
@@ -58,8 +68,8 @@ public class Scale<T> extends DefinedExpression<T> {
         if (this.TYPE == Symbolic.class) {
             return new ArrayList<>(List.of((Expression<Symbolic>) this));
         } else if (this.TYPE == DirectedAngle.class) {
-            if (this.coefficient instanceof Complex<T> cpx && cpx.isGaussianInteger() && cpx.im.equals(0)) {
-                int n = cpx.re.intValue();
+            if (this.coefficient instanceof Complex<T> cpx && cpx.isInteger()) {
+                int n = (int) cpx.re;
                 int k = Math.abs(n);
                 Expression<Symbolic> t = this.expression.symbolic().get(0);
                 ArrayList<Expression<Symbolic>> numeratorTerms = new ArrayList<>();
@@ -83,7 +93,7 @@ public class Scale<T> extends DefinedExpression<T> {
                 );
                 return new ArrayList<>(List.of((n > 0) ? result : Scale.create(Constant.NONE(Symbolic.class), result, Symbolic.class)));
             } else if (this.coefficient instanceof Infinity<T> inf) {
-                if (Utils.getGrowthComparator(Symbolic.class).compare((Expression<Symbolic>) inf.expression, Constant.ONE(Symbolic.class)) < 0) {
+                if (inf.degree < 0) {
                     return new ArrayList<>(List.of(Constant.ZERO(Symbolic.class)));
                 }
             }
@@ -129,7 +139,11 @@ public class Scale<T> extends DefinedExpression<T> {
     }
 
     public int getDegree() {
-        return this.expression.getDegree();
+        if (this.TYPE == Symbolic.class) {
+            return this.expression.getDegree();
+        } else {
+            return 0;
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 package Core.GeoSystem.MulticardinalTypes;
 
-import Core.EntityTypes.Immutable;
+import Core.EntityTypes.*;
 
 public abstract class Multiconstant extends Immutable implements Multicardinal {
     /** SECTION: Instance Variables ================================================================================= */

@@ -58,10 +58,14 @@ public class Univariate<T> extends Mutable implements Expression<T> {
     }
 
     public int getDegree() {
-        if (this.name.charAt(this.name.length() - 1) == '\u209C') {
-            return 0;
+        if (this.TYPE == Symbolic.class) {
+            if (this.name.charAt(this.name.length() - 1) == '\u209C') {
+                return 0;
+            } else {
+                return 1;
+            }
         } else {
-            return 1;
+            return 0;
         }
     }
 

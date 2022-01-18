@@ -76,22 +76,6 @@ public class Utils {
         return list;
     }
 
-    public static Number integerize(Number arg) {
-        if (Math.abs(arg.doubleValue() - Math.round(arg.doubleValue())) < AlgEngine.EPSILON) {
-            return (int) Math.round(arg.doubleValue());
-        } else {
-            return arg;
-        }
-    }
-
-    public static Number[] integerize(Number ... args) {
-        Number[] rounded = new Number[args.length];
-        for (int i = 0; i < args.length; i++) {
-            rounded[i] = Utils.integerize(args[i]);
-        }
-        return rounded;
-    }
-
     public static int binomial(int a, int b) {
         if (b > a / 2) {
             return binomial(a, a - b);
