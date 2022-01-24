@@ -17,7 +17,6 @@ public class Centroid extends Center {
         return new ArrayList<>(List.of(Scale.create(1.0 / terms.size(), Add.create(terms, Symbolic.class), Symbolic.class)));
     }
 
-
     /** SECTION: Factory Methods ==================================================================================== */
     public static Centroid create(String n, Point ... args) {
         return (Centroid) new Centroid(n, args).simplify();
