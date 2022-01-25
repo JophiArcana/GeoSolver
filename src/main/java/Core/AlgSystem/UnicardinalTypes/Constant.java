@@ -1,10 +1,7 @@
 package Core.AlgSystem.UnicardinalTypes;
 
 import Core.AlgSystem.Constants.*;
-import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityTypes.*;
-
-import java.util.*;
 
 public abstract class Constant<T> extends Immutable implements Expression<T> {
     /** SECTION: Static Data ======================================================================================== */
@@ -98,13 +95,9 @@ public abstract class Constant<T> extends Immutable implements Expression<T> {
     public abstract Constant<T> mul(Constant<T> x);
     public abstract Constant<T> div(Constant<T> x);
     public abstract Constant<T> negate();
-    public abstract Constant<T> inverse();
-    public abstract Constant<T> conjugate();
+    public abstract Constant<T> invert();
     public abstract Constant<T> pow(double x);
-    public abstract double abs();
 
     public abstract Constant<T> gcd(Constant<T> c);
-
-    public abstract boolean isGaussianInteger();
     public abstract boolean isInteger();
 }

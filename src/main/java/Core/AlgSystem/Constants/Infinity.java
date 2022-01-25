@@ -1,38 +1,36 @@
 package Core.AlgSystem.Constants;
 
-import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.*;
-import Core.Utilities.*;
+import Core.Utilities.Utils;
 
 import java.util.*;
 
 public class Infinity<T> extends Constant<T> {
     /** SECTION: Instance Variables ================================================================================= */
-    public Complex<T> coefficient;
-    public double degree;
+    public double coefficient, degree;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static <T> Infinity<T> create(Class<T> type) {
         return new Infinity<>(type);
     }
 
-    public static <T> Constant<T> create(Complex<T> cpx, double d, Class<T> type) {
-        return (Constant<T>) new Infinity<>(cpx, d, type).close();
+    public static <T> Constant<T> create(double c, double d, Class<T> type) {
+        return (Constant<T>) new Infinity<>(c, d, type).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Infinity(Class<T> type) {
         super(type);
-        this.coefficient = Constant.ONE(TYPE);
+        this.coefficient = 1;
         this.degree = 1;
     }
 
-    protected Infinity(Complex<T> cpx, double d, Class<T> type) {
+    protected Infinity(double c, double d, Class<T> type) {
         super(type);
-        this.coefficient = cpx;
+        this.coefficient = c;
         this.degree = d;
     }
 
@@ -45,10 +43,8 @@ public class Infinity<T> extends Constant<T> {
     /** SUBSECTION: Entity ========================================================================================== */
     @Override
     public Entity simplify() {
-        if (this.degree == 0) {
-            return this.coefficient;
-        } else if (this.coefficient.equalsZero()) {
-            return this.coefficient;
+        if (this.degree == 0 || this.coefficient == 0) {
+            return new Real<>(this.coefficient, TYPE);
         } else {
             return this;
         }
@@ -67,10 +63,8 @@ public class Infinity<T> extends Constant<T> {
     /** SUBSECTION: Expression ====================================================================================== */
     @Override
     public Expression<T> close() {
-        if (this.degree == 0) {
-            return this.coefficient;
-        } else if (this.coefficient.equalsZero()) {
-            return this.coefficient;
+        if (this.degree == 0 || this.coefficient == 0) {
+            return new Real<>(this.coefficient, TYPE);
         } else {
             return this;
         }
@@ -82,7 +76,7 @@ public class Infinity<T> extends Constant<T> {
             if (inf.degree > this.degree) {
                 return inf;
             } else if (inf.degree == this.degree) {
-                return Infinity.create((Complex<T>) this.coefficient.add(inf.coefficient), this.degree, TYPE);
+                return Infinity.create(this.coefficient + inf.coefficient, this.degree, TYPE);
             } else {
                 return this;
             }
@@ -100,7 +94,7 @@ public class Infinity<T> extends Constant<T> {
             if (inf.degree > this.degree) {
                 return inf.negate();
             } else if (inf.degree == this.degree) {
-                return Infinity.create((Complex<T>) this.coefficient.sub(inf.coefficient), this.degree, TYPE);
+                return Infinity.create(this.coefficient - inf.coefficient, this.degree, TYPE);
             } else {
                 return this;
             }
@@ -114,61 +108,49 @@ public class Infinity<T> extends Constant<T> {
     }
 
     public Constant<T> mul(Constant<T> x) {
-        if (x instanceof Complex<T>) {
-            return Infinity.create((Complex<T>) this.coefficient.mul(x), this.degree, TYPE);
+        if (x instanceof Real<T> re) {
+            return Infinity.create(this.coefficient * re.value, this.degree, TYPE);
         } else if (x instanceof Infinity<T> inf) {
-            return Infinity.create((Complex<T>) this.coefficient.mul(inf.coefficient), this.degree + inf.degree, TYPE);
+            return Infinity.create(this.coefficient * inf.coefficient, this.degree + inf.degree, TYPE);
         } else {
-            return this;
+            return null;
         }
     }
 
     public Constant<T> div(Constant<T> x) {
-        return this.mul(x.inverse());
+        if (x instanceof Real<T> re) {
+            if (re.value == 0) {
+                return Infinity.create(this.coefficient, this.degree + 1, TYPE);
+            } else {
+                return Infinity.create(this.coefficient / re.value, this.degree, TYPE);
+            }
+        } else if (x instanceof Infinity<T> inf) {
+            return Infinity.create(this.coefficient / inf.coefficient, this.degree - inf.degree, TYPE);
+        } else {
+            return null;
+        }
     }
 
     public Constant<T> negate() {
-        return new Infinity<>((Complex<T>) this.coefficient.negate(), this.degree, TYPE);
+        return new Infinity<>(-this.coefficient, this.degree, TYPE);
     }
 
-    public Constant<T> inverse() {
-        return new Infinity<>(this.coefficient, -this.degree, TYPE);
-    }
-
-    public Constant<T> conjugate() {
-        return new Infinity<>((Complex<T>) this.coefficient.conjugate(), this.degree, TYPE);
+    public Constant<T> invert() {
+        return new Infinity<>(1 / this.coefficient, -this.degree, TYPE);
     }
 
     public Constant<T> pow(double x) {
-        return Infinity.create((Complex<T>) this.coefficient.pow(x), this.degree * x, TYPE);
-    }
-
-    /** TODO: Fix after implementing normalize */
-
-    public double abs() {
-        if (this.degree > 0) {
-            return Double.MAX_VALUE;
-        } else {
-            return 0;
-        }
+        return Infinity.create(Math.pow(this.coefficient, x), this.degree * x, TYPE);
     }
 
     public Constant<T> gcd(Constant<T> c) {
         if (c instanceof Infinity<T> inf) {
-            if (inf.degree > this.degree) {
-                return this;
-            } else if (inf.degree == this.degree) {
-                return new Infinity((Complex<T>) this.coefficient.gcd(inf.coefficient), this.degree, TYPE);
-            } else {
-                return inf;
-            }
-        } else {
+            return Infinity.create(Utils.gcd(this.coefficient, inf.coefficient), Math.min(this.degree, inf.degree), TYPE);
+        } else if (c instanceof Real<T>) {
             return c;
+        } else {
+            return null;
         }
-    }
-
-    public boolean isGaussianInteger() {
-        return false;
     }
 
     public boolean isInteger() {

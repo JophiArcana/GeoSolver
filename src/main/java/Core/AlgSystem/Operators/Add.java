@@ -1,6 +1,5 @@
 package Core.AlgSystem.Operators;
 
-import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalRings.DirectedAngle;
 import Core.AlgSystem.UnicardinalRings.Symbolic;
 import Core.AlgSystem.UnicardinalTypes.*;

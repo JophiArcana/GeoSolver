@@ -16,7 +16,6 @@ public class Utils {
 
     public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
-            Complex.class,
             Infinity.class,
             Univariate.class,
             Add.class,
@@ -36,7 +35,6 @@ public class Utils {
     ));
 
     public static final HashSet<Class<? extends Unicardinal>> CLOSED_FORM = new HashSet<>(Arrays.asList(
-            Complex.class,
             Infinity.class,
             Univariate.class
     ));
@@ -74,6 +72,18 @@ public class Utils {
         ArrayList<S> list = new ArrayList<>();
         args.forEach(arg -> list.add((S) arg));
         return list;
+    }
+
+    public static double gcd(double x, double y) {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        double upper = Math.max(x, y), lower = Math.min(x, y);
+        while (lower > AlgEngine.EPSILON) {
+            double remainder = upper % lower;
+            upper = lower;
+            lower = remainder;
+        }
+        return upper;
     }
 
     public static int binomial(int a, int b) {

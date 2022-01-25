@@ -1,5 +1,4 @@
 
-import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.AlgSystem.UnicardinalRings.*;

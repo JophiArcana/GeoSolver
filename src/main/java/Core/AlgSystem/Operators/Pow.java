@@ -1,6 +1,5 @@
 package Core.AlgSystem.Operators;
 
-import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.AlgSystem.UnicardinalTypes.*;
 import Core.EntityTypes.Entity;

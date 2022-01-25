@@ -1,6 +1,5 @@
 package Core.GeoSystem.Points.Functions;
 
-import Core.AlgSystem.Constants.Complex;
 import Core.AlgSystem.Operators.Mul;
 import Core.AlgSystem.Operators.Scale;
 import Core.AlgSystem.UnicardinalRings.*;
