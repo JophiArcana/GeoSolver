@@ -1,26 +1,44 @@
 package Core.AlgSystem.Operators;
 
-import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.Constants.Real;
+import Core.AlgSystem.Operators.AddReduction.Scale;
+import Core.AlgSystem.UnicardinalStructure.*;
+import Core.EntityStructure.UnicardinalStructure.Constant;
+import Core.EntityStructure.UnicardinalStructure.DefinedExpression;
+import Core.EntityStructure.UnicardinalStructure.Expression;
 
 public abstract class Accumulation<T> extends DefinedExpression<T> {
     /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
-        TERMS
+        COEFFICIENT,
+        EXPRESSION
     }
-    public static final InputType[] inputTypes = {Parameter.TERMS};
+    public static final InputType[] inputTypes = {Parameter.COEFFICIENT, Scale.Parameter.EXPRESSION};
 
     /** SECTION: Instance Variables ================================================================================= */
-    public int degree = 0;
+    public double coefficient;
+    public Expression<T> expression;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected Accumulation(Iterable<Expression<T>> args, Class<T> type) {
+    protected Accumulation(double coefficient, Expression<T> expr, Class<T> type) {
         super(type);
-        this.construct(args);
+        if (expr instanceof Constant<T> constExpr) {
+            this.coefficient = 1;
+            this.expression = this.evaluateConstant(coefficient, constExpr);
+        } else if (expr.getClass() == this.getClass()) {
+            this.coefficient = coefficient * ((Accumulation<T>) expr).coefficient;
+            this.expression = ((Accumulation<T>) expr).expression;
+        } else {
+            this.coefficient = coefficient;
+            this.expression = expr;
+        }
+        this.inputs.get(Parameter.COEFFICIENT).add(Real.create(this.coefficient, TYPE));
+        this.inputs.get(Parameter.EXPRESSION).add(this.expression);
     }
 
     /** SECTION: Interface ========================================================================================== */
-    protected abstract void construct(Iterable<Expression<T>> args);
+    protected abstract Real<T> identity();
+    protected abstract Constant<T> evaluateConstant(double c, Constant<T> e);
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
@@ -29,11 +47,13 @@ public abstract class Accumulation<T> extends DefinedExpression<T> {
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public int getDegree() {
-        if (this.TYPE == Symbolic.class) {
-            return this.degree;
+    public Expression<T> close() {
+        if (this.coefficient == 1) {
+            return this.expression;
+        } else if (this.coefficient == 0) {
+            return this.identity();
         } else {
-            return 0;
+            return this;
         }
     }
 }

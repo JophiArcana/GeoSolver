@@ -1,12 +1,14 @@
 package Core.Utilities;
 
 import Core.AlgSystem.Constants.*;
-import Core.AlgSystem.UnicardinalTypes.*;
-import Core.AlgSystem.Operators.*;
-import Core.EntityTypes.Entity;
-import Core.GeoSystem.Lines.LineTypes.*;
-import Core.GeoSystem.Points.Functions.*;
-import Core.GeoSystem.Points.PointTypes.*;
+import Core.AlgSystem.Operators.AddReduction.*;
+import Core.AlgSystem.Operators.MulReduction.*;
+import Core.EntityStructure.Entity;
+import Core.EntityStructure.UnicardinalStructure.*;
+import Core.GeoSystem.Lines.LineStructure.*;
+import Core.GeoSystem.Points.PointFunctions.*;
+import Core.GeoSystem.Points.PointStructure.*;
+import com.google.common.hash.Hashing;
 
 import java.util.*;
 import java.util.function.Function;
@@ -17,26 +19,26 @@ public class Utils {
     public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
             Infinity.class,
-            Univariate.class,
+            Variable.class,
             Add.class,
             Pow.class,
             Mul.class,
 
         /** SECTION: Points ========================================================================================= */
             Coordinate.class,
-            Phantom.class,
+            PointVariable.class,
             Midpoint.class,
             Centroid.class,
             Circumcenter.class,
 
         /** SECTION: Lines ========================================================================================== */
             Axis.class,
-            Linear.class
+            LineVariable.class
     ));
 
     public static final HashSet<Class<? extends Unicardinal>> CLOSED_FORM = new HashSet<>(Arrays.asList(
             Infinity.class,
-            Univariate.class
+            Variable.class
     ));
 
     private static final HashMap<Class<? extends Expression<?>>, AlgEngine> ENGINES = new HashMap<>() {{
@@ -205,11 +207,24 @@ public class Utils {
         return elements;
     }
 
+    public static <T, U> ArrayList<U> cyclic(ArrayList<T> args, Function<ArrayList<T>, U> func) {
+        ArrayList<U> terms = new ArrayList<>();
+        for (int i = 0; i < args.size(); i++) {
+            terms.add(func.apply(args));
+            args.add(0, args.remove(args.size() - 1));
+        }
+        return terms;
+    }
+
     public static String overline(String s) {
         StringBuilder overlined = new StringBuilder();
         for (char c : s.toCharArray()) {
             overlined.append(c).append("\u0305");
         }
         return overlined.toString();
+    }
+
+    public static String randomHash() {
+        return Hashing.sha256().hashInt(new Random().nextInt()).toString();
     }
 }

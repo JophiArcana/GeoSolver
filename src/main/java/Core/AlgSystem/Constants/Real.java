@@ -1,11 +1,10 @@
 package Core.AlgSystem.Constants;
 
-import Core.AlgSystem.UnicardinalRings.DirectedAngle;
-import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.AlgSystem.UnicardinalTypes.Constant;
-import Core.AlgSystem.UnicardinalTypes.Expression;
-import Core.Utilities.AlgEngine;
-import Core.Utilities.Utils;
+import Core.AlgSystem.UnicardinalRings.*;
+import Core.AlgSystem.UnicardinalStructure.*;
+import Core.EntityStructure.UnicardinalStructure.Constant;
+import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.Utilities.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class Real<T> extends Constant<T> {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Real(double value, Class<T> type) {
+    public Real(double value, Class<T> type) {
         super(type);
         assert !Double.isNaN(value): value;
         if (Math.abs(value - Math.round(value)) < AlgEngine.EPSILON) {

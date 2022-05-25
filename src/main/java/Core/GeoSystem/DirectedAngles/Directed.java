@@ -1,14 +1,11 @@
 package Core.GeoSystem.DirectedAngles;
 
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.Entity;
-import Core.GeoSystem.Lines.LineTypes.Line;
-import Core.GeoSystem.MulticardinalTypes.Multicardinal;
+import Core.EntityStructure.UnicardinalStructure.*;
+import Core.GeoSystem.Lines.LineStructure.Line;
 import Core.Utilities.*;
 
 import java.util.*;
-import javafx.util.Pair;
 
 public class Directed extends DefinedExpression<DirectedAngle> {
     /** SECTION: Static Data ======================================================================================== */
@@ -35,8 +32,8 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     /** SUBSECTION: Entity ========================================================================================== */
     public ArrayList<Expression<Symbolic>> symbolic() {
         final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
-        Expression<Symbolic> dualExpression = this.l.pointDual().symbolic().get(0);
-        return new ArrayList<>(Collections.singletonList(ENGINE.div(ENGINE.real(dualExpression), ENGINE.imaginary(dualExpression))));
+        ArrayList<Expression<Symbolic>> dualExpression = this.l.pointDual().symbolic();
+        return new ArrayList<>(Collections.singletonList(ENGINE.div(dualExpression.get(0), dualExpression.get(1))));
     }
 
     public InputType[] getInputTypes() {

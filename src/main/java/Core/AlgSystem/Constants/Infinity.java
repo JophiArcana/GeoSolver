@@ -1,9 +1,9 @@
 package Core.AlgSystem.Constants;
 
-import Core.AlgSystem.UnicardinalRings.DirectedAngle;
-import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.*;
+import Core.AlgSystem.UnicardinalRings.*;
+import Core.EntityStructure.*;
+import Core.EntityStructure.UnicardinalStructure.Constant;
+import Core.EntityStructure.UnicardinalStructure.Expression;
 import Core.Utilities.Utils;
 
 import java.util.*;

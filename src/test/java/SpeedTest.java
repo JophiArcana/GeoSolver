@@ -1,8 +1,11 @@
 
 import Core.AlgSystem.Operators.*;
-import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.Operators.AddReduction.Scale;
+import Core.AlgSystem.Operators.MulReduction.Mul;
+import Core.AlgSystem.UnicardinalStructure.*;
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.GeoSystem.Points.PointTypes.*;
+import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.GeoSystem.Points.PointStructure.*;
 import Core.Utilities.*;
 
 import java.util.*;
@@ -13,15 +16,15 @@ public class SpeedTest {
     public static void main(String[] args) {
         AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
 
-        Phantom p = Phantom.create("P");
-        Phantom q = Phantom.create("Q");
-        Phantom r = Phantom.create("R");
+        PointVariable p = PointVariable.create("P");
+        PointVariable q = PointVariable.create("Q");
+        PointVariable r = PointVariable.create("R");
         Point o = circumcenter("O", p, q, r);
 
         Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
         expr = Scale.create(2, expr, Symbolic.class);
         ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(Mul.Parameter.TERMS));
-        exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Accumulation.Parameter.TERMS));
+        exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Reduction.Parameter.TERMS));
 
         int cycles = 100000;
         double startTime = System.nanoTime();

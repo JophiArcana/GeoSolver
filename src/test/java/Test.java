@@ -1,21 +1,18 @@
 
-import Core.AlgSystem.UnicardinalTypes.*;
+import Core.AlgSystem.UnicardinalStructure.*;
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.GeoSystem.Points.PointTypes.*;
+import Core.EntityStructure.UnicardinalStructure.Variable;
+import Core.GeoSystem.Points.PointStructure.*;
 import Core.Utilities.*;
 
 import static Core.Utilities.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {
-        Univariate<Symbolic> x = Univariate.create("x", Symbolic.class);
-        Univariate<Symbolic> y = Univariate.create("y", Symbolic.class);
-        Univariate<Symbolic> z = Univariate.create("z", Symbolic.class);
+        Variable<Symbolic> x = Variable.create("x", Symbolic.class);
+        Variable<Symbolic> y = Variable.create("y", Symbolic.class);
+        Variable<Symbolic> z = Variable.create("z", Symbolic.class);
         AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
-
-
-
-
 
         /** Expression<Symbolic> term1 = e1.mul(x, new Complex<>(0, -1, Symbolic.class));
         Expression<Symbolic> term2 = y;
@@ -25,9 +22,9 @@ public class Test {
 
         // System.out.println(e1.expand(e1.mul(e1.add(e1.mul(2, x), y), e1.add(x, y))));
 
-        Phantom p = Phantom.create("P");
-        Phantom q = Phantom.create("Q");
-        Phantom r = Phantom.create("R");
+        PointVariable p = PointVariable.create("P");
+        PointVariable q = PointVariable.create("Q");
+        PointVariable r = PointVariable.create("R");
 
         /**Expression<Symbolic> p_expr = p.symbolic().get(0);
         Expression<Symbolic> q_expr = q.symbolic().get(0);

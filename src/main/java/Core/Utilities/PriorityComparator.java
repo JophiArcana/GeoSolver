@@ -1,12 +1,11 @@
 package Core.Utilities;
 
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalTypes.*;
-import Core.EntityTypes.*;
-import Core.GeoSystem.Lines.LineTypes.Axis;
-import Core.GeoSystem.Points.PointTypes.Coordinate;
+import Core.EntityStructure.*;
+import Core.EntityStructure.UnicardinalStructure.*;
+import Core.GeoSystem.Lines.LineStructure.*;
+import Core.GeoSystem.Points.PointStructure.*;
 import com.google.common.collect.TreeMultiset;
-import javafx.util.Pair;
 
 import java.util.*;
 
@@ -15,7 +14,11 @@ public class PriorityComparator implements Comparator<Entity> {
         if (e1 == e2) {
             return 0;
         } else {
-            if (e1 instanceof Expression) {
+            if (e1 instanceof Expression<?> expr1 && e2 instanceof Expression<?> expr2) {
+                Class<?> type1 = expr1.getType(), type2 = expr2.getType();
+                if (type1 == type2) {
+
+                }
                 if (((Expression<?>) e1).getType() == Symbolic.class) {
                     Expression<Symbolic> expr1 = (Expression<Symbolic>) e1, expr2 = (Expression<Symbolic>) e2;
                     if (expr1 instanceof Constant<Symbolic> c1 && expr2 instanceof Constant<Symbolic> c2) {
