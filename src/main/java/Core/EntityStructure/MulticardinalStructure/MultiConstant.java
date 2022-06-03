@@ -9,7 +9,7 @@ public abstract class MultiConstant extends Immutable implements Multicardinal {
     /** SECTION: Abstract Constructor =============================================================================== */
     public MultiConstant(String n) {
         super();
-        assert Entity.nameSet.add(n): "Name " + n + " already used";
+        assert Entity.nameSet.add(n): "Name " + n + " already in use.";
         this.name = n;
     }
 

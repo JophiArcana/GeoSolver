@@ -14,6 +14,6 @@ public class HashSetTest {
         treeSet.add(p2);
         System.out.println(hashSet);
         System.out.println(treeSet);
-        System.out.println(p.equals(p2));
+        // System.out.println(p.equals(p2));
     }
 }

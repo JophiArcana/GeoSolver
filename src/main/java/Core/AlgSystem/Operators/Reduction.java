@@ -1,26 +1,26 @@
 package Core.AlgSystem.Operators;
 
 import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.AlgSystem.UnicardinalStructure.*;
-import Core.EntityStructure.UnicardinalStructure.DefinedExpression;
-import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.Diagram;
+import Core.EntityStructure.UnicardinalStructure.*;
+import Core.Utilities.Comparators.UnicardinalComparator;
 
 import java.util.TreeMap;
 
-public abstract class Reduction<T> extends DefinedExpression<T> {
+public abstract class Reduction<T> extends DefinedOperator<T> {
     /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         TERMS
     }
-    public static final InputType[] inputTypes = {Parameter.TERMS};
+    public static final InputType[] staticInputTypes = {Parameter.TERMS};
 
     /** SECTION: Instance Variables ================================================================================= */
-    public TreeMap<Expression<T>, Double> terms = new TreeMap<>();
+    public TreeMap<Expression<T>, Double> terms = new TreeMap<>(new UnicardinalComparator<>());
     public int degree = 0;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected Reduction(Iterable<Expression<T>> args, Class<T> type) {
-        super(type);
+    protected Reduction(Diagram d, Iterable<Expression<T>> args, Class<T> type) {
+        super(d, type);
         this.construct(args);
     }
 
@@ -29,10 +29,14 @@ public abstract class Reduction<T> extends DefinedExpression<T> {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public InputType[] getInputTypes() {
-        return Reduction.inputTypes;
+    public InputType[][] getInputTypes() {
+        return this.inputTypes;
     }
 
+    /** SUBSECTION: DefinedOperator ================================================================================= */
+    public InputType[] getStaticInputTypes() {
+        return Reduction.staticInputTypes;
+    }
     /** SUBSECTION: Expression ====================================================================================== */
     public int getDegree() {
         if (this.TYPE == Symbolic.class) {

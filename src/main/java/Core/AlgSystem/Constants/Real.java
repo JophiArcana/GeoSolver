@@ -1,7 +1,6 @@
 package Core.AlgSystem.Constants;
 
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalStructure.*;
 import Core.EntityStructure.UnicardinalStructure.Constant;
 import Core.EntityStructure.UnicardinalStructure.Expression;
 import Core.Utilities.*;

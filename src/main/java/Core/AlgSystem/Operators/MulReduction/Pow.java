@@ -1,28 +1,25 @@
 package Core.AlgSystem.Operators.MulReduction;
 
 import Core.AlgSystem.Constants.Real;
-import Core.AlgSystem.Operators.Accumulation;
-import Core.AlgSystem.Operators.AddReduction.Add;
-import Core.AlgSystem.Operators.AddReduction.Scale;
-import Core.AlgSystem.Operators.Reduction;
+import Core.AlgSystem.Operators.*;
+import Core.AlgSystem.Operators.AddReduction.*;
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalStructure.*;
-import Core.EntityStructure.Entity;
-import Core.EntityStructure.UnicardinalStructure.Constant;
-import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.Diagram;
+import Core.EntityStructure.UnicardinalStructure.*;
 import Core.Utilities.*;
+import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
 
 public class Pow<T> extends Accumulation<T> {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T> Expression<T> create(Expression<T> base, double exponent, Class<T> type) {
-        return new Pow<>(base, exponent, type).close();
+    public static <T> Expression<T> create(Diagram d, Expression<T> base, double exponent, Class<T> type) {
+        return new Pow<>(d, base, exponent, type).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Pow(Expression<T> base, double exponent, Class<T> type) {
-        super(exponent, base, type);
+    protected Pow(Diagram d, Expression<T> base, double exponent, Class<T> type) {
+        super(d, exponent, base, type);
     }
 
     /** SECTION: Print Format ======================================================================================= */
@@ -53,7 +50,7 @@ public class Pow<T> extends Accumulation<T> {
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> reduce() {
         if (this.reduction == null) {
-            this.reduction = Pow.create(this.expression.reduce(), this.coefficient, TYPE);
+            this.reduction = Pow.create(this.diagram, this.expression.reduce(), this.coefficient, TYPE);
         }
         return this.reduction;
     }
@@ -61,16 +58,16 @@ public class Pow<T> extends Accumulation<T> {
     public Expression<T> expand() {
         if (this.expansion == null) {
             if (this.expression instanceof Mul<T> mulExpr) {
-                this.expansion = Mul.create(Utils.map(Utils.<Entity, Expression<T>>cast(mulExpr.inputs.get(Mul.Parameter.TERMS)),
-                        arg -> Pow.create(arg, this.coefficient, TYPE)), TYPE).expand();
+                this.expansion = Mul.create(this.diagram, Utils.map((TreeMultiset<Expression<T>>) mulExpr.inputs.get(Mul.Parameter.TERMS),
+                        arg -> Pow.create(this.diagram, arg, this.coefficient, TYPE)), TYPE).expand();
             } else if (this.expression instanceof Scale<T> scaleExpr) {
                 this.expansion = Scale.create(Math.pow(scaleExpr.coefficient, this.coefficient),
-                        Pow.create(scaleExpr.expression, this.coefficient, TYPE).expand(), TYPE);
+                        Pow.create(this.diagram, scaleExpr.expression, this.coefficient, TYPE).expand(), TYPE);
             } else if (this.coefficient >= 1 && this.expression instanceof Add<T> addExpr) {
                 ArrayList<Expression<T>> expandedTerms = this.expandHelper(Utils.cast(addExpr.inputs.get(Reduction.Parameter.TERMS)), (int) this.coefficient);
                 this.expansion = Add.create(expandedTerms, TYPE);
                 if (this.coefficient % 1 != 0) {
-                    this.expansion = Mul.create(List.of(Pow.create(this.expression, this.coefficient % 1, TYPE), this.expansion), TYPE);
+                    this.expansion = Mul.create(this.diagram, List.of(Pow.create(this.diagram, this.expression, this.coefficient % 1, TYPE), this.expansion), TYPE);
                 }
             } else {
                 this.expansion = this;

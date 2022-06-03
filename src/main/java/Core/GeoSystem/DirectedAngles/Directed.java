@@ -33,7 +33,7 @@ public class Directed extends DefinedExpression<DirectedAngle> {
     public ArrayList<Expression<Symbolic>> symbolic() {
         final AlgEngine<Symbolic> ENGINE = Utils.getEngine(Symbolic.class);
         ArrayList<Expression<Symbolic>> dualExpression = this.l.pointDual().symbolic();
-        return new ArrayList<>(Collections.singletonList(ENGINE.div(dualExpression.get(0), dualExpression.get(1))));
+        return new ArrayList<>(Collections.singletonList(ENGINE.negate(ENGINE.div(dualExpression.get(0), dualExpression.get(1)))));
     }
 
     public InputType[] getInputTypes() {

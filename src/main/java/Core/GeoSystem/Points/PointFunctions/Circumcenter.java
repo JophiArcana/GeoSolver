@@ -3,7 +3,6 @@ package Core.GeoSystem.Points.PointFunctions;
 import Core.AlgSystem.Operators.AddReduction.Scale;
 import Core.AlgSystem.Operators.MulReduction.Pow;
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalStructure.*;
 import Core.EntityStructure.Entity;
 import Core.EntityStructure.UnicardinalStructure.Expression;
 import Core.GeoSystem.Points.PointStructure.*;

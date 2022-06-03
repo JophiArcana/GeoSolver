@@ -1,27 +1,25 @@
 package Core.AlgSystem.Operators;
 
 import Core.AlgSystem.Constants.Real;
-import Core.AlgSystem.Operators.AddReduction.Scale;
-import Core.AlgSystem.UnicardinalStructure.*;
-import Core.EntityStructure.UnicardinalStructure.Constant;
-import Core.EntityStructure.UnicardinalStructure.DefinedExpression;
-import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.Diagram;
+import Core.EntityStructure.UnicardinalStructure.*;
+import com.google.common.collect.TreeMultiset;
 
-public abstract class Accumulation<T> extends DefinedExpression<T> {
+public abstract class Accumulation<T> extends DefinedOperator<T> {
     /** SECTION: Static Data ======================================================================================== */
     public enum Parameter implements InputType {
         COEFFICIENT,
         EXPRESSION
     }
-    public static final InputType[] inputTypes = {Parameter.COEFFICIENT, Scale.Parameter.EXPRESSION};
+    public static final InputType[] staticInputTypes = {Parameter.COEFFICIENT, Parameter.EXPRESSION};
 
     /** SECTION: Instance Variables ================================================================================= */
     public double coefficient;
     public Expression<T> expression;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected Accumulation(double coefficient, Expression<T> expr, Class<T> type) {
-        super(type);
+    protected Accumulation(Diagram d, double coefficient, Expression<T> expr, Class<T> type) {
+        super(d, type);
         if (expr instanceof Constant<T> constExpr) {
             this.coefficient = 1;
             this.expression = this.evaluateConstant(coefficient, constExpr);
@@ -32,8 +30,8 @@ public abstract class Accumulation<T> extends DefinedExpression<T> {
             this.coefficient = coefficient;
             this.expression = expr;
         }
-        this.inputs.get(Parameter.COEFFICIENT).add(Real.create(this.coefficient, TYPE));
-        this.inputs.get(Parameter.EXPRESSION).add(this.expression);
+        ((TreeMultiset<Expression<T>>) this.inputs.get(Parameter.COEFFICIENT)).add(Real.create(this.coefficient, TYPE));
+        ((TreeMultiset<Expression<T>>) this.inputs.get(Parameter.EXPRESSION)).add(this.expression);
     }
 
     /** SECTION: Interface ========================================================================================== */
@@ -42,8 +40,13 @@ public abstract class Accumulation<T> extends DefinedExpression<T> {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public InputType[] getInputTypes() {
-        return Accumulation.inputTypes;
+    public InputType[][] getInputTypes() {
+        return this.inputTypes;
+    }
+
+    /** SUBSECTION: DefinedOperator ================================================================================= */
+    public InputType[] getStaticInputTypes() {
+        return Accumulation.staticInputTypes;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

@@ -1,7 +1,7 @@
 package Core.EntityStructure;
 
+import Core.Diagram;
 import Core.Propositions.PropositionStructure.Proposition;
-import Core.Utilities.Utils;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
@@ -11,22 +11,21 @@ public abstract class DefinedEntity implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
     /** SECTION: Instance Variables ================================================================================= */
+    public Diagram diagram;
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
-    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<? extends Entity>> inputs = new HashMap<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public DefinedEntity() {
+    public DefinedEntity(Diagram d) {
+        this.diagram = d;
         this.constrainedDegreesOfFreedom = DefinedEntity.naturalDegreesOfFreedom;
-        for (InputType inputType : this.getInputTypes()) {
-            this.inputs.put(inputType, TreeMultiset.create());
-        }
+        this.inputSetup();
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public boolean equals(Entity ent) {
-        return Utils.PRIORITY_COMPARATOR.compare(this, ent) == 0;
+    public Diagram getDiagram() {
+        return this.diagram;
     }
 
     public int getNaturalDegreesOfFreedom() {
@@ -41,7 +40,7 @@ public abstract class DefinedEntity implements Entity {
         return this.constraints;
     }
 
-    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<? extends Entity>> getInputs() {
         return this.inputs;
     }
 }

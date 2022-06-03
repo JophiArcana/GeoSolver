@@ -2,7 +2,6 @@
 import Core.AlgSystem.Operators.*;
 import Core.AlgSystem.Operators.AddReduction.Scale;
 import Core.AlgSystem.Operators.MulReduction.Mul;
-import Core.AlgSystem.UnicardinalStructure.*;
 import Core.AlgSystem.UnicardinalRings.*;
 import Core.EntityStructure.UnicardinalStructure.Expression;
 import Core.GeoSystem.Points.PointStructure.*;

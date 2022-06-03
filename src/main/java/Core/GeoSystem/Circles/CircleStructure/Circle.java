@@ -1,7 +1,9 @@
 package Core.GeoSystem.Circles.CircleStructure;
 
+import Core.EntityStructure.Immutable;
 import Core.EntityStructure.MulticardinalStructure.*;
 import Core.EntityStructure.UnicardinalStructure.Unicardinal;
+import Core.GeoSystem.Points.PointStructure.Coordinate;
 import Core.GeoSystem.Points.PointStructure.Point;
 
 public interface Circle extends Locus {
@@ -10,6 +12,10 @@ public interface Circle extends Locus {
         X, Y, R
     }
     int naturalDegreesOfFreedom = CircleExpressionType.values().length;
+
+    static int compareConstants(Immutable c1, Immutable c2) {
+        return -Disc.compare((Disc) c1, (Disc) c2);
+    }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */

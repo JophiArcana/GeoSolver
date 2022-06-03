@@ -1,7 +1,7 @@
 package Core.EntityStructure.UnicardinalStructure;
 
+import Core.Diagram;
 import Core.EntityStructure.*;
-import Core.Utilities.*;
 
 public abstract class DefinedExpression<T> extends DefinedEntity implements Expression<T> {
     /** SECTION: Instance Variables ================================================================================= */
@@ -9,23 +9,13 @@ public abstract class DefinedExpression<T> extends DefinedEntity implements Expr
     public Expression<T> reduction, expansion;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public DefinedExpression(Class<T> type) {
-        super();
+    public DefinedExpression(Diagram d, Class<T> type) {
+        super(d);
         this.TYPE = type;
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Expression ====================================================================================== */
-    public boolean equals(Entity ent) {
-        if (ent instanceof Expression) {
-            return Utils.getEngine(this.getType()).sub(this, (Expression<T>) ent).expressionSimplify().equalsZero();
-        } else {
-            return false;
-        }
-    }
-
     public Class<T> getType() {
         return this.TYPE;
     }
-
 }

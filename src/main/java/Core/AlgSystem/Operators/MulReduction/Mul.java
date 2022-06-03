@@ -1,14 +1,12 @@
 package Core.AlgSystem.Operators.MulReduction;
 
 import Core.AlgSystem.Constants.Real;
-import Core.AlgSystem.Operators.AddReduction.Add;
-import Core.AlgSystem.Operators.AddReduction.Scale;
+import Core.AlgSystem.Operators.AddReduction.*;
 import Core.AlgSystem.Operators.Reduction;
 import Core.AlgSystem.UnicardinalRings.*;
-import Core.AlgSystem.UnicardinalStructure.*;
+import Core.Diagram;
 import Core.EntityStructure.*;
-import Core.EntityStructure.UnicardinalStructure.Constant;
-import Core.EntityStructure.UnicardinalStructure.Expression;
+import Core.EntityStructure.UnicardinalStructure.*;
 import Core.Utilities.*;
 import com.google.common.collect.TreeMultiset;
 
@@ -19,8 +17,8 @@ public class Mul<T> extends Reduction<T> {
     private static double constant;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static <T> Expression<T> create(Iterable<Expression<T>> args, Class<T> type) {
-        Expression<T> result = new Mul<>(args, type).close();
+    public static <T> Expression<T> create(Diagram d, Iterable<Expression<T>> args, Class<T> type) {
+        Expression<T> result = new Mul<>(d, args, type).close();
         if (Mul.constant == 1) {
             return result;
         } else {
@@ -29,11 +27,9 @@ public class Mul<T> extends Reduction<T> {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Mul(Iterable<Expression<T>> args, Class<T> type) {
-        super(args, type);
-
-        TreeMultiset<Entity> inputTerms = this.inputs.get(Parameter.TERMS);
-        // System.out.println(args + " constructed: " + terms);
+    protected Mul(Diagram d, Iterable<Expression<T>> args, Class<T> type) {
+        super(d, args, type);
+        TreeMultiset<Expression<T>> inputTerms = (TreeMultiset<Expression<T>>) this.inputs.get(Parameter.TERMS);
         for (Map.Entry<Expression<T>, Double> entry : new ArrayList<>(this.terms.entrySet())) {
             if (entry.getValue() == 0) {
                 this.terms.remove(entry.getKey());
@@ -94,14 +90,10 @@ public class Mul<T> extends Reduction<T> {
         }
     }
 
-    public InputType[] getInputTypes() {
-        return Mul.inputTypes;
-    }
-
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression<T> reduce() {
         if (this.reduction == null) {
-            this.reduction = Mul.create(Utils.map(Utils.<Entity, Expression<T>>cast(this.inputs.get(Parameter.TERMS)), Expression::reduce), TYPE);
+            this.reduction = Mul.create(this.diagram, Utils.map((TreeMultiset<Expression<T>>) this.inputs.get(Parameter.TERMS), Expression::reduce), TYPE);
         }
         return this.reduction;
     }
@@ -114,16 +106,16 @@ public class Mul<T> extends Reduction<T> {
             for (Expression<T> expr : expansions) {
                 if (expr instanceof Add<T> addExpr) {
                     ArrayList<Expression<T>> newExpandedTerms = new ArrayList<>();
-                    for (Expression<T> term : Utils.<Entity, Expression<T>>cast(addExpr.inputs.get(Reduction.Parameter.TERMS))) {
-                        expandedTerms.forEach(arg -> newExpandedTerms.add(Mul.create(List.of(arg, term), TYPE)));
+                    for (Expression<T> term : (TreeMultiset<Expression<T>>) addExpr.inputs.get(Reduction.Parameter.TERMS)) {
+                        expandedTerms.forEach(arg -> newExpandedTerms.add(Mul.create(this.diagram, List.of(arg, term), TYPE)));
                     }
                     expandedTerms = newExpandedTerms;
                 } else {
                     singletons.add(expr);
                 }
             }
-            Expression<T> singleton = Mul.create(singletons, TYPE);
-            this.expansion = Add.create(Utils.map(expandedTerms, arg -> Mul.create(List.of(arg, singleton), TYPE)), TYPE);
+            Expression<T> singleton = Mul.create(this.diagram, singletons, TYPE);
+            this.expansion = Add.create(Utils.map(expandedTerms, arg -> Mul.create(this.diagram, List.of(arg, singleton), TYPE)), TYPE);
         }
         return this.expansion;
     }

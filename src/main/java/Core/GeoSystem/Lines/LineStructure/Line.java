@@ -1,8 +1,8 @@
 package Core.GeoSystem.Lines.LineStructure;
 
 import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.EntityStructure.UnicardinalStructure.Expression;
-import Core.EntityStructure.UnicardinalStructure.Unicardinal;
+import Core.EntityStructure.*;
+import Core.EntityStructure.UnicardinalStructure.*;
 import Core.GeoSystem.DirectedAngles.Directed;
 import Core.EntityStructure.MulticardinalStructure.*;
 import Core.GeoSystem.Points.PointStructure.Point;
@@ -15,6 +15,10 @@ public interface Line extends Locus {
         R, PHI
     }
     int naturalDegreesOfFreedom = LineExpressionType.values().length;
+
+    static int compareConstants(Immutable c1, Immutable c2) {
+        return -Axis.compare((Axis) c1, (Axis) c2);
+    }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */

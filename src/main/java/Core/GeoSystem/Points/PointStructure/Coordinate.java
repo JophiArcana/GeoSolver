@@ -26,11 +26,11 @@ public class Coordinate extends MultiConstant implements Point {
     public final Real<Symbolic> x, y;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public Coordinate create(String n, double x, double y) {
+    public static Coordinate create(String n, double x, double y) {
         return new Coordinate(n, new Real<>(x, Symbolic.class), new Real<>(y, Symbolic.class));
     }
 
-    public Coordinate create(String n, Real<Symbolic> x, Real<Symbolic> y) {
+    public static Coordinate create(String n, Real<Symbolic> x, Real<Symbolic> y) {
         return new Coordinate(n, x, y);
     }
 

@@ -12,7 +12,7 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     /** SECTION: Abstract Constructor =============================================================================== */
     public DefinedMulticardinal(String n) {
         super();
-        assert Entity.nameSet.add(n): "Name " + n + " already used";
+        assert Entity.nameSet.add(n): "Name " + n + " already in use.";
         this.name = n;
     }
 

@@ -1,5 +1,6 @@
 package Core.EntityStructure;
 
+import Core.Diagram;
 import Core.Propositions.PropositionStructure.Proposition;
 import com.google.common.collect.TreeMultiset;
 
@@ -10,30 +11,22 @@ public abstract class Immutable implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
     /** SECTION: Instance Variables ================================================================================= */
+    public Diagram diagram;
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
-    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<? extends Entity>> inputs = new HashMap<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public Immutable() {
+    public Immutable(Diagram d) {
+        this.diagram = d;
         this.constrainedDegreesOfFreedom = Immutable.naturalDegreesOfFreedom;
-        for (InputType inputType : this.getInputTypes()) {
-            this.inputs.put(inputType, TreeMultiset.create());
-        }
+        this.inputSetup();
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     public Entity simplify() {
         return this;
-    }
-
-    public boolean equals(Entity ent) {
-        if (ent instanceof Immutable immutable) {
-            return this.compareTo(immutable) == 0;
-        } else {
-            return false;
-        }
     }
 
     public int getNaturalDegreesOfFreedom() {
@@ -48,7 +41,7 @@ public abstract class Immutable implements Entity {
         return this.constraints;
     }
 
-    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<? extends Entity>> getInputs() {
         return this.inputs;
     }
 }

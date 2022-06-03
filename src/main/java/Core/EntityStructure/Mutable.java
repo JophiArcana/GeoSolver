@@ -1,33 +1,29 @@
 package Core.EntityStructure;
 
+import Core.Diagram;
 import Core.Propositions.PropositionStructure.Proposition;
 import com.google.common.collect.TreeMultiset;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public abstract class Mutable implements Entity {
     /** SECTION: Static Data ======================================================================================== */
-    public enum Parameter implements InputType {
-        VAR
-    }
-    public static final InputType[] inputTypes = {Parameter.VAR};
+    public static final InputType[] inputTypes = {};
 
     /** SECTION: Instance Variables ================================================================================= */
+    public Diagram diagram;
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
-    public HashMap<InputType, TreeMultiset<Entity>> inputs = new HashMap<>();
+    public HashMap<InputType, TreeMultiset<? extends Entity>> inputs = new HashMap<>();
     public String name;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public Mutable(String n) {
-        assert Entity.nameSet.add(n): "Name " + n + " already used";
-        this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
-        for (InputType inputType : getInputTypes()) {
-            inputs.put(inputType, TreeMultiset.create());
-        }
+    public Mutable(Diagram d, String n) {
+        assert d.nameSet.add(n): "Name " + n + " already in use.";
+        this.diagram = d;
         this.name = n;
-        this.inputs.get(Parameter.VAR).add(this);
+        this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
+        this.inputSetup();
     }
 
     /** SECTION: Print Format ======================================================================================= */
@@ -41,14 +37,6 @@ public abstract class Mutable implements Entity {
         return this;
     }
 
-    public boolean equals(Entity ent) {
-        if (this.getClass() == ent.getClass()) {
-            return this.name.equals(((Mutable) ent).name);
-        } else {
-            return false;
-        }
-    }
-
     public int getConstrainedDegreesOfFreedom() {
         return this.constrainedDegreesOfFreedom;
     }
@@ -57,11 +45,11 @@ public abstract class Mutable implements Entity {
         return this.constraints;
     }
 
-    public HashMap<InputType, TreeMultiset<Entity>> getInputs() {
+    public HashMap<InputType, TreeMultiset<? extends Entity>> getInputs() {
         return this.inputs;
     }
 
-    public InputType[] getInputTypes() {
+    public InputType[][] getInputTypes() {
         return Mutable.inputTypes;
     }
 }

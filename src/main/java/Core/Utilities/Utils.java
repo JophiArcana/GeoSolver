@@ -8,14 +8,13 @@ import Core.EntityStructure.UnicardinalStructure.*;
 import Core.GeoSystem.Lines.LineStructure.*;
 import Core.GeoSystem.Points.PointFunctions.*;
 import Core.GeoSystem.Points.PointStructure.*;
+import com.google.common.collect.TreeMultiset;
 import com.google.common.hash.Hashing;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class Utils {
-    public static final Comparator<Entity> PRIORITY_COMPARATOR = new PriorityComparator();
-
     public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
         /** SECTION: Expressions ==================================================================================== */
             Infinity.class,
@@ -62,6 +61,25 @@ public class Utils {
 
     public static int classCode(Object o) {
         return Utils.CLASS_IDS.indexOf(o.getClass());
+    }
+
+    public static int compareInputs(Entity e1, Entity e2) {
+        HashMap<Entity.InputType, TreeMultiset<? extends Entity>> inputs1 = e1.getInputs();
+        HashMap<Entity.InputType, TreeMultiset<? extends Entity>> inputs2 = e2.getInputs();
+        for (Entity.FundamentalType fundamentalType : Entity.FundamentalType.values()) {
+            Entity.EntityType<? extends Entity> entityType = fundamentalType.CLASS;
+            for (Entity.InputType inputType : e1.getInputTypes()[fundamentalType.ordinal()]) {
+                Iterator<? extends Entity> iter1 = inputs1.get(inputType).iterator();
+                Iterator<? extends Entity> iter2 = inputs2.get(inputType).iterator();
+                while (iter1.hasNext()) {
+                    int inputComparison = entityType.compare(iter1.next(), iter2.next());
+                    if (inputComparison != 0) {
+                        return inputComparison;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     public static <T, S> ArrayList<S> map(Iterable<T> list, Function<T, S> function) {
