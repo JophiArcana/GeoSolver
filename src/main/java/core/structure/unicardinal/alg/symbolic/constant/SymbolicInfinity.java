@@ -2,7 +2,6 @@ package core.structure.unicardinal.alg.symbolic.constant;
 
 import core.structure.unicardinal.alg.structure.Real;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.Diagram;
 import core.structure.*;
 import core.structure.unicardinal.alg.*;
 import core.util.Utils;
@@ -15,17 +14,17 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
     public final double coefficient, degree;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static SymbolicInfinity create(Diagram d) {
-        return new SymbolicInfinity(d, 1, 1);
+    public static SymbolicInfinity create() {
+        return new SymbolicInfinity(1, 1);
     }
 
-    public static Constant create(Diagram d, double coefficient, double degree) {
-        return (Constant) new SymbolicInfinity(d, coefficient, degree).close();
+    public static Constant create(double coefficient, double degree) {
+        return (Constant) new SymbolicInfinity(coefficient, degree).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicInfinity(Diagram d, double coefficient, double degree) {
-        super(d, coefficient * Math.pow(SymbolicInfinity.INFINITY_VALUE, degree));
+    protected SymbolicInfinity(double coefficient, double degree) {
+        super(coefficient * Math.pow(SymbolicInfinity.INFINITY_VALUE, degree));
         this.coefficient = coefficient;
         this.degree = degree;
     }
@@ -41,7 +40,7 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
     /** SUBSECTION: Entity ========================================================================================== */
     public Entity simplify() {
         if (this.degree == 0 || this.coefficient == 0) {
-            return new SymbolicReal(this.diagram, this.coefficient);
+            return new SymbolicReal(this.coefficient);
         } else {
             return this;
         }
@@ -50,7 +49,7 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression close() {
         if (this.degree == 0 || this.coefficient == 0) {
-            return new SymbolicReal(this.diagram, this.coefficient);
+            return new SymbolicReal(this.coefficient);
         } else {
             return this;
         }
@@ -62,7 +61,7 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
             if (inf.degree > this.degree) {
                 return inf;
             } else if (inf.degree == this.degree) {
-                return SymbolicInfinity.create(this.diagram, this.coefficient + inf.coefficient, this.degree);
+                return SymbolicInfinity.create(this.coefficient + inf.coefficient, this.degree);
             } else {
                 return this;
             }
@@ -80,7 +79,7 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
             if (inf.degree > this.degree) {
                 return inf.negate();
             } else if (inf.degree == this.degree) {
-                return SymbolicInfinity.create(this.diagram, this.coefficient - inf.coefficient, this.degree);
+                return SymbolicInfinity.create(this.coefficient - inf.coefficient, this.degree);
             } else {
                 return this;
             }
@@ -95,9 +94,9 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
 
     public Constant mul(Constant x) {
         if (x instanceof Real re) {
-            return SymbolicInfinity.create(this.diagram, this.coefficient * re.value, this.degree);
+            return SymbolicInfinity.create(this.coefficient * re.value, this.degree);
         } else if (x instanceof SymbolicInfinity inf) {
-            return SymbolicInfinity.create(this.diagram, this.coefficient * inf.coefficient, this.degree + inf.degree);
+            return SymbolicInfinity.create(this.coefficient * inf.coefficient, this.degree + inf.degree);
         } else {
             return null;
         }
@@ -106,32 +105,32 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
     public Constant div(Constant x) {
         if (x instanceof Real re) {
             if (re.value == 0) {
-                return SymbolicInfinity.create(this.diagram, this.coefficient, this.degree + 1);
+                return SymbolicInfinity.create(this.coefficient, this.degree + 1);
             } else {
-                return SymbolicInfinity.create(this.diagram, this.coefficient / re.value, this.degree);
+                return SymbolicInfinity.create(this.coefficient / re.value, this.degree);
             }
         } else if (x instanceof SymbolicInfinity inf) {
-            return SymbolicInfinity.create(this.diagram, this.coefficient / inf.coefficient, this.degree - inf.degree);
+            return SymbolicInfinity.create(this.coefficient / inf.coefficient, this.degree - inf.degree);
         } else {
             return null;
         }
     }
 
     public Constant negate() {
-        return new SymbolicInfinity(this.diagram, -this.coefficient, this.degree);
+        return new SymbolicInfinity(-this.coefficient, this.degree);
     }
 
     public Constant invert() {
-        return new SymbolicInfinity(this.diagram, 1 / this.coefficient, -this.degree);
+        return new SymbolicInfinity(1 / this.coefficient, -this.degree);
     }
 
     public Constant pow(double x) {
-        return SymbolicInfinity.create(this.diagram, Math.pow(this.coefficient, x), this.degree * x);
+        return SymbolicInfinity.create(Math.pow(this.coefficient, x), this.degree * x);
     }
 
     public Constant gcd(Constant c) {
         if (c instanceof SymbolicInfinity inf) {
-            return SymbolicInfinity.create(this.diagram, Utils.gcd(this.coefficient, inf.coefficient), Math.min(this.degree, inf.degree));
+            return SymbolicInfinity.create(Utils.gcd(this.coefficient, inf.coefficient), Math.min(this.degree, inf.degree));
         } else if (c instanceof Real) {
             return c;
         } else {

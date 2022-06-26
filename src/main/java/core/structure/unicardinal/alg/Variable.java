@@ -1,6 +1,5 @@
 package core.structure.unicardinal.alg;
 
-import core.Diagram;
 import core.structure.Mutable;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.*;
@@ -18,8 +17,8 @@ public abstract class Variable extends Mutable implements Expression {
     public final ArrayList<InvalidationListener> invalidationListeners = new ArrayList<>();
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Variable(Diagram d, String n, double value) {
-        super(d, n);
+    protected Variable(String n, double value) {
+        super(n);
         this.value = value;
     }
 

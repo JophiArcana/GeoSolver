@@ -1,6 +1,5 @@
 package core.structure.multicardinal.geo.point.structure;
 
-import core.Diagram;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.multicardinal.*;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
@@ -27,28 +26,27 @@ public class Coordinate extends MultiConstant implements Point {
     public final SymbolicReal x, y;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static Coordinate create(Diagram d, String n, double x, double y) {
-        return new Coordinate(d, n, SymbolicReal.create(d, x), SymbolicReal.create(d, y));
+    public static Coordinate create(String n, double x, double y) {
+        return new Coordinate(n, SymbolicReal.create(x), SymbolicReal.create(y));
     }
 
-    public static Coordinate create(Diagram d, String n, double x, double y, boolean anon) {
-        return new Coordinate(d, n, SymbolicReal.create(d, x), SymbolicReal.create(d, y), anon);
+    public static Coordinate create(String n, double x, double y, boolean anon) {
+        return new Coordinate(n, SymbolicReal.create(x), SymbolicReal.create(y), anon);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Coordinate(Diagram d, String n, SymbolicReal x, SymbolicReal y) {
-        this(d, n, x, y, true);
+    protected Coordinate(String n, SymbolicReal x, SymbolicReal y) {
+        this(n, x, y, true);
     }
 
-    protected Coordinate(Diagram d, String n, SymbolicReal x, SymbolicReal y, boolean anon) {
-        super(d, n, anon);
+    protected Coordinate(String n, SymbolicReal x, SymbolicReal y, boolean anon) {
+        super(n, anon);
         this.x = x;
         this.y = y;
         this.getInputs(Coordinate.X).add(this.x);
         this.getInputs(Coordinate.Y).add(this.y);
         if (!this.anonymous) {
             this.node = new PointNode(this);
-            this.diagram.root.getChildren().add(this.node);
         }
     }
 

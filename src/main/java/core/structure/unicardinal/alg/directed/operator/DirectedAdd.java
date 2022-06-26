@@ -5,6 +5,7 @@ import core.structure.unicardinal.alg.*;
 import core.structure.unicardinal.alg.directed.DirectedExpression;
 import core.structure.unicardinal.alg.structure.Reduction;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
 import core.structure.unicardinal.alg.symbolic.operator.*;
 import core.util.Utils;
 
@@ -36,7 +37,7 @@ public class DirectedAdd extends Add implements DirectedExpression {
         ArrayList<List<HashSet<DirectedExpression>>> subsets = Utils.sortedSubsets(terms);
 
         ArrayList<SymbolicExpression> numeratorTerms = new ArrayList<>();
-        ArrayList<SymbolicExpression> denominatorTerms = new ArrayList<>(List.of((SymbolicExpression) Constant.ONE(this.diagram, SymbolicExpression.class)));
+        ArrayList<SymbolicExpression> denominatorTerms = new ArrayList<>(List.of(SymbolicReal.create(1)));
 
         for (int i = 1; i < subsets.size(); i++) {
             List<SymbolicExpression> symbolics = Utils.map(subsets.get(i),

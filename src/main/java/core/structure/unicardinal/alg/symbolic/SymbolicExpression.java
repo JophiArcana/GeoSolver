@@ -15,7 +15,7 @@ public interface SymbolicExpression extends Expression {
 
     /** SUBSECTION: Expression ====================================================================================== */
     default Real createReal(double value) {
-        return SymbolicReal.create(this.getDiagram(), value);
+        return SymbolicReal.create(value);
     }
 
     default Expression createAdd(Iterable<? extends Expression> args) {

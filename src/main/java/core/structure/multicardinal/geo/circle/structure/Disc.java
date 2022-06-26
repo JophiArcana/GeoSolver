@@ -1,6 +1,5 @@
 package core.structure.multicardinal.geo.circle.structure;
 
-import core.Diagram;
 import core.structure.multicardinal.geo.point.structure.*;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.multicardinal.MultiConstant;
@@ -22,12 +21,12 @@ public class Disc extends MultiConstant implements Circle {
     public final SymbolicReal radius;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static Disc create(Diagram d, String n, double x, double y, double r) {
-        return new Disc(n, Coordinate.create(d, n + "\u2092", x, y), SymbolicReal.create(d, r));
+    public static Disc create(String n, double x, double y, double r) {
+        return new Disc(n, Coordinate.create(n + "\u2092", x, y), SymbolicReal.create(r));
     }
 
-    public static Disc create(Diagram d, String n, double x, double y, double r, boolean anon) {
-        return new Disc(n, Coordinate.create(d, n + "\u2092", x, y), SymbolicReal.create(d, r), anon);
+    public static Disc create(String n, double x, double y, double r, boolean anon) {
+        return new Disc(n, Coordinate.create(n + "\u2092", x, y), SymbolicReal.create(r), anon);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -36,14 +35,13 @@ public class Disc extends MultiConstant implements Circle {
     }
 
     protected Disc(String n, Coordinate center, SymbolicReal radius, boolean anon) {
-        super(center.diagram, n, anon);
+        super(n, anon);
         this.center = center;
         this.radius = radius;
         this.getInputs(Disc.CENTER).add(this.center);
         this.getInputs(Disc.RADIUS).add(this.radius);
         if (!this.anonymous) {
             this.node = new CircleNode(this);
-            this.diagram.root.getChildren().add(this.node);
         }
     }
 

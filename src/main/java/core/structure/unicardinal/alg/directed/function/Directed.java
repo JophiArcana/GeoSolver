@@ -25,7 +25,7 @@ public class Directed extends DefinedExpression implements DirectedExpression {
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Directed(Line line) {
-        super(line.getDiagram());
+        super();
         this.line = line;
         this.getInputs(Directed.LINE).add(this.line);
     }

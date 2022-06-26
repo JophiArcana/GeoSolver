@@ -94,7 +94,7 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
 
     /** SUBSECTION: Accumulation ==================================================================================== */
     protected Real identity() {
-        return SymbolicReal.create(this.diagram, 1);
+        return SymbolicReal.create(1);
     }
 
     protected Constant evaluateConstant(double c, Constant e) {

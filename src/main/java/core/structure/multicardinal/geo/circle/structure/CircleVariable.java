@@ -1,6 +1,5 @@
 package core.structure.multicardinal.geo.circle.structure;
 
-import core.Diagram;
 import core.structure.multicardinal.MultiVariable;
 import core.structure.multicardinal.geo.point.structure.*;
 import core.structure.unicardinal.alg.symbolic.*;
@@ -27,26 +26,25 @@ public class CircleVariable extends MultiVariable implements Circle {
     public SymbolicVariable var_r;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static CircleVariable create(Diagram d, String n, double xStart, double yStart, double rStart) {
-        return new CircleVariable(d, n, xStart, yStart, rStart);
+    public static CircleVariable create(String n, double xStart, double yStart, double rStart) {
+        return new CircleVariable(n, xStart, yStart, rStart);
     }
 
-    public static CircleVariable create(Diagram d, String n, double xStart, double yStart, double rStart, boolean anon) {
-        return new CircleVariable(d, n, xStart, yStart, rStart, anon);
+    public static CircleVariable create(String n, double xStart, double yStart, double rStart, boolean anon) {
+        return new CircleVariable(n, xStart, yStart, rStart, anon);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected CircleVariable(Diagram d, String n, double xStart, double yStart, double rStart) {
-        this(d, n, xStart, yStart, rStart, true);
+    protected CircleVariable(String n, double xStart, double yStart, double rStart) {
+        this(n, xStart, yStart, rStart, true);
     }
 
-    protected CircleVariable(Diagram d, String n, double xStart, double yStart, double rStart, boolean anon) {
-        super(d, n, anon);
-        this.center = PointVariable.create(d, n + "\u2092", xStart, yStart, anon);
-        this.var_r = SymbolicVariable.create(d, n + "\u1D63", rStart);
+    protected CircleVariable(String n, double xStart, double yStart, double rStart, boolean anon) {
+        super(n, anon);
+        this.center = PointVariable.create(n + "\u2092", xStart, yStart, anon);
+        this.var_r = SymbolicVariable.create(n + "\u1D63", rStart);
         if (!this.anonymous) {
             this.node = new MoveableCircleNode(this);
-            this.diagram.root.getChildren().add(this.node);
         }
     }
 

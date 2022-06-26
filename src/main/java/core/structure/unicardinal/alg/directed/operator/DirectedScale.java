@@ -1,9 +1,9 @@
 package core.structure.unicardinal.alg.directed.operator;
 
-import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.directed.*;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.structure.Scale;
+import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
 import core.structure.unicardinal.alg.symbolic.operator.*;
 import core.util.Utils;
 
@@ -28,7 +28,7 @@ public class DirectedScale extends Scale implements DirectedExpression {
             int k = Math.abs(n);
             SymbolicExpression t = this.expression.symbolic().get(0);
             ArrayList<SymbolicExpression> numeratorTerms = new ArrayList<>();
-            ArrayList<SymbolicExpression> denominatorTerms = new ArrayList<>(List.of((SymbolicExpression) Constant.ONE(this.diagram, SymbolicExpression.class)));
+            ArrayList<SymbolicExpression> denominatorTerms = new ArrayList<>(List.of(SymbolicReal.create(1)));
             for (int i = 1; i <= k; i++) {
                 SymbolicExpression expr = SymbolicScale.create(Utils.binomial(k, i), SymbolicPow.create(t, i));
                 switch (i % 4) {

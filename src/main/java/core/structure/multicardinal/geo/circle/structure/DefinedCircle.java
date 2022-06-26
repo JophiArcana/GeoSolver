@@ -1,6 +1,5 @@
 package core.structure.multicardinal.geo.circle.structure;
 
-import core.Diagram;
 import core.structure.multicardinal.DefinedMulticardinal;
 import core.structure.multicardinal.geo.point.structure.DefinedPoint;
 import core.structure.multicardinal.geo.point.structure.Point;
@@ -14,12 +13,8 @@ public abstract class DefinedCircle extends DefinedMulticardinal implements Circ
     public SymbolicExpression radius;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public DefinedCircle(Diagram d, String n) {
-        super(d, n);
-    }
-
-    public DefinedCircle(Diagram d, String n, boolean anon) {
-        super(d, n, anon);
+    public DefinedCircle(String n, boolean anon) {
+        super(n, anon);
     }
 
     /** SECTION: Implementation ===================================================================================== */
@@ -40,6 +35,5 @@ public abstract class DefinedCircle extends DefinedMulticardinal implements Circ
     /** SECTION: Interface ========================================================================================== */
     public void setNode() {
         this.node = new CircleNode(this);
-        this.diagram.root.getChildren().add(this.node);
     }
 }

@@ -40,7 +40,7 @@ public class Connect extends DefinedMulticardinal implements Line {
 
         /** SECTION: Factory Methods ================================================================================ */
         private ConnectPointDual(Point a, Point b) {
-            super(a.getDiagram(), Utils.overline(a.getName() + b.getName()) + "\u209A");
+            super(Utils.overline(a.getName() + b.getName()) + "\u209A");
             this.a = a;
             this.b = b;
             this.getInputs(Connect.POINTS).addAll(List.of(a, b));
@@ -77,13 +77,13 @@ public class Connect extends DefinedMulticardinal implements Line {
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Connect(Point a, Point b) {
-        super(a.getDiagram(), Utils.overline(a.getName() + b.getName()));
+        super(Utils.overline(a.getName() + b.getName()));
         this.getInputs(Connect.POINTS).addAll(List.of(a, b));
         this.pointDual = ConnectPointDual.create(this.a, this.b);
     }
 
     protected Connect(Point a, Point b, boolean anon) {
-        super(a.getDiagram(), Utils.overline(a.getName() + b.getName()), anon);
+        super(Utils.overline(a.getName() + b.getName()), anon);
         this.getInputs(Connect.POINTS).addAll(List.of(a, b));
         this.pointDual = ConnectPointDual.create(this.a, this.b);
     }

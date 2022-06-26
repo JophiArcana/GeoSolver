@@ -1,6 +1,5 @@
 package core.structure;
 
-import core.Diagram;
 import core.Propositions.PropositionStructure.Proposition;
 import com.google.common.collect.TreeMultiset;
 
@@ -11,7 +10,6 @@ public abstract class Mutable implements Entity {
     public static final List<InputType<?>> inputTypes = null;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public Diagram diagram;
     public HashSet<Entity> reverseDependencies = new HashSet<>();
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
@@ -19,9 +17,7 @@ public abstract class Mutable implements Entity {
     public String name;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public Mutable(Diagram d, String n) {
-        assert d.nameSet.add(n): "Name " + n + " already in use.";
-        this.diagram = d;
+    public Mutable(String n) {
         this.name = n;
         this.constrainedDegreesOfFreedom = getNaturalDegreesOfFreedom();
         this.inputSetup();
@@ -40,10 +36,6 @@ public abstract class Mutable implements Entity {
 
     public Entity simplify() {
         return this;
-    }
-
-    public Diagram getDiagram() {
-        return this.diagram;
     }
 
     public int getConstrainedDegreesOfFreedom() {

@@ -1,6 +1,5 @@
 package core.structure.multicardinal;
 
-import core.Diagram;
 import core.structure.*;
 import core.util.Utils;
 import javafx.scene.Node;
@@ -14,14 +13,13 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     public boolean anonymous = true;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected DefinedMulticardinal(Diagram d, String n) {
-        super(d);
-        assert Entity.nameSet.add(n): "Name " + n + " already in use.";
+    protected DefinedMulticardinal(String n) {
+        super();
         this.name = n;
     }
 
-    protected DefinedMulticardinal(Diagram d, String n, boolean anon) {
-        this(d, n);
+    protected DefinedMulticardinal(String n, boolean anon) {
+        this(n);
         this.anonymous = anon;
     }
 

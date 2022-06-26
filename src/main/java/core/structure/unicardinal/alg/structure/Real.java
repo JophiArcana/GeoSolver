@@ -1,15 +1,14 @@
 package core.structure.unicardinal.alg.structure;
 
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicInfinity;
-import core.Diagram;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
 import core.util.*;
 
 public abstract class Real extends Constant {
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Real(Diagram d, double value) {
-        super(d, value);
+    protected Real(double value) {
+        super(value);
         assert !Double.isNaN(this.value): this.value;
     }
 
@@ -66,7 +65,7 @@ public abstract class Real extends Constant {
         if (c instanceof Real re) {
             return this.createReal(this.value * re.value);
         } else if (c instanceof SymbolicInfinity inf) {
-            return SymbolicInfinity.create(this.diagram, this.value * inf.coefficient, inf.degree);
+            return SymbolicInfinity.create(this.value * inf.coefficient, inf.degree);
         } else {
             return this;
         }
@@ -75,12 +74,12 @@ public abstract class Real extends Constant {
     public Constant div(Constant c) {
         if (c instanceof Real re) {
             if (re.value == 0) {
-                return SymbolicInfinity.create(this.diagram, this.value, 1);
+                return SymbolicInfinity.create(this.value, 1);
             } else {
                 return this.createReal(this.value / re.value);
             }
         } else if (c instanceof SymbolicInfinity inf) {
-            return SymbolicInfinity.create(this.diagram, this.value / inf.coefficient, -inf.degree);
+            return SymbolicInfinity.create(this.value / inf.coefficient, -inf.degree);
         } else {
             return null;
         }
@@ -92,7 +91,7 @@ public abstract class Real extends Constant {
 
     public Constant invert() {
         if (this.value == 0) {
-            return SymbolicInfinity.create(this.diagram);
+            return SymbolicInfinity.create();
         } else {
             return this.createReal(1 / this.value);
         }
@@ -103,7 +102,7 @@ public abstract class Real extends Constant {
             if (x > 0) {
                 return this;
             } else {
-                return SymbolicInfinity.create(this.diagram, 1, -x);
+                return SymbolicInfinity.create(1, -x);
             }
         } else {
             return this.createReal(Math.pow(this.value, x));

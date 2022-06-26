@@ -30,13 +30,13 @@ public class Axis extends MultiConstant implements Line {
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Axis(String n, Coordinate c) {
-        super(c.diagram, n);
+        super(n);
         this.pointDual = c;
         this.getInputs(Axis.COORDINATE).add(this.pointDual);
     }
 
     protected Axis(String n, Coordinate c, boolean anon) {
-        super(c.diagram, n, anon);
+        super(n, anon);
         this.pointDual = c;
         this.getInputs(Axis.COORDINATE).add(this.pointDual);
     }

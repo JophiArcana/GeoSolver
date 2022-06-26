@@ -11,7 +11,7 @@ public interface DirectedExpression extends Expression {
 
     /** SUBSECTION: Expression ====================================================================================== */
     default Real createReal(double value) {
-        return DirectedReal.create(this.getDiagram(), value);
+        return DirectedReal.create(value);
     }
 
     default Expression createAdd(Iterable<? extends Expression> args) {

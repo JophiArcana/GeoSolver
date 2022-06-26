@@ -1,6 +1,5 @@
 package core.Propositions;
 
-import core.Diagram;
 import core.structure.*;
 import core.structure.multicardinal.geo.circle.structure.*;
 import core.structure.multicardinal.geo.line.structure.*;
@@ -21,15 +20,14 @@ public class SetEquality<T extends Entity> extends ExtendedCondition {
         this.elements = new ArrayList<>(elements);
         T first = this.elements.get(0);
 
-        Diagram d = first.getDiagram();
         String pivotName = Utils.randomHash();
 
         this.pivot = switch (first) {
-            case DirectedExpression directedExpression -> DirectedVariable.create(d, pivotName, directedExpression.value());
-            case SymbolicExpression symbolicExpression -> SymbolicVariable.create(d, pivotName, symbolicExpression.value());
-            case Point point -> PointVariable.create(d, pivotName, point.symbolic().get(0).value(), point.symbolic().get(1).value());
-            case Line line -> LineVariable.create(d, pivotName, line.symbolic().get(0).value(), line.symbolic().get(1).value());
-            case Circle circle -> CircleVariable.create(d, pivotName, circle.symbolic().get(0).value(), circle.symbolic().get(1).value(), circle.symbolic().get(2).value());
+            case DirectedExpression directedExpression -> DirectedVariable.create(pivotName, directedExpression.value());
+            case SymbolicExpression symbolicExpression -> SymbolicVariable.create(pivotName, symbolicExpression.value());
+            case Point point -> PointVariable.create(pivotName, point.symbolic().get(0).value(), point.symbolic().get(1).value());
+            case Line line -> LineVariable.create(pivotName, line.symbolic().get(0).value(), line.symbolic().get(1).value());
+            case Circle circle -> CircleVariable.create(pivotName, circle.symbolic().get(0).value(), circle.symbolic().get(1).value(), circle.symbolic().get(2).value());
             case default -> null;
         };
 

@@ -1,6 +1,5 @@
 package core.structure.multicardinal;
 
-import core.Diagram;
 import core.structure.*;
 import javafx.scene.Node;
 
@@ -11,14 +10,13 @@ public abstract class MultiConstant extends Immutable implements Multicardinal {
     public boolean anonymous = true;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected MultiConstant(Diagram d, String n) {
-        super(d);
-        assert Entity.nameSet.add(n): "Name " + n + " already in use.";
+    protected MultiConstant(String n) {
+        super();
         this.name = n;
     }
 
-    protected MultiConstant(Diagram d, String n, boolean anon) {
-        this(d, n);
+    protected MultiConstant(String n, boolean anon) {
+        this(n);
         this.anonymous = anon;
     }
 

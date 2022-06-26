@@ -9,7 +9,6 @@ import core.structure.unicardinal.alg.Variable;
 import core.structure.unicardinal.alg.structure.Accumulation;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.structure.Reduction;
-import core.Diagram;
 import core.structure.unicardinal.alg.symbolic.operator.*;
 import javafx.util.*;
 
@@ -107,7 +106,6 @@ public class AlgEngine {
             }
         };
 
-        Diagram diagram;
         T[] elements;
         HashMap<Integer, U> baseCases = new HashMap<>();
         int binaryRepresentation;
@@ -116,7 +114,6 @@ public class AlgEngine {
         HashSet<Integer> ignoredSubsets = new HashSet<>();
 
         public SubsetGraph(ArrayList<T> elements) {
-            this.diagram = elements.get(0).getDiagram();
             this.elements = (T[]) elements.toArray();
             this.binaryRepresentation = (1 << this.elements.length) - 1;
             for (int i = 0; i < this.elements.length; i++) {

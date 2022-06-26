@@ -4,8 +4,6 @@ import core.structure.unicardinal.alg.Expression;
 import core.util.*;
 import com.google.common.collect.TreeMultiset;
 
-import java.util.Map;
-
 public abstract class Add extends Reduction {
     /** SECTION: Protected Constructors ============================================================================= */
     protected Add(Iterable<? extends Expression> args) {

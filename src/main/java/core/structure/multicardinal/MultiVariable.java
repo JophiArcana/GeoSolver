@@ -1,6 +1,5 @@
 package core.structure.multicardinal;
 
-import core.Diagram;
 import core.structure.*;
 import javafx.scene.Node;
 
@@ -10,12 +9,12 @@ public abstract class MultiVariable extends Mutable implements Multicardinal {
     public boolean anonymous = true;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected MultiVariable(Diagram d, String n) {
-        super(d, n);
+    protected MultiVariable(String n) {
+        super(n);
     }
 
-    protected MultiVariable(Diagram d, String n, boolean anon) {
-        super(d, n);
+    protected MultiVariable(String n, boolean anon) {
+        super(n);
         this.anonymous = anon;
     }
 

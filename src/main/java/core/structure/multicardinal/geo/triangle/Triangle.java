@@ -36,7 +36,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     }
 
     protected Triangle(Point A, Point B, Point C, boolean anon) {
-        super(A.getDiagram(), '\u25B3' + A.getName() + B.getName() + C.getName(), anon);
+        super('\u25B3' + A.getName() + B.getName() + C.getName(), anon);
         this.A = A;
         this.B = B;
         this.C = C;
@@ -54,7 +54,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     /** SUBSECTION: TriangleCenter ==================================================================================== */
     public abstract class TriangleCenter extends DefinedPoint implements Triangulate {
         protected TriangleCenter(String n, boolean anon) {
-            super(Triangle.this.diagram, n, anon);
+            super(n, anon);
             Triangle.this.inputVertices(this);
         }
     }
@@ -93,7 +93,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
 
     public class Circumcircle extends DefinedCircle implements Triangulate {
         protected Circumcircle(String n, boolean anon) {
-            super(Triangle.this.diagram, n, anon);
+            super(n, anon);
             this.center = Triangle.this.circumcenter('\u2D59' + n, anon);
             this.radius = SymbolicMul.create(
                     Triangle.this.BC(),
@@ -162,7 +162,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
 
     public class Incircle extends DefinedCircle implements Triangulate {
         protected Incircle(String n, boolean anon) {
-            super(Triangle.this.diagram, n, anon);
+            super(n, anon);
             this.center = Triangle.this.incenter('\u2D59' + n, anon);
             this.radius = SymbolicMul.create(
                     Triangle.this.doubleSignedArea(),

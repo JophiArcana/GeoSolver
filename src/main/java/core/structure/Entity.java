@@ -1,7 +1,6 @@
 package core.structure;
 
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.Diagram;
 import core.Propositions.PropositionStructure.Proposition;
 import com.google.common.collect.TreeMultiset;
 
@@ -9,8 +8,6 @@ import java.util.*;
 
 public interface Entity {
     /** SECTION: Static Data ======================================================================================== */
-    HashSet<String> nameSet = new HashSet<>();
-
     class InputType<T extends Entity> {
         private final Class<T> CLASS;
         private final Comparator<? super T> COMPARATOR;
@@ -44,8 +41,6 @@ public interface Entity {
 
     Entity simplify();
     List<SymbolicExpression> symbolic();
-
-    Diagram getDiagram();
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();

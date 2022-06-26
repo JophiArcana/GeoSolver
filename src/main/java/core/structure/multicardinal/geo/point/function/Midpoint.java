@@ -30,7 +30,7 @@ public class Midpoint extends DefinedPoint {
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Midpoint(String n, Point A, Point B) {
-        super(A.getDiagram(), n);
+        super(n);
         this.A = A;
         this.B = B;
         this.getInputs(Midpoint.POINTS).addAll(List.of(this.A, this.B));
@@ -41,7 +41,7 @@ public class Midpoint extends DefinedPoint {
     }
 
     protected Midpoint(String n, Point A, Point B, boolean anon) {
-        super(A.getDiagram(), n, anon);
+        super(n, anon);
         this.A = A;
         this.B = B;
         this.getInputs(Midpoint.POINTS).addAll(List.of(this.A, this.B));

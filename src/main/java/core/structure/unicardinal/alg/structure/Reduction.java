@@ -19,14 +19,14 @@ public abstract class Reduction extends DefinedExpression {
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Reduction(Iterable<? extends Expression> args) {
-        super(args.iterator().next().getDiagram());
+        super();
         this.construct(args);
         this.constructorClose();
         this.computeValue();
     }
 
     protected Reduction(Expression... args) {
-        super(args[0].getDiagram());
+        super();
         this.construct(args);
         this.constructorClose();
         this.computeValue();

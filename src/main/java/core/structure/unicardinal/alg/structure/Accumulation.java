@@ -20,7 +20,7 @@ public abstract class Accumulation extends DefinedExpression {
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Accumulation(double coefficient, Expression expr) {
-        super(expr.getDiagram());
+        super();
         if (expr instanceof Constant constExpr) {
             this.coefficient = 1;
             this.expression = this.evaluateConstant(coefficient, constExpr);

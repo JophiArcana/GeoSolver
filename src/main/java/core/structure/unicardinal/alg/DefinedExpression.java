@@ -1,6 +1,5 @@
 package core.structure.unicardinal.alg;
 
-import core.Diagram;
 import core.structure.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
@@ -16,8 +15,8 @@ public abstract class DefinedExpression extends DefinedEntity implements Express
     public final ArrayList<InvalidationListener> invalidationListeners = new ArrayList<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected DefinedExpression(Diagram d) {
-        super(d);
+    protected DefinedExpression() {
+        super();
     }
 
     /** SECTION: Implementation ===================================================================================== */

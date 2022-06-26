@@ -1,11 +1,6 @@
 package core.structure.unicardinal.alg;
 
-import core.structure.unicardinal.alg.directed.constant.DirectedReal;
-import core.structure.unicardinal.alg.structure.Real;
-import core.structure.unicardinal.alg.directed.DirectedExpression;
-import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.symbolic.constant.*;
-import core.Diagram;
 import core.structure.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
@@ -15,40 +10,6 @@ import java.util.*;
 public abstract class Constant extends Immutable implements Expression {
     /** SECTION: Static Data ======================================================================================== */
     public static final List<InputType<?>> inputTypes = null;
-
-    public static Real ZERO(Diagram d, Class<? extends Expression> type) {
-        if (type == SymbolicExpression.class) {
-            return SymbolicReal.create(d, 0);
-        } else if (type == DirectedExpression.class) {
-            return DirectedReal.create(d, 0);
-        } else {
-            return null;
-        }
-    }
-
-    public static Real ONE(Diagram d, Class<? extends Expression> type) {
-        if (type == SymbolicExpression.class) {
-            return SymbolicReal.create(d, 1);
-        } else if (type == DirectedExpression.class) {
-            return DirectedReal.create(d, 1);
-        } else {
-            return null;
-        }
-    }
-
-    public static Real NONE(Diagram d, Class<? extends Expression> type) {
-        if (type == SymbolicExpression.class) {
-            return SymbolicReal.create(d, -1);
-        } else if (type == DirectedExpression.class) {
-            return DirectedReal.create(d, -1);
-        } else {
-            return null;
-        }
-    }
-
-    public static SymbolicInfinity INFINITY(Diagram d) {
-        return SymbolicInfinity.create(d);
-    }
 
     public static int compare(Constant c1, Constant c2) {
         if (c1 instanceof SymbolicInfinity inf1 && c2 instanceof SymbolicInfinity inf2) {
@@ -73,8 +34,8 @@ public abstract class Constant extends Immutable implements Expression {
     public final ArrayList<InvalidationListener> invalidationListeners = new ArrayList<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected Constant(Diagram d, double value) {
-        super(d);
+    protected Constant(double value) {
+        super();
         this.value = value;
     }
 

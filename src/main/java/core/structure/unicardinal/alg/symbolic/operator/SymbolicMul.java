@@ -101,7 +101,7 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
         if (this.expansion == null) {
             List<SymbolicExpression> expansions = Utils.map(this.getInputs(Reduction.TERMS), arg -> (SymbolicExpression) arg.expand());
             ArrayList<SymbolicExpression> singletons = new ArrayList<>();
-            ArrayList<SymbolicExpression> expandedTerms = new ArrayList<>(List.of((SymbolicExpression) Constant.ONE(this.diagram, SymbolicExpression.class)));
+            ArrayList<SymbolicExpression> expandedTerms = new ArrayList<>(List.of(SymbolicReal.create(1)));
             for (SymbolicExpression expr : expansions) {
                 if (expr instanceof Add addExpr) {
                     ArrayList<SymbolicExpression> newExpandedTerms = new ArrayList<>();
@@ -121,7 +121,7 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
 
     /** SUBSECTION: Reduction ======================================================================================= */
     protected Real identity() {
-        return SymbolicReal.create(this.diagram, 1);
+        return SymbolicReal.create(1);
     }
 
     public Expression createAccumulation(double coefficient, Expression expr) {

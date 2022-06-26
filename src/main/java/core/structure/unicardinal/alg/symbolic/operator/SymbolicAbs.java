@@ -22,7 +22,7 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected SymbolicAbs(SymbolicExpression expression) {
-        super(expression.getDiagram());
+        super();
         this.expression = expression;
         this.computeValue();
     }
