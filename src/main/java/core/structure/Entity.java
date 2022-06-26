@@ -1,0 +1,61 @@
+package core.structure;
+
+import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.Diagram;
+import core.Propositions.PropositionStructure.Proposition;
+import com.google.common.collect.TreeMultiset;
+
+import java.util.*;
+
+public interface Entity {
+    /** SECTION: Static Data ======================================================================================== */
+    HashSet<String> nameSet = new HashSet<>();
+
+    class InputType<T extends Entity> {
+        private final Class<T> CLASS;
+        private final Comparator<? super T> COMPARATOR;
+
+        public InputType(Class<T> cls, Comparator<? super T> comparator) {
+            this.CLASS = cls;
+            this.COMPARATOR = comparator;
+        }
+
+        public TreeMultiset<T> create() {
+            return TreeMultiset.create(this.COMPARATOR);
+        }
+
+        public int compare(Entity e1, Entity e2) {
+            return this.COMPARATOR.compare(this.CLASS.cast(e1), this.CLASS.cast(e2));
+        }
+    }
+
+    /** SECTION: Constructor Setup ================================================================================== */
+    default void inputSetup() {
+        if (this.getInputTypes() != null) {
+            HashMap<InputType<?>, TreeMultiset<? extends Entity>> inputs = this.getInputs();
+            for (InputType<?> inputType : this.getInputTypes()) {
+                inputs.put(inputType, inputType.create());
+            }
+        }
+    }
+
+    /** SECTION: Interface ========================================================================================== */
+    HashSet<Entity> reverseDependencies();
+
+    Entity simplify();
+    List<SymbolicExpression> symbolic();
+
+    Diagram getDiagram();
+
+    int getNaturalDegreesOfFreedom();
+    int getConstrainedDegreesOfFreedom();
+    HashSet<Proposition> getConstraints();
+
+    HashMap<InputType<?>, TreeMultiset<? extends Entity>> getInputs();
+    default <T extends Entity> TreeMultiset<T> getInputs(InputType<T> inputType) {
+        return (TreeMultiset<T>) this.getInputs().get(inputType);
+    }
+
+    List<InputType<?>> getInputTypes();
+}
+

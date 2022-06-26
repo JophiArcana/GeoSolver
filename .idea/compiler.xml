@@ -9,6 +9,6 @@
         <module name="GeoSolver" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="17" />
+    <bytecodeTargetLevel target="18" />
   </component>
 </project>

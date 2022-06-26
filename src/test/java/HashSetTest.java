@@ -1,4 +1,4 @@
-import Core.GeoSystem.Points.PointStructure.PointVariable;
+import core.structure.multicardinal.geo.point.structure.PointVariable;
 
 import java.util.*;
 

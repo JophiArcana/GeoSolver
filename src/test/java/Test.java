@@ -1,11 +1,12 @@
 
-import Core.AlgSystem.UnicardinalStructure.*;
-import Core.AlgSystem.UnicardinalRings.*;
-import Core.EntityStructure.UnicardinalStructure.Variable;
-import Core.GeoSystem.Points.PointStructure.*;
-import Core.Utilities.*;
+import core.alg.UnicardinalStructure.*;
+import core.alg.UnicardinalRings.*;
+import core.structure.multicardinal.geo.point.structure.Point;
+import core.structure.multicardinal.geo.point.structure.PointVariable;
+import core.structure.unicardinal.alg.Variable;
+import core.util.*;
 
-import static Core.Utilities.GeoEngine.*;
+import static core.util.GeoEngine.*;
 
 public class Test {
     public static void main(String[] args) {

@@ -1,10 +1,9 @@
 
-import Core.AlgSystem.UnicardinalStructure.*;
-import Core.AlgSystem.UnicardinalRings.Symbolic;
-import Core.EntityStructure.UnicardinalStructure.Expression;
-import Core.EntityStructure.UnicardinalStructure.Variable;
-import Core.Utilities.AlgEngine;
-import Core.Utilities.Utils;
+import core.alg.UnicardinalStructure.*;
+import core.structure.unicardinal.alg.Expression;
+import core.structure.unicardinal.alg.Variable;
+import core.util.AlgEngine;
+import core.util.Utils;
 
 import java.util.List;
 

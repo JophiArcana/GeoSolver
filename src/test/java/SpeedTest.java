@@ -1,15 +1,17 @@
 
-import Core.AlgSystem.Operators.*;
-import Core.AlgSystem.Operators.AddReduction.Scale;
-import Core.AlgSystem.Operators.MulReduction.Mul;
-import Core.AlgSystem.UnicardinalRings.*;
-import Core.EntityStructure.UnicardinalStructure.Expression;
-import Core.GeoSystem.Points.PointStructure.*;
-import Core.Utilities.*;
+import core.alg.Operators.*;
+import core.structure.multicardinal.geo.point.structure.Point;
+import core.structure.multicardinal.geo.point.structure.PointVariable;
+import core.structure.unicardinal.alg.structure.Scale;
+import core.structure.unicardinal.alg.symbolic.operator.SymbolicMul;
+import core.structure.unicardinal.alg.structure.Reduction;
+import core.alg.UnicardinalRings.*;
+import core.structure.unicardinal.alg.Expression;
+import core.util.*;
 
 import java.util.*;
 
-import static Core.Utilities.GeoEngine.*;
+import static core.util.GeoEngine.*;
 
 public class SpeedTest {
     public static void main(String[] args) {
@@ -22,7 +24,7 @@ public class SpeedTest {
 
         Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
         expr = Scale.create(2, expr, Symbolic.class);
-        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(Mul.Parameter.TERMS));
+        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(SymbolicMul.Parameter.TERMS));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Reduction.Parameter.TERMS));
 
         int cycles = 100000;
