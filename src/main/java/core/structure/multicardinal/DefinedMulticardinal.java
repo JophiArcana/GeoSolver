@@ -10,16 +10,12 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     /** SECTION: Instance Variables ================================================================================= */
     public String name;
     public Node node;
-    public boolean anonymous = true;
+    public boolean anonymous;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected DefinedMulticardinal(String n) {
+    protected DefinedMulticardinal(String n, boolean anon) {
         super();
         this.name = n;
-    }
-
-    protected DefinedMulticardinal(String n, boolean anon) {
-        this(n);
         this.anonymous = anon;
     }
 

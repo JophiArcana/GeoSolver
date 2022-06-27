@@ -4,6 +4,8 @@ import core.structure.unicardinal.alg.Expression;
 import core.util.*;
 import com.google.common.collect.TreeMultiset;
 
+import java.util.Map;
+
 public abstract class Add extends Reduction {
     /** SECTION: Protected Constructors ============================================================================= */
     protected Add(Iterable<? extends Expression> args) {
@@ -47,8 +49,11 @@ public abstract class Add extends Reduction {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        this.value = 0;
-        this.terms.forEach((expression, coefficient) -> this.value += (expression.value() * coefficient));
+        double result = 0;
+        for (Map.Entry<Expression, Double> entry : this.terms.entrySet()) {
+            result += entry.getKey().doubleValue() * entry.getValue();
+        }
+        this.value.set(result);
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

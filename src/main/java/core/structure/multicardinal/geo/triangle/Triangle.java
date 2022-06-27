@@ -26,28 +26,21 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     public Centroid CENTROID;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public Triangle create(Point A, Point B, Point C) {
-        return new Triangle(A, B, C);
+    public static Triangle create(Point A, Point B, Point C) {
+        return new Triangle(A, B, C, true);
+    }
+
+    public static Triangle create(Point A, Point B, Point C, boolean anon) {
+        return new Triangle(A, B, C, anon);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Triangle(Point A, Point B, Point C) {
-        this(A, B, C, true);
-    }
-
     protected Triangle(Point A, Point B, Point C, boolean anon) {
         super('\u25B3' + A.getName() + B.getName() + C.getName(), anon);
         this.A = A;
         this.B = B;
         this.C = C;
-        this.inputVertices(this);
-    }
-
-    private void inputVertices(Triangulate t) {
-        t.getInputs(Triangle.VERTICES).addAll(List.of(Triangle.this.A, Triangle.this.B, Triangle.this.C));
-        Triangle.this.A.reverseDependencies().add(t);
-        Triangle.this.B.reverseDependencies().add(t);
-        Triangle.this.C.reverseDependencies().add(t);
+        this.getInputs(Triangle.VERTICES).addAll(List.of(this.A, this.B, this.C));
     }
 
     /** SECTION: Triangle Centers =================================================================================== */
@@ -55,7 +48,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     public abstract class TriangleCenter extends DefinedPoint implements Triangulate {
         protected TriangleCenter(String n, boolean anon) {
             super(n, anon);
-            Triangle.this.inputVertices(this);
+            this.inputs = Triangle.this.inputs;
         }
     }
 
@@ -94,6 +87,8 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     public class Circumcircle extends DefinedCircle implements Triangulate {
         protected Circumcircle(String n, boolean anon) {
             super(n, anon);
+            this.inputs = Triangle.this.inputs;
+
             this.center = Triangle.this.circumcenter('\u2D59' + n, anon);
             this.radius = SymbolicMul.create(
                     Triangle.this.BC(),
@@ -120,6 +115,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     }
 
     public Circumcircle circumcircle(String n, boolean anon) {
+        this.circumcenter(n, anon);
         if (this.CIRCUMCIRCLE == null) {
             this.CIRCUMCIRCLE = this.new Circumcircle(n, anon);
         } else if (this.CIRCUMCIRCLE.anonymous && !anon) {
@@ -163,6 +159,8 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
     public class Incircle extends DefinedCircle implements Triangulate {
         protected Incircle(String n, boolean anon) {
             super(n, anon);
+            this.inputs = Triangle.this.inputs;
+
             this.center = Triangle.this.incenter('\u2D59' + n, anon);
             this.radius = SymbolicMul.create(
                     Triangle.this.doubleSignedArea(),

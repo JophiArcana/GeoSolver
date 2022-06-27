@@ -37,8 +37,6 @@ public interface Entity {
     }
 
     /** SECTION: Interface ========================================================================================== */
-    HashSet<Entity> reverseDependencies();
-
     Entity simplify();
     List<SymbolicExpression> symbolic();
 

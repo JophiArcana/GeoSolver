@@ -64,7 +64,7 @@ public abstract class Reduction extends DefinedExpression {
         } else if (this.terms.size() == 1) {
             return (Expression) this.inputs.get(Reduction.TERMS).firstEntry().getElement();
         } else {
-            return null;
+            return this;
         }
     }
 

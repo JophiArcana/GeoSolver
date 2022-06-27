@@ -5,10 +5,12 @@ import core.structure.Entity;
 import java.util.*;
 
 public abstract class Condition extends Proposition {
-    public abstract void carry();
-    public abstract void backPropagate();
+    // public abstract void carry();
+    // public abstract void backPropagate();
 
-    public abstract HashMap<? extends Entity, ? extends Condition> getChildren();
+    public HashMap<? extends Entity, ? extends Condition> getChildren() {
+        return new HashMap<>();
+    }
 
     public void clear() {
         for (Map.Entry<? extends Entity, ? extends Condition> entry : this.getChildren().entrySet()) {

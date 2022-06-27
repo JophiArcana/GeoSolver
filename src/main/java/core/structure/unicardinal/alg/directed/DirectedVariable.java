@@ -19,6 +19,6 @@ public static DirectedVariable create(String n, double v) {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     public List<SymbolicExpression> symbolic() {
-        return List.of(SymbolicVariable.create(this.name + "\u209C", Math.tan(this.value)));
+        return List.of(SymbolicVariable.create(this.name + "\u209C", Math.tan(this.doubleValue())));
     }
 }

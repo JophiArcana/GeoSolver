@@ -16,7 +16,7 @@ public class CircleVariable extends MultiVariable implements Circle {
                 this.setCursor(Cursor.CLOSED_HAND);
                 double x = event.getSceneX() - this.getTranslateX();
                 double y = event.getSceneY() - this.getTranslateY();
-                c.var_r.value = Math.sqrt(x * x + y * y);
+                c.var_r.value.set(Math.sqrt(x * x + y * y));
             });
         }
     }
@@ -27,7 +27,7 @@ public class CircleVariable extends MultiVariable implements Circle {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static CircleVariable create(String n, double xStart, double yStart, double rStart) {
-        return new CircleVariable(n, xStart, yStart, rStart);
+        return new CircleVariable(n, xStart, yStart, rStart, true);
     }
 
     public static CircleVariable create(String n, double xStart, double yStart, double rStart, boolean anon) {
@@ -35,10 +35,6 @@ public class CircleVariable extends MultiVariable implements Circle {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected CircleVariable(String n, double xStart, double yStart, double rStart) {
-        this(n, xStart, yStart, rStart, true);
-    }
-
     protected CircleVariable(String n, double xStart, double yStart, double rStart, boolean anon) {
         super(n, anon);
         this.center = PointVariable.create(n + "\u2092", xStart, yStart, anon);

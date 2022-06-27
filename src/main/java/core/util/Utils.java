@@ -97,8 +97,8 @@ public class Utils {
 
     public static int compareInputs(Entity e1, Entity e2) {
         assert e1.getClass() == e2.getClass(): "Classes must be identical.";
-        HashMap<Entity.InputType<? extends Entity>, TreeMultiset<? extends Entity>> inputs1 = e1.getInputs();
-        HashMap<Entity.InputType<? extends Entity>, TreeMultiset<? extends Entity>> inputs2 = e2.getInputs();
+        HashMap<Entity.InputType<?>, TreeMultiset<? extends Entity>> inputs1 = e1.getInputs();
+        HashMap<Entity.InputType<?>, TreeMultiset<? extends Entity>> inputs2 = e2.getInputs();
         for (Entity.InputType<? extends Entity> inputType : e1.getInputTypes()) {
             Iterator<? extends Entity> iter1 = inputs1.get(inputType).iterator();
             Iterator<? extends Entity> iter2 = inputs2.get(inputType).iterator();

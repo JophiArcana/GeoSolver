@@ -21,7 +21,7 @@ public class Midpoint extends DefinedPoint {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static Midpoint create(String n, Point A, Point B) {
-        return new Midpoint(n, A, B);
+        return new Midpoint(n, A, B, true);
     }
 
     public static Midpoint create(String n, Point A, Point B, boolean anon) {
@@ -29,17 +29,6 @@ public class Midpoint extends DefinedPoint {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Midpoint(String n, Point A, Point B) {
-        super(n);
-        this.A = A;
-        this.B = B;
-        this.getInputs(Midpoint.POINTS).addAll(List.of(this.A, this.B));
-        this.symbolic = List.of(
-                SymbolicScale.create(0.5, SymbolicAdd.create(this.A.symbolic().get(0), this.B.symbolic().get(0))),
-                SymbolicScale.create(0.5, SymbolicAdd.create(this.A.symbolic().get(1), this.B.symbolic().get(1)))
-        );
-    }
-
     protected Midpoint(String n, Point A, Point B, boolean anon) {
         super(n, anon);
         this.A = A;

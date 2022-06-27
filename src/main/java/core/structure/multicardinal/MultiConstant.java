@@ -7,16 +7,12 @@ public abstract class MultiConstant extends Immutable implements Multicardinal {
     /** SECTION: Instance Variables ================================================================================= */
     public String name;
     public Node node;
-    public boolean anonymous = true;
+    public boolean anonymous;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected MultiConstant(String n) {
+    protected MultiConstant(String n, boolean anon) {
         super();
         this.name = n;
-    }
-
-    protected MultiConstant(String n, boolean anon) {
-        this(n);
         this.anonymous = anon;
     }
 

@@ -38,11 +38,11 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
         if (this.coefficient == -1) {
-            this.value = 1 / this.expression.value();
+            this.value.set(1 / this.expression.doubleValue());
         } else if (this.coefficient == 2) {
-            this.value = this.expression.value() * this.expression.value();
+            this.value.set(this.expression.doubleValue() * this.expression.doubleValue());
         } else {
-            this.value = Math.pow(this.expression.value(), this.coefficient);
+            this.value.set(Math.pow(this.expression.doubleValue(), this.coefficient));
         }
     }
 

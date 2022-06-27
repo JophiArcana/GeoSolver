@@ -3,6 +3,7 @@ package core.structure.multicardinal.geo.circle.structure;
 import core.structure.multicardinal.geo.Locus;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -15,8 +16,8 @@ public interface Circle extends Locus {
     class CircleNode extends javafx.scene.shape.Path implements GeometricNode {
         public CircleNode(Circle c) {
             super();
-            SymbolicExpression radius = c.radius();
-            double r = radius.value();
+            SimpleDoubleProperty radius = c.radius().valueProperty();
+            double r = radius.get();
 
             MoveTo moveTo = new MoveTo(r, 0.001);
             moveTo.xProperty().bind(radius);

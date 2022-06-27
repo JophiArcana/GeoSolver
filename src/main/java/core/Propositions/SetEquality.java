@@ -23,11 +23,11 @@ public class SetEquality<T extends Entity> extends ExtendedCondition {
         String pivotName = Utils.randomHash();
 
         this.pivot = switch (first) {
-            case DirectedExpression directedExpression -> DirectedVariable.create(pivotName, directedExpression.value());
-            case SymbolicExpression symbolicExpression -> SymbolicVariable.create(pivotName, symbolicExpression.value());
-            case Point point -> PointVariable.create(pivotName, point.symbolic().get(0).value(), point.symbolic().get(1).value());
-            case Line line -> LineVariable.create(pivotName, line.symbolic().get(0).value(), line.symbolic().get(1).value());
-            case Circle circle -> CircleVariable.create(pivotName, circle.symbolic().get(0).value(), circle.symbolic().get(1).value(), circle.symbolic().get(2).value());
+            case DirectedExpression directedExpression -> DirectedVariable.create(pivotName, directedExpression.doubleValue());
+            case SymbolicExpression symbolicExpression -> SymbolicVariable.create(pivotName, symbolicExpression.doubleValue());
+            case Point point -> PointVariable.create(pivotName, point.symbolic().get(0).doubleValue(), point.symbolic().get(1).doubleValue());
+            case Line line -> LineVariable.create(pivotName, line.symbolic().get(0).doubleValue(), line.symbolic().get(1).doubleValue());
+            case Circle circle -> CircleVariable.create(pivotName, circle.symbolic().get(0).doubleValue(), circle.symbolic().get(1).doubleValue(), circle.symbolic().get(2).doubleValue());
             case default -> null;
         };
 

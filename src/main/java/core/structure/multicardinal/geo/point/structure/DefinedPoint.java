@@ -10,10 +10,6 @@ public abstract class DefinedPoint extends DefinedMulticardinal implements Point
     public List<SymbolicExpression> symbolic;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    public DefinedPoint(String n) {
-        super(n);
-    }
-
     public DefinedPoint(String n, boolean anon) {
         super(n, anon);
     }

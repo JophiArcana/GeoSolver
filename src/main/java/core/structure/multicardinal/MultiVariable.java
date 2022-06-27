@@ -6,13 +6,9 @@ import javafx.scene.Node;
 public abstract class MultiVariable extends Mutable implements Multicardinal {
     /** SECTION: Instance Variables ================================================================================= */
     public Node node;
-    public boolean anonymous = true;
+    public boolean anonymous;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected MultiVariable(String n) {
-        super(n);
-    }
-
     protected MultiVariable(String n, boolean anon) {
         super(n);
         this.anonymous = anon;

@@ -34,7 +34,7 @@ public class Directed extends DefinedExpression implements DirectedExpression {
     /** SUBSECTION: Entity ========================================================================================== */
     public void computeValue() {
         List<SymbolicExpression> lineExpression = this.line.symbolic();
-        this.value = Math.atan2(lineExpression.get(1).value(), lineExpression.get(0).value());
+        this.value.set(Math.atan2(lineExpression.get(1).doubleValue(), lineExpression.get(0).doubleValue()));
     }
 
     public List<SymbolicExpression> symbolic() {

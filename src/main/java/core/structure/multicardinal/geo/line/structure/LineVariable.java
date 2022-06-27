@@ -9,7 +9,7 @@ public class LineVariable extends MultiVariable implements Line {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static LineVariable create(String n, double xStart, double yStart) {
-        return new LineVariable(n, xStart, yStart);
+        return new LineVariable(n, xStart, yStart, true);
     }
 
     public static LineVariable create(String n, double xStart, double yStart, boolean anon) {
@@ -17,11 +17,6 @@ public class LineVariable extends MultiVariable implements Line {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected LineVariable(String n, double xStart, double yStart) {
-        super(n);
-        this.pointDual = PointVariable.create(n + "\u209A", xStart, yStart);
-    }
-
     protected LineVariable(String n, double xStart, double yStart, boolean anon) {
         super(n, anon);
         this.pointDual = PointVariable.create(n + "\u209A", xStart, yStart);

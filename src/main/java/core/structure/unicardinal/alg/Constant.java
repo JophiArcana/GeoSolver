@@ -1,9 +1,9 @@
 package core.structure.unicardinal.alg;
 
+import core.structure.unicardinal.Unicardinal;
 import core.structure.unicardinal.alg.symbolic.constant.*;
 import core.structure.*;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.*;
 
@@ -30,9 +30,6 @@ public abstract class Constant extends Immutable implements Expression {
     /** SECTION: Instance Variables ================================================================================= */
     public final double value;
 
-    public final ArrayList<ChangeListener<? super Number>> changeListeners = new ArrayList<>();
-    public final ArrayList<InvalidationListener> invalidationListeners = new ArrayList<>();
-
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Constant(double value) {
         super();
@@ -48,8 +45,8 @@ public abstract class Constant extends Immutable implements Expression {
 
     /** SUBSECTION: Unicardinal ===================================================================================== */
     @Override
-    public double value() {
-        return this.value;
+    public SimpleDoubleProperty valueProperty() {
+        return new SimpleDoubleProperty(this.value);
     }
 
     @Override
@@ -57,13 +54,8 @@ public abstract class Constant extends Immutable implements Expression {
     }
 
     @Override
-    public ArrayList<ChangeListener<? super Number>> getChangeListeners() {
-        return this.changeListeners;
-    }
-
-    @Override
-    public ArrayList<InvalidationListener> getInvalidationListeners() {
-        return this.invalidationListeners;
+    public HashSet<Unicardinal> reverseDependencies() {
+        return null;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

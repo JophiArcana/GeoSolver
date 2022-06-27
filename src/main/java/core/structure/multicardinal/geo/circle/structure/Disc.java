@@ -22,7 +22,7 @@ public class Disc extends MultiConstant implements Circle {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static Disc create(String n, double x, double y, double r) {
-        return new Disc(n, Coordinate.create(n + "\u2092", x, y), SymbolicReal.create(r));
+        return new Disc(n, Coordinate.create(n + "\u2092", x, y), SymbolicReal.create(r), true);
     }
 
     public static Disc create(String n, double x, double y, double r, boolean anon) {
@@ -30,10 +30,6 @@ public class Disc extends MultiConstant implements Circle {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Disc(String n, Coordinate center, SymbolicReal radius) {
-        this(n, center, radius, true);
-    }
-
     protected Disc(String n, Coordinate center, SymbolicReal radius, boolean anon) {
         super(n, anon);
         this.center = center;

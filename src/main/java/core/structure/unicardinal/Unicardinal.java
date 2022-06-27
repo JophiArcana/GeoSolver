@@ -1,42 +1,41 @@
 package core.structure.unicardinal;
 
 import core.structure.Entity;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleDoubleProperty;
 
-import java.util.ArrayList;
+import java.util.*;
 
-public interface Unicardinal extends Entity, ObservableValue<Number> {
+public interface Unicardinal extends Entity {
     /** SECTION: Interface ========================================================================================== */
-    double value();
+    SimpleDoubleProperty valueProperty();
+    default double doubleValue() {
+        return this.valueProperty().get();
+    }
     void computeValue();
 
-    ArrayList<ChangeListener<? super Number>> getChangeListeners();
-    ArrayList<InvalidationListener> getInvalidationListeners();
+    HashSet<Unicardinal> reverseDependencies();
 
-    @Override
-    default void addListener(ChangeListener<? super Number> changeListener) {
-        this.getChangeListeners().add(changeListener);
+    static Unicardinal[] topologicalSort(Collection<Unicardinal> roots) {
+        int[] clock = {1};
+        HashMap<Unicardinal, Integer> visited = new HashMap<>();
+        for (Unicardinal root : roots) {
+            Unicardinal.reverseDependencyDFS(clock, visited, root);
+        }
+        int n = visited.size();
+        Unicardinal[] result = new Unicardinal[n];
+        visited.forEach((node, postNumber) -> result[n - postNumber] = node);
+        return result;
     }
 
-    @Override
-    default void addListener(InvalidationListener invalidationListener) {
-        this.getInvalidationListeners().add(invalidationListener);
-    }
-
-    @Override
-    default void removeListener(ChangeListener<? super Number> changeListener) {
-        this.getChangeListeners().remove(changeListener);
-    }
-
-    @Override
-    default void removeListener(InvalidationListener invalidationListener) {
-        this.getInvalidationListeners().remove(invalidationListener);
-    }
-
-    @Override
-    default Double getValue() {
-        return this.value();
+    static void reverseDependencyDFS(int[] clock, HashMap<Unicardinal, Integer> visited, Unicardinal u) {
+        if (u.reverseDependencies() != null) {
+            for (Unicardinal v : u.reverseDependencies()) {
+                if (!visited.containsKey(v)) {
+                    reverseDependencyDFS(clock, visited, v);
+                }
+            }
+            visited.put(u, clock[0]);
+            clock[0]++;
+        }
     }
 }

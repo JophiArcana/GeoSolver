@@ -35,7 +35,7 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
 
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        this.value = Math.abs(this.expression.value());
+        this.value.set(Math.abs(this.expression.doubleValue()));
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

@@ -19,7 +19,7 @@ public abstract class Scale extends Accumulation {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        this.value = this.coefficient * this.expression.value();
+        this.value.setValue(this.coefficient * this.expression.doubleValue());
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

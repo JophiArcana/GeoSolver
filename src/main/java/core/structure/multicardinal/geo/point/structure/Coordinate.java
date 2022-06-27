@@ -27,7 +27,7 @@ public class Coordinate extends MultiConstant implements Point {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static Coordinate create(String n, double x, double y) {
-        return new Coordinate(n, SymbolicReal.create(x), SymbolicReal.create(y));
+        return new Coordinate(n, SymbolicReal.create(x), SymbolicReal.create(y), true);
     }
 
     public static Coordinate create(String n, double x, double y, boolean anon) {
@@ -35,10 +35,6 @@ public class Coordinate extends MultiConstant implements Point {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Coordinate(String n, SymbolicReal x, SymbolicReal y) {
-        this(n, x, y, true);
-    }
-
     protected Coordinate(String n, SymbolicReal x, SymbolicReal y, boolean anon) {
         super(n, anon);
         this.x = x;

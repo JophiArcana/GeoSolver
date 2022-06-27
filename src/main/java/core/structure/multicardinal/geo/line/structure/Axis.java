@@ -21,7 +21,7 @@ public class Axis extends MultiConstant implements Line {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static Axis create(String n, Coordinate c) {
-        return new Axis(n, c);
+        return new Axis(n, c, true);
     }
 
     public static Axis create(String n, Coordinate c, boolean anon) {
@@ -29,12 +29,6 @@ public class Axis extends MultiConstant implements Line {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Axis(String n, Coordinate c) {
-        super(n);
-        this.pointDual = c;
-        this.getInputs(Axis.COORDINATE).add(this.pointDual);
-    }
-
     protected Axis(String n, Coordinate c, boolean anon) {
         super(n, anon);
         this.pointDual = c;

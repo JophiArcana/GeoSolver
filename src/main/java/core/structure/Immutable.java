@@ -22,10 +22,6 @@ public abstract class Immutable implements Entity {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public HashSet<Entity> reverseDependencies() {
-        return null;
-    }
-
     public Entity simplify() {
         return this;
     }

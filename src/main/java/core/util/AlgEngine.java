@@ -2,7 +2,6 @@ package core.util;
 
 import java.util.*;
 
-import core.structure.Entity;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
 import core.structure.unicardinal.alg.Variable;
@@ -10,7 +9,6 @@ import core.structure.unicardinal.alg.structure.Accumulation;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.structure.Reduction;
 import core.structure.unicardinal.alg.symbolic.operator.*;
-import javafx.util.*;
 
 
 public class AlgEngine {
@@ -75,123 +73,6 @@ public class AlgEngine {
             }};
         } else {
             return new HashMap<>(Map.of(expr, 1.0));
-        }
-    }
-
-    public SymbolicExpression greatestCommonDivisor(List<SymbolicExpression> args) {
-        if (args.size() == 2) {
-            return this.greatestCommonDivisor(args.get(0), args.get(1));
-        } else if (args.size() == 3) {
-            return this.greatestCommonDivisor(this.greatestCommonDivisor(args.get(0), args.get(1)), args.get(2));
-        } else {
-            return this.greatestCommonDivisor(
-                    this.greatestCommonDivisor(args.subList(0, args.size() / 2)),
-                    this.greatestCommonDivisor(args.subList(args.size() / 2, args.size()))
-            );
-        }
-    }
-
-    /** SECTION: Subset Graph Computing ============================================================================= */
-    private abstract static class SubsetGraph<T extends Entity, U> {
-        static Comparator<Pair<Integer, Double>> COMPARATOR = (o1, o2) -> {
-            if (!o1.getValue().equals(o2.getValue())) {
-                return Double.compare(o2.getValue(), o1.getValue());
-            } else {
-                int size1 = Integer.bitCount(o1.getKey()), size2 = Integer.bitCount(o2.getKey());
-                if (size1 != size2) {
-                    return size1 - size2;
-                } else {
-                    return o1.getKey() - o2.getKey();
-                }
-            }
-        };
-
-        T[] elements;
-        HashMap<Integer, U> baseCases = new HashMap<>();
-        int binaryRepresentation;
-        TreeSet<Pair<Integer, Double>> weightMap = new TreeSet<>(SubsetGraph.COMPARATOR);
-
-        HashSet<Integer> ignoredSubsets = new HashSet<>();
-
-        public SubsetGraph(ArrayList<T> elements) {
-            this.elements = (T[]) elements.toArray();
-            this.binaryRepresentation = (1 << this.elements.length) - 1;
-            for (int i = 0; i < this.elements.length; i++) {
-                this.baseCases.put(1 << i, this.baseCase(this.elements[i]));
-            }
-            AlgEngine.addToSubsetGraph(Utils.sortedContiguousSubsets(this.elements.length), 0, this);
-            AlgEngine.reduceSubsetGraph(this);
-        }
-
-        public String toString() {
-            return Utils.setParse(this.elements, this.binaryRepresentation) + "=" + this.weightMap;
-        }
-
-        public abstract T reduction(ArrayList<T> list);
-        public abstract U baseCase(T t);
-        public abstract U induct(U u1, U u2);
-        public abstract double weightFunction(U u);
-        public abstract U unit();
-        public abstract boolean isUnitary(U u);
-    }
-
-    /**
-     *
-     * @param subsets   Subsets that (once unioned with anchor) whose weights need to be computed
-     * @param anchor    At most one bit representing the element that needs to be computed in the new subsets
-     * @param graph     Data structure containing the elements, bit representation representing the complete set,
-     *                  TreeSet of weights corresponding to subsets, and which ignored subsets guaranteed to have
-     *                  unitary output value U
-     */
-    private static <T extends Entity, U> void addToSubsetGraph(ArrayList<List<Integer>> subsets, int anchor, SubsetGraph<T, U> graph) {
-        U unit = graph.unit();
-        HashMap<Integer, U> ring = graph.baseCases;
-
-        int anchorSize = (anchor == 0) ? 0 : 1;
-        for (int startingSubsetSize = 2 - anchorSize; startingSubsetSize < subsets.size(); startingSubsetSize++) {
-            List<Integer> subsetList = subsets.get(startingSubsetSize);
-            int subsetSize = startingSubsetSize + anchorSize;
-            boolean allOnes = true;
-
-            HashMap<Integer, U> newRing = new HashMap<>();
-            for (int subset : subsetList) {
-                if (!graph.ignoredSubsets.contains(subset)) {
-                    int upper = (subset & (subset - 1)) | anchor;
-                    int lower = (startingSubsetSize == 1) ? subset : ((subset ^ Integer.highestOneBit(subset)) | anchor);
-                    subset |= anchor;
-
-                    U result = graph.induct(ring.getOrDefault(lower, unit), ring.getOrDefault(upper, unit));
-                    allOnes &= graph.isUnitary(result);
-
-                    if (graph.isUnitary(result)) {
-                        graph.ignoredSubsets.addAll(Utils.supersets(subset, graph.binaryRepresentation));
-                    } else {
-                        newRing.put(subset, result);
-                        graph.weightMap.add(new Pair<>(subset, graph.weightFunction(result) * (subsetSize - 1)));
-                    }
-                }
-            }
-            if (allOnes) {
-                return;
-            }
-            ring = newRing;
-        }
-    }
-
-    public static <T extends Entity, U> void reduceSubsetGraph(SubsetGraph<T, U> graph) {
-        while (graph.weightMap.size() > 0) {
-            int removedElements = graph.weightMap.first().getKey();
-            graph.binaryRepresentation ^= removedElements;
-            graph.weightMap.removeIf(entry -> ((entry.getKey() & removedElements) != 0));
-
-            T reduction = graph.reduction(Utils.setParse(graph.elements, removedElements));
-            ArrayList<List<Integer>> subsetList = Utils.sortedSubsetsBinary(graph.binaryRepresentation);
-
-            int anchorPosition = removedElements & -removedElements;
-            graph.binaryRepresentation |= anchorPosition;
-            graph.elements[Integer.numberOfTrailingZeros(removedElements)] = reduction;
-
-            AlgEngine.addToSubsetGraph(subsetList, anchorPosition, graph);
         }
     }
 

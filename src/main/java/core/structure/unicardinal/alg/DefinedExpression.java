@@ -1,18 +1,16 @@
 package core.structure.unicardinal.alg;
 
 import core.structure.*;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
+import core.structure.unicardinal.Unicardinal;
+import javafx.beans.property.SimpleDoubleProperty;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public abstract class DefinedExpression extends DefinedEntity implements Expression {
     /** SECTION: Instance Variables ================================================================================= */
     public Expression expansion;
-    public double value;
-
-    public final ArrayList<ChangeListener<? super Number>> changeListeners = new ArrayList<>();
-    public final ArrayList<InvalidationListener> invalidationListeners = new ArrayList<>();
+    public SimpleDoubleProperty value = new SimpleDoubleProperty();
+    public HashSet<Unicardinal> reverseDependencies = new HashSet<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected DefinedExpression() {
@@ -22,17 +20,12 @@ public abstract class DefinedExpression extends DefinedEntity implements Express
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     @Override
-    public double value() {
+    public SimpleDoubleProperty valueProperty() {
         return this.value;
     }
 
     @Override
-    public ArrayList<ChangeListener<? super Number>> getChangeListeners() {
-        return this.changeListeners;
-    }
-
-    @Override
-    public ArrayList<InvalidationListener> getInvalidationListeners() {
-        return this.invalidationListeners;
+    public HashSet<Unicardinal> reverseDependencies() {
+        return this.reverseDependencies;
     }
 }

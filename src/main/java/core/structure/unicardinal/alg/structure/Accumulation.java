@@ -15,8 +15,8 @@ public abstract class Accumulation extends DefinedExpression {
     public static final List<InputType<?>> inputTypes = List.of(Accumulation.COEFFICIENT, Accumulation.EXPRESSION);
 
     /** SECTION: Instance Variables ================================================================================= */
-    public double coefficient;
-    public Expression expression;
+    public final double coefficient;
+    public final Expression expression;
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Accumulation(double coefficient, Expression expr) {

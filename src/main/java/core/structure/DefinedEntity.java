@@ -10,7 +10,6 @@ public abstract class DefinedEntity implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public HashSet<Entity> reverseDependencies = new HashSet<>();
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
     public HashMap<InputType<?>, TreeMultiset<? extends Entity>> inputs = new HashMap<>();
@@ -23,10 +22,6 @@ public abstract class DefinedEntity implements Entity {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public HashSet<Entity> reverseDependencies() {
-        return this.reverseDependencies;
-    }
-
     public int getNaturalDegreesOfFreedom() {
         return DefinedEntity.naturalDegreesOfFreedom;
     }
