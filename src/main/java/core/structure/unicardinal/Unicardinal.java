@@ -13,7 +13,7 @@ public interface Unicardinal extends Entity {
     }
     void computeValue();
 
-    HashSet<Unicardinal> reverseDependencies();
+    HashSet<Unicardinal> reverseSymbolicDependencies();
 
     static Unicardinal[] topologicalSort(Collection<Unicardinal> roots) {
         int[] clock = {1};
@@ -28,8 +28,8 @@ public interface Unicardinal extends Entity {
     }
 
     static void reverseDependencyDFS(int[] clock, HashMap<Unicardinal, Integer> visited, Unicardinal u) {
-        if (u.reverseDependencies() != null) {
-            for (Unicardinal v : u.reverseDependencies()) {
+        if (u.reverseSymbolicDependencies() != null) {
+            for (Unicardinal v : u.reverseSymbolicDependencies()) {
                 if (!visited.containsKey(v)) {
                     reverseDependencyDFS(clock, visited, v);
                 }

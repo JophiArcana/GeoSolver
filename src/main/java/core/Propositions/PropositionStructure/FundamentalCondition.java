@@ -1,5 +1,5 @@
 package core.Propositions.PropositionStructure;
 
-public abstract class FundamentalCondition extends Condition {
+public abstract class FundamentalCondition implements Condition {
 
 }

@@ -1,6 +1,5 @@
 package core.structure.multicardinal.geo.point.function;
 
-import core.structure.Entity;
 import core.structure.multicardinal.geo.point.structure.DefinedPoint;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicAdd;
@@ -44,14 +43,6 @@ public class Midpoint extends DefinedPoint {
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public Entity simplify() {
-        if (this.A == this.B) {
-            return this.A;
-        } else {
-            return this;
-        }
-    }
 
     public List<InputType<?>> getInputTypes() {
         return Midpoint.inputTypes;

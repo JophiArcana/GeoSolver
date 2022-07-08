@@ -24,7 +24,7 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
     protected SymbolicAbs(SymbolicExpression expression) {
         super();
         this.expression = expression;
-        expression.reverseDependencies().add(this);
+        expression.reverseSymbolicDependencies().add(this);
         this.computeValue();
     }
 

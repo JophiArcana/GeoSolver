@@ -18,15 +18,11 @@ public class DirectedAdd extends Add implements DirectedExpression {
     }
 
     public static DirectedExpression create(DirectedExpression... args) {
-        return (DirectedExpression) new DirectedAdd(args).close();
+        return (DirectedExpression) new DirectedAdd(List.of(args)).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected DirectedAdd(Iterable<DirectedExpression> args) {
-        super(args);
-    }
-
-    protected DirectedAdd(DirectedExpression... args) {
         super(args);
     }
 

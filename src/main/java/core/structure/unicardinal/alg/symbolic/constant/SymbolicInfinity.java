@@ -2,7 +2,6 @@ package core.structure.unicardinal.alg.symbolic.constant;
 
 import core.structure.unicardinal.alg.structure.Real;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.structure.*;
 import core.structure.unicardinal.alg.*;
 import core.util.Utils;
 
@@ -36,15 +35,6 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
 
     /** SECTION: Implementation ===================================================================================== */
 
-
-    /** SUBSECTION: Entity ========================================================================================== */
-    public Entity simplify() {
-        if (this.degree == 0 || this.coefficient == 0) {
-            return new SymbolicReal(this.coefficient);
-        } else {
-            return this;
-        }
-    }
 
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression close() {

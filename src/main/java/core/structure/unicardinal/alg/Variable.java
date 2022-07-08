@@ -1,6 +1,5 @@
 package core.structure.unicardinal.alg;
 
-import core.structure.Entity;
 import core.structure.Mutable;
 import core.structure.unicardinal.Unicardinal;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -13,7 +12,7 @@ public abstract class Variable extends Mutable implements Expression {
 
     /** SECTION: Instance Variables ================================================================================= */
     public SimpleDoubleProperty value;
-    public HashSet<Unicardinal> reverseDependencies = new HashSet<>();
+    public HashSet<Unicardinal> reverseSymbolicDependencies = new HashSet<>();
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Variable(String n, double value) {
@@ -30,8 +29,8 @@ public abstract class Variable extends Mutable implements Expression {
     public void computeValue() {
     }
 
-    public HashSet<Unicardinal> reverseDependencies() {
-        return this.reverseDependencies;
+    public HashSet<Unicardinal> reverseSymbolicDependencies() {
+        return this.reverseSymbolicDependencies;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */

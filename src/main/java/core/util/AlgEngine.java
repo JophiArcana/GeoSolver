@@ -69,7 +69,13 @@ public class AlgEngine {
             return new HashMap<>(Map.of((SymbolicExpression) pow.expression, pow.coefficient));
         } else if (expr instanceof SymbolicMul mul) {
             return new HashMap<>() {{
-                    mul.terms.forEach((term, count) -> put((SymbolicExpression) term, count));
+                    mul.getInputs(Reduction.TERMS).forEach(arg -> {
+                        if (arg instanceof SymbolicPow powExpr) {
+                            put((SymbolicExpression) powExpr.expression, powExpr.coefficient);
+                        } else {
+                            put((SymbolicExpression) arg, 1.0);
+                        }
+                    });
             }};
         } else {
             return new HashMap<>(Map.of(expr, 1.0));

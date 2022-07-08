@@ -15,7 +15,4 @@ public interface Triangulate extends Multicardinal {
         return Triangle.inputTypes;
     }
 
-    default Entity simplify() {
-        return this;
-    }
 }

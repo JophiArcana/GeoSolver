@@ -21,10 +21,6 @@ public abstract class Immutable implements Entity {
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public Entity simplify() {
-        return this;
-    }
 
     public int getNaturalDegreesOfFreedom() {
         return Immutable.naturalDegreesOfFreedom;

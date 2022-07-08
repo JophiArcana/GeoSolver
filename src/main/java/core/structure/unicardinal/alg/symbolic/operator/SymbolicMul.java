@@ -10,26 +10,18 @@ import core.util.*;
 import java.util.*;
 
 public class SymbolicMul extends Reduction implements SymbolicExpression {
-    /** SECTION: Static Data ======================================================================================== */
-    private static double constant;
-
     /** SECTION: Factory Methods ==================================================================================== */
     public static SymbolicExpression create(Iterable<SymbolicExpression> args) {
         SymbolicExpression result = (SymbolicExpression) new SymbolicMul(args).close();
-        if (SymbolicMul.constant == 1) {
+        if (Reduction.CONSTANT == 1) {
             return result;
         } else {
-            return SymbolicScale.create(SymbolicMul.constant, result);
+            return SymbolicScale.create(Reduction.CONSTANT, result);
         }
     }
 
     public static SymbolicExpression create(SymbolicExpression... args) {
-        SymbolicExpression result = (SymbolicExpression) new SymbolicMul(args).close();
-        if (SymbolicMul.constant == 1) {
-            return result;
-        } else {
-            return SymbolicScale.create(SymbolicMul.constant, result);
-        }
+        return SymbolicMul.create(List.of(args));
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -37,40 +29,22 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
         super(args);
     }
 
-    protected SymbolicMul(SymbolicExpression... args) {
-        super(args);
-    }
-
     protected void construct(Iterable<? extends Expression> args) {
-        if (this.terms.size() == 0) {
-            SymbolicMul.constant = 1;
-        }
-        args.forEach(this::constructArg);
-    }
-
-    protected void construct(Expression... args) {
-        if (this.terms.size() == 0) {
-            SymbolicMul.constant = 1;
-        }
         for (Expression arg : args) {
-            this.constructArg(arg);
-        }
-    }
-
-    public void constructArg(Expression arg) {
-        if (arg instanceof SymbolicMul m) {
-            this.construct(Utils.cast(m.inputs.get(Reduction.TERMS)));
-        } else {
-            this.degree += arg.getDegree();
-            if (arg instanceof Scale sc) {
-                SymbolicMul.constant *= sc.coefficient;
-                this.terms.put(sc.expression, this.terms.getOrDefault(sc.expression, 0.0) + 1);
-            } else if (arg instanceof SymbolicPow p) {
-                this.terms.put(p.expression, this.terms.getOrDefault(p.expression, 0.0) + p.coefficient);
-            } else if (arg instanceof Real re) {
-                SymbolicMul.constant *= re.value;
+            if (arg instanceof SymbolicMul m) {
+                this.construct(m.getInputs(Reduction.TERMS));
             } else {
-                this.terms.put(arg, this.terms.getOrDefault(arg, 0.0) + 1);
+                this.degree += arg.getDegree();
+                switch (arg) {
+                    case Scale sc -> {
+                        Reduction.CONSTANT *= sc.coefficient;
+                        Reduction.TERM_MAP.put(sc.expression, Reduction.TERM_MAP.getOrDefault(sc.expression, 0.0) + 1);
+                    }
+                    case SymbolicPow p ->
+                            Reduction.TERM_MAP.put(p.expression, Reduction.TERM_MAP.getOrDefault(p.expression, 0.0) + p.coefficient);
+                    case Real re -> Reduction.CONSTANT *= re.value;
+                    default -> Reduction.TERM_MAP.put(arg, Reduction.TERM_MAP.getOrDefault(arg, 0.0) + 1);
+                }
             }
         }
     }
@@ -92,9 +66,9 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        double result = 1.0;
-        for (Map.Entry<Expression, Double> entry : this.terms.entrySet()) {
-            result *= Math.pow(entry.getKey().doubleValue(), entry.getValue());
+        double result = 1;
+        for (Expression expr : this.getInputs(Reduction.TERMS)) {
+            result *= expr.doubleValue();
         }
         this.value.set(result);
     }
@@ -123,8 +97,8 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
     }
 
     /** SUBSECTION: Reduction ======================================================================================= */
-    protected Real identity() {
-        return SymbolicReal.create(1);
+    protected int identity() {
+        return 1;
     }
 
     public Expression createAccumulation(double coefficient, Expression expr) {

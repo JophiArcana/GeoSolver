@@ -28,10 +28,6 @@ public abstract class Mutable implements Entity {
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public Entity simplify() {
-        return this;
-    }
 
     public int getConstrainedDegreesOfFreedom() {
         return this.constrainedDegreesOfFreedom;

@@ -14,41 +14,30 @@ public abstract class Reduction extends DefinedExpression {
     public static final List<InputType<?>> inputTypes = List.of(Reduction.TERMS);
 
     /** SECTION: Instance Variables ================================================================================= */
-    public TreeMap<Expression, Double> terms = new TreeMap<>(new UnicardinalComparator());
+    protected static final TreeMap<Expression, Double> TERM_MAP = new TreeMap<>(new UnicardinalComparator());
+    protected static double CONSTANT;
     public int degree = 0;
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Reduction(Iterable<? extends Expression> args) {
         super();
+        Reduction.CONSTANT = 1;
+        Reduction.TERM_MAP.clear();
         this.construct(args);
-        this.constructorClose();
-        this.computeValue();
-    }
-
-    protected Reduction(Expression... args) {
-        super();
-        this.construct(args);
-        this.constructorClose();
-        this.computeValue();
-    }
-
-    private void constructorClose() {
         TreeMultiset<Expression> inputTerms = this.getInputs(Reduction.TERMS);
-        for (Map.Entry<Expression, Double> entry : new ArrayList<>(this.terms.entrySet())) {
-            if (entry.getValue() == 0) {
-                this.terms.remove(entry.getKey());
-            } else {
+        for (Map.Entry<Expression, Double> entry : Reduction.TERM_MAP.entrySet()) {
+            if (entry.getValue() != 0) {
                 Expression term = this.createAccumulation(entry.getValue(), entry.getKey());
                 inputTerms.add(term);
-                term.reverseDependencies().add(this);
+                term.reverseSymbolicDependencies().add(this);
             }
         }
+        this.computeValue();
     }
 
     /** SECTION: Interface ========================================================================================== */
     protected abstract void construct(Iterable<? extends Expression> args);
-    protected abstract void construct(Expression... args);
-    protected abstract Real identity();
+    protected abstract int identity();
     public abstract Expression createAccumulation(double coefficient, Expression expr);
 
     /** SECTION: Implementation ===================================================================================== */
@@ -59,13 +48,12 @@ public abstract class Reduction extends DefinedExpression {
 
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression close() {
-        if (this.terms.size() == 0) {
-            return this.identity();
-        } else if (this.terms.size() == 1) {
-            return (Expression) this.inputs.get(Reduction.TERMS).firstEntry().getElement();
-        } else {
-            return this;
-        }
+        TreeMultiset<Expression> inputTerms = this.getInputs(Reduction.TERMS);
+        return switch (inputTerms.size()) {
+            case 0 -> this.createReal(this.identity());
+            case 1 -> inputTerms.elementSet().first();
+            default -> this;
+        };
     }
 
     public int getDegree() {

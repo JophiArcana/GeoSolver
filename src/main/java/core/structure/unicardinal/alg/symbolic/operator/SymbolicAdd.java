@@ -4,6 +4,8 @@ import core.structure.unicardinal.alg.structure.Add;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.Expression;
 
+import java.util.List;
+
 public class SymbolicAdd extends Add implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
     public static SymbolicExpression create(Iterable<SymbolicExpression> args) {
@@ -11,15 +13,11 @@ public class SymbolicAdd extends Add implements SymbolicExpression {
     }
 
     public static SymbolicExpression create(SymbolicExpression... args) {
-        return (SymbolicExpression) new SymbolicAdd(args).close();
+        return (SymbolicExpression) new SymbolicAdd(List.of(args)).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected SymbolicAdd(Iterable<SymbolicExpression> args) {
-        super(args);
-    }
-
-    protected SymbolicAdd(SymbolicExpression... args) {
         super(args);
     }
 

@@ -34,7 +34,7 @@ public abstract class Accumulation extends DefinedExpression {
         this.getInputs(Accumulation.COEFFICIENT).add(this.createReal(this.coefficient));
         this.getInputs(Accumulation.EXPRESSION).add(this.expression);
 
-        expr.reverseDependencies().add(this);
+        expr.reverseSymbolicDependencies().add(this);
         this.computeValue();
     }
 

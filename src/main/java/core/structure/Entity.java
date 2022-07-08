@@ -1,13 +1,12 @@
 package core.structure;
 
-import core.Propositions.SetEquality;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.Propositions.PropositionStructure.Proposition;
 import com.google.common.collect.TreeMultiset;
 
 import java.util.*;
 
-public interface Entity {
+public interface Entity extends Proposition {
     /** SECTION: Static Data ======================================================================================== */
     class InputType<T extends Entity> {
         private final Class<T> CLASS;
@@ -38,26 +37,23 @@ public interface Entity {
     }
 
     /** SECTION: Interface ========================================================================================== */
-    Entity simplify();
     List<SymbolicExpression> symbolic();
 
     int getNaturalDegreesOfFreedom();
     int getConstrainedDegreesOfFreedom();
     HashSet<Proposition> getConstraints();
 
-    SetEquality getSetEquality();
-    default Entity equalityPivot() {
-        if (this.getSetEquality() == null) {
-            return this;
-        } else {
-            return this.getSetEquality().pivot;
-        }
-    }
     HashMap<InputType<?>, TreeMultiset<? extends Entity>> getInputs();
     default <T extends Entity> TreeMultiset<T> getInputs(InputType<T> inputType) {
         return (TreeMultiset<T>) this.getInputs().get(inputType);
     }
 
     List<InputType<?>> getInputTypes();
+
+    /** SECTION: Equality Proposition Reduction ===================================================================== */
+    // Entity getEqualityPivot();
+    HashSet<Entity> reverseDependencies();
+    void updateInputs(Entity consumedInput, Entity consumerInput, Entity mergedInput);
+    void deleteSymbolic();
 }
 

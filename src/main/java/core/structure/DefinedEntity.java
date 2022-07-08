@@ -13,6 +13,7 @@ public abstract class DefinedEntity implements Entity {
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
     public HashMap<InputType<?>, TreeMultiset<? extends Entity>> inputs = new HashMap<>();
+    public HashSet<Entity> reverseDependencies = new HashSet<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
     public DefinedEntity() {

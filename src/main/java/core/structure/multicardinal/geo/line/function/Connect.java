@@ -5,7 +5,6 @@ import core.structure.multicardinal.geo.point.structure.*;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicMul;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicPow;
-import core.structure.Entity;
 import core.structure.multicardinal.*;
 import core.util.*;
 
@@ -35,10 +34,6 @@ public class Connect extends DefinedMulticardinal implements Line {
         }
 
         /** SECTION: Implementation ================================================================================= */
-        /** SUBSECTION: ENTITY ====================================================================================== */
-        public Entity simplify() {
-            return this;
-        }
 
         public List<InputType<?>> getInputTypes() {
             return Connect.inputTypes;
@@ -66,10 +61,6 @@ public class Connect extends DefinedMulticardinal implements Line {
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Entity ========================================================================================== */
-    public Entity simplify() {
-        return this;
-    }
 
     public List<InputType<?>> getInputTypes() {
         return Connect.inputTypes;
