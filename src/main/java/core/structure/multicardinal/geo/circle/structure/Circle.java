@@ -13,24 +13,14 @@ public interface Circle extends Locus {
     int naturalDegreesOfFreedom = 2;
 
     /** SECTION: Inner Classes ======================================================================================== */
-    class CircleNode extends javafx.scene.shape.Path implements GeometricNode {
+    class CircleNode extends javafx.scene.shape.Circle implements GeometricNode {
         public CircleNode(Circle c) {
             super();
-            SimpleDoubleProperty radius = c.radius().valueProperty();
-            double r = radius.get();
-
-            MoveTo moveTo = new MoveTo(r, 0.001);
-            moveTo.xProperty().bind(radius);
-
-            ArcTo arcTo = new ArcTo(r, r, 0, r, -0.001, true, true);
-            arcTo.radiusXProperty().bind(radius);
-            arcTo.radiusYProperty().bind(radius);
-            arcTo.xProperty().bind(radius);
-
-            this.getElements().addAll(moveTo, arcTo, new ClosePath());
             this.translateXProperty().bind(c.center().getNode().translateXProperty());
             this.translateYProperty().bind(c.center().getNode().translateYProperty());
+            this.radiusProperty().bind(c.radius().valueProperty());
 
+            this.setFill(null);
             this.setStroke(Color.BLACK);
             this.setStrokeWidth(2);
 

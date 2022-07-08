@@ -83,6 +83,4 @@ public abstract class Constant extends Immutable implements Expression {
     public abstract Constant invert();
 
     public abstract Constant pow(double x);
-
-    public abstract boolean isInteger();
 }

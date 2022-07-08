@@ -3,7 +3,6 @@ package core.structure.unicardinal.alg.structure;
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicInfinity;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
-import core.util.*;
 
 public abstract class Real extends Constant {
     /** SECTION: Protected Constructors ============================================================================= */
@@ -107,19 +106,5 @@ public abstract class Real extends Constant {
         } else {
             return this.createReal(Math.pow(this.value, x));
         }
-    }
-
-    public Constant gcd(Constant c) {
-        if (c instanceof Real re) {
-            return this.createReal(Utils.gcd(this.value, re.value));
-        } else if (c instanceof SymbolicInfinity) {
-            return this;
-        } else {
-            return null;
-        }
-    }
-
-    public boolean isInteger() {
-        return this.value % 1 == 0;
     }
 }

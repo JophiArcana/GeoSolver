@@ -39,7 +39,7 @@ public class Midpoint extends DefinedPoint {
                 SymbolicScale.create(0.5, SymbolicAdd.create(this.A.symbolic().get(1), this.B.symbolic().get(1)))
         );
         if (!this.anonymous) {
-            this.setNode();
+            this.node = new PointNode(this);
         }
     }
 

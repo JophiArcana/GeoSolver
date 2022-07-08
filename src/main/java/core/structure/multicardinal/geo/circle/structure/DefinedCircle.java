@@ -32,7 +32,6 @@ public abstract class DefinedCircle extends DefinedMulticardinal implements Circ
         return this.radius;
     }
 
-    /** SECTION: Interface ========================================================================================== */
     public void setNode() {
         this.node = new CircleNode(this);
     }

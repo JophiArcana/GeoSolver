@@ -36,19 +36,19 @@ public class PointVariable extends MultiVariable implements Point {
     public SymbolicVariable var_x, var_y;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static PointVariable create(String n, double xStart, double yStart) {
-        return new PointVariable(n, xStart, yStart, true);
+    public static PointVariable create(String n, double... args) {
+        return new PointVariable(n, true, args);
     }
 
-    public static PointVariable create(String n, double xStart, double yStart, boolean anon) {
-        return new PointVariable(n, xStart, yStart, anon);
+    public static PointVariable create(String n, boolean anon, double... args) {
+        return new PointVariable(n, anon, args);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected PointVariable(String n, double xStart, double yStart, boolean anon) {
+    protected PointVariable(String n, boolean anon, double... args) {
         super(n, anon);
-        this.var_x = SymbolicVariable.create(this.name + "\u1D6A", xStart);
-        this.var_y = SymbolicVariable.create(this.name + "\u1D67", yStart);
+        this.var_x = SymbolicVariable.create(this.name + "\u1D6A", args[0]);
+        this.var_y = SymbolicVariable.create(this.name + "\u1D67", args[1]);
         if (!this.anonymous) {
             this.node = new MoveablePointNode(this);
         }

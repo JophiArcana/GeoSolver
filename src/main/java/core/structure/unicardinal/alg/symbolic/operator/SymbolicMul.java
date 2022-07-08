@@ -92,7 +92,7 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        double result = 1;
+        double result = 1.0;
         for (Map.Entry<Expression, Double> entry : this.terms.entrySet()) {
             result *= Math.pow(entry.getKey().doubleValue(), entry.getValue());
         }

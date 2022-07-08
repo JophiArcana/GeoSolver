@@ -253,9 +253,9 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
             List<SymbolicExpression> B_symbolic = this.B.symbolic();
             List<SymbolicExpression> C_symbolic = this.C.symbolic();
             this.doubleSignedArea = SymbolicAdd.create(
-                    SymbolicMul.create(A_symbolic.get(0), Utils.ENGINE.sub(B_symbolic.get(1), C_symbolic.get(1))),
-                    SymbolicMul.create(B_symbolic.get(0), Utils.ENGINE.sub(C_symbolic.get(1), A_symbolic.get(1))),
-                    SymbolicMul.create(C_symbolic.get(0), Utils.ENGINE.sub(A_symbolic.get(1), B_symbolic.get(1)))
+                    SymbolicMul.create(A_symbolic.get(0), this.vectorBC()[1]),
+                    SymbolicMul.create(B_symbolic.get(0), this.vectorCA()[1]),
+                    SymbolicMul.create(C_symbolic.get(0), this.vectorAB()[1])
             );
         }
         return this.doubleSignedArea;

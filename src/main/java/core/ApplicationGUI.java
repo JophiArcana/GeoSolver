@@ -25,6 +25,7 @@ public class ApplicationGUI extends Application {
         PointVariable C = d.createPointVariable("C", r.nextInt(100, 700), r.nextInt(100, 700));
         // Triangle.Circumcenter O = d.createCircumcenter("O", A, B, C);
         Triangle.Circumcircle L = d.createCircumcircle("L", A, B, C);
+        Triangle.Orthocenter H = d.createOrthocenter("H", A, B, C);
         ApplicationGUI.DIAGRAM = d;
         Application.launch(ApplicationGUI.class, args);
     }

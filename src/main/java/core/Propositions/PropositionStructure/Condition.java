@@ -4,15 +4,13 @@ import core.structure.Entity;
 
 import java.util.*;
 
-public abstract class Condition extends Proposition {
-    // public abstract void carry();
-    // public abstract void backPropagate();
+public interface Condition extends Proposition {
+    // void carry();
+    // void backPropagate();
 
-    public HashMap<? extends Entity, ? extends Condition> getChildren() {
-        return new HashMap<>();
-    }
+    HashMap<? extends Entity, ? extends Condition> getChildren();
 
-    public void clear() {
+    default void clear() {
         for (Map.Entry<? extends Entity, ? extends Condition> entry : this.getChildren().entrySet()) {
             entry.getKey().getConstraints().remove(entry.getValue());
             entry.getValue().clear();

@@ -26,26 +26,25 @@ public class CircleVariable extends MultiVariable implements Circle {
     public SymbolicVariable var_r;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static CircleVariable create(String n, double xStart, double yStart, double rStart) {
-        return new CircleVariable(n, xStart, yStart, rStart, true);
+    public static CircleVariable create(String n, double... args) {
+        return new CircleVariable(n, true, args);
     }
 
-    public static CircleVariable create(String n, double xStart, double yStart, double rStart, boolean anon) {
-        return new CircleVariable(n, xStart, yStart, rStart, anon);
+    public static CircleVariable create(String n, boolean anon, double... args) {
+        return new CircleVariable(n, anon, args);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected CircleVariable(String n, double xStart, double yStart, double rStart, boolean anon) {
+    protected CircleVariable(String n, boolean anon, double... args) {
         super(n, anon);
-        this.center = PointVariable.create(n + "\u2092", xStart, yStart, anon);
-        this.var_r = SymbolicVariable.create(n + "\u1D63", rStart);
+        this.center = PointVariable.create(n + "\u2092", anon, args[0], args[1]);
+        this.var_r = SymbolicVariable.create(n + "\u1D63", args[2]);
         if (!this.anonymous) {
             this.node = new MoveableCircleNode(this);
         }
     }
 
     /** SECTION: Implementation ===================================================================================== */
-
     public List<SymbolicExpression> symbolic() {
         return List.of(this.center.var_x, this.center.var_y, this.var_r);
     }
@@ -54,6 +53,7 @@ public class CircleVariable extends MultiVariable implements Circle {
     public Point center() {
         return this.center;
     }
+
     public SymbolicExpression radius() {
         return this.var_r;
     }

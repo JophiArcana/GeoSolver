@@ -138,7 +138,4 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
         }
     }
 
-    public boolean isInteger() {
-        return false;
-    }
 }

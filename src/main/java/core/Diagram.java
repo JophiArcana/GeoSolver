@@ -12,7 +12,7 @@ public class Diagram {
     public final Pane root = new Pane();
 
     public PointVariable createPointVariable(String n, double x, double y) {
-        PointVariable P = PointVariable.create(n, x, y, false);
+        PointVariable P = PointVariable.create(n, false, x, y);
         this.root.getChildren().add(P.node);
         return P;
     }
@@ -26,8 +26,15 @@ public class Diagram {
     public Triangle.Circumcircle createCircumcircle(String n, Point A, Point B, Point C) {
         Triangle.Circumcircle L = Triangle.create(A, B, C).circumcircle(n, false);
         this.root.getChildren().add(L.node);
-        this.root.getChildren().add(L.center().getNode());
+        this.root.getChildren().add(L.center.getNode());
+        L.node.toBack();
         return L;
+    }
+
+    public Triangle.Orthocenter createOrthocenter(String n, Point A, Point B, Point C) {
+        Triangle.Orthocenter H = Triangle.create(A, B, C).orthocenter(n, false);
+        this.root.getChildren().add(H.node);
+        return H;
     }
 }
 
