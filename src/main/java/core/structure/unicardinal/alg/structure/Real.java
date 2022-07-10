@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.structure;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicInfinity;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
@@ -28,7 +29,7 @@ public abstract class Real extends Constant {
 
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression close() {
-        return this;
+        return Diagram.retrieve(this);
     }
 
     /** SECTION: Basic Operations =================================================================================== */

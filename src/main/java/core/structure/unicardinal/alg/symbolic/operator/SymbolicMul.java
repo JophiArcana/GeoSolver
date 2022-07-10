@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.*;
 import core.structure.unicardinal.alg.structure.*;
 import core.structure.*;
@@ -11,13 +12,8 @@ import java.util.*;
 
 public class SymbolicMul extends Reduction implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static SymbolicExpression create(Iterable<SymbolicExpression> args) {
-        SymbolicExpression result = (SymbolicExpression) new SymbolicMul(args).close();
-        if (Reduction.CONSTANT == 1) {
-            return result;
-        } else {
-            return SymbolicScale.create(Reduction.CONSTANT, result);
-        }
+    public static SymbolicExpression create(Collection<SymbolicExpression> args) {
+        return (SymbolicExpression) new SymbolicMul(args).close();
     }
 
     public static SymbolicExpression create(SymbolicExpression... args) {
@@ -25,28 +21,8 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicMul(Iterable<SymbolicExpression> args) {
+    protected SymbolicMul(Collection<SymbolicExpression> args) {
         super(args);
-    }
-
-    protected void construct(Iterable<? extends Expression> args) {
-        for (Expression arg : args) {
-            if (arg instanceof SymbolicMul m) {
-                this.construct(m.getInputs(Reduction.TERMS));
-            } else {
-                this.degree += arg.getDegree();
-                switch (arg) {
-                    case Scale sc -> {
-                        Reduction.CONSTANT *= sc.coefficient;
-                        Reduction.TERM_MAP.put(sc.expression, Reduction.TERM_MAP.getOrDefault(sc.expression, 0.0) + 1);
-                    }
-                    case SymbolicPow p ->
-                            Reduction.TERM_MAP.put(p.expression, Reduction.TERM_MAP.getOrDefault(p.expression, 0.0) + p.coefficient);
-                    case Real re -> Reduction.CONSTANT *= re.value;
-                    default -> Reduction.TERM_MAP.put(arg, Reduction.TERM_MAP.getOrDefault(arg, 0.0) + 1);
-                }
-            }
-        }
     }
 
     /** SECTION: Print Format ======================================================================================= */
@@ -96,12 +72,46 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
         return this.expansion;
     }
 
-    /** SUBSECTION: Reduction ======================================================================================= */
-    protected int identity() {
-        return 1;
+    public Expression close() {
+        TreeMap<Expression, Double> termMap = new TreeMap<>(Utils.UNICARDINAL_COMPARATOR);
+        double[] coefficient = {1};
+        this.closeHelper(termMap, coefficient, this.getInputs(Reduction.TERMS));
+        ArrayList<SymbolicExpression> resultTerms = new ArrayList<>(termMap.size());
+        termMap.forEach((expr, power) -> {
+            if (power == 1) {
+                resultTerms.add((SymbolicExpression) expr);
+            } else if (power != 0) {
+                resultTerms.add(SymbolicPow.create((SymbolicExpression) expr, power));
+            }
+        });
+        Expression result = switch (resultTerms.size()) {
+            case 0 -> SymbolicReal.create(coefficient[0]);
+            case 1 -> SymbolicScale.create(coefficient[0], resultTerms.get(0));
+            default -> SymbolicScale.create(coefficient[0], new SymbolicMul(resultTerms));
+        };
+        return Diagram.retrieve(result);
     }
 
-    public Expression createAccumulation(double coefficient, Expression expr) {
-        return SymbolicPow.create((SymbolicExpression) expr, coefficient);
+    private void closeHelper(TreeMap<Expression, Double> map, double[] coefficient, Collection<? extends Expression> args) {
+        for (Expression arg : args) {
+            if (arg instanceof SymbolicMul m) {
+                this.closeHelper(map, coefficient, m.getInputs(Reduction.TERMS));
+            } else {
+                this.degree += arg.getDegree();
+                switch (arg) {
+                    case Scale sc -> {
+                        coefficient[0] *= sc.coefficient;
+                        Utils.addToMultiset(map, sc.expression, 1);
+                    }
+                    case SymbolicPow p -> Utils.addToMultiset(map, p.expression, p.coefficient);
+                    case Real re -> coefficient[0] *= re.value;
+                    default -> Utils.addToMultiset(map, arg, 1);
+                }
+            }
+        }
+    }
+
+    protected int identity() {
+        return 1;
     }
 }

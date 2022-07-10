@@ -10,7 +10,7 @@ public abstract class DefinedExpression extends DefinedEntity implements Express
     /** SECTION: Instance Variables ================================================================================= */
     public Expression expansion;
     public SimpleDoubleProperty value = new SimpleDoubleProperty();
-    public HashSet<Unicardinal> reverseSymbolicDependencies = new HashSet<>();
+    public HashSet<Unicardinal> reverseComputationalDependencies = new HashSet<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected DefinedExpression() {
@@ -19,13 +19,11 @@ public abstract class DefinedExpression extends DefinedEntity implements Express
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
-    @Override
     public SimpleDoubleProperty valueProperty() {
         return this.value;
     }
 
-    @Override
-    public HashSet<Unicardinal> reverseSymbolicDependencies() {
-        return this.reverseSymbolicDependencies;
+    public HashSet<Unicardinal> reverseComputationalDependencies() {
+        return this.reverseComputationalDependencies;
     }
 }

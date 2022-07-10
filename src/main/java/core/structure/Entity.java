@@ -51,9 +51,13 @@ public interface Entity extends Proposition {
     List<InputType<?>> getInputTypes();
 
     /** SECTION: Equality Proposition Reduction ===================================================================== */
-    // Entity getEqualityPivot();
-    HashSet<Entity> reverseDependencies();
-    void updateInputs(Entity consumedInput, Entity consumerInput, Entity mergedInput);
+    default void mergeEquality(Entity a, Entity b) {
+
+    }
+
+    EqualityPivot<?> getEqualityPivot();
+    void setEqualityPivot();
+
     void deleteSymbolic();
 }
 

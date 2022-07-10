@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.directed;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.symbolic.*;
 import core.structure.unicardinal.alg.Variable;
 
@@ -7,8 +8,8 @@ import java.util.*;
 
 public class DirectedVariable extends Variable implements DirectedExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-public static DirectedVariable create(String n, double v) {
-        return new DirectedVariable(n, v);
+    public static DirectedVariable create(String n, double v) {
+        return (DirectedVariable) new DirectedVariable(n, v).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */

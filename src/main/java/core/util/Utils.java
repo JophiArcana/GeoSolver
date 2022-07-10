@@ -122,10 +122,16 @@ public class Utils {
         return List.of(result);
     }
 
-    public static <T, S> ArrayList<S> cast(Iterable<T> args) {
-        ArrayList<S> list = new ArrayList<>();
-        args.forEach(arg -> list.add((S) arg));
-        return list;
+    public static <T, S extends T> Collection<S> cast(Collection<? extends T> args) {
+        return (Collection<S>) args;
+    }
+
+    public static <T> void addToMultiset(TreeMap<T, Integer> map, T key, int count) {
+        map.put(key, map.getOrDefault(key, 0) + count);
+    }
+
+    public static <T> void addToMultiset(TreeMap<T, Double> map, T key, double count) {
+        map.put(key, map.getOrDefault(key, 0.0) + count);
     }
 
     public static double gcd(double x, double y) {
@@ -172,9 +178,8 @@ public class Utils {
     }
 
     public static ArrayList<List<Integer>> sortedContiguousSubsets(int setSize) {
-        ArrayList<List<Integer>> subsets = new ArrayList<>();
+        ArrayList<List<Integer>> subsets = new ArrayList<>(List.of(List.of(0)));
         int bound = 1 << setSize;
-        subsets.add(new ArrayList<>(Collections.singletonList(0)));
         for (int i = 1; i <= setSize; i++) {
             List<Integer> subsetList = new ArrayList<>();
             int k = (1 << i) - 1;
@@ -189,11 +194,11 @@ public class Utils {
         return subsets;
     }
 
-    public static <T> ArrayList<List<HashSet<T>>> sortedSubsets(ArrayList<T> args) {
+    public static <T> ArrayList<List<HashSet<T>>> sortedSubsets(List<T> args) {
         if (args.size() == 0) {
-            return new ArrayList<>(Collections.singletonList(new ArrayList<>(Collections.singletonList(new HashSet<>()))));
+            return new ArrayList<>(List.of(List.of(new HashSet<>())));
         } else {
-            ArrayList<List<HashSet<T>>> lower = Utils.sortedSubsets(new ArrayList<>(args.subList(0, args.size() - 1)));
+            ArrayList<List<HashSet<T>>> lower = Utils.sortedSubsets(args.subList(0, args.size() - 1));
             ArrayList<List<HashSet<T>>> upper = new ArrayList<>();
             for (List<HashSet<T>> list : lower) {
                 upper.add(Utils.map(list, set -> {
@@ -221,7 +226,7 @@ public class Utils {
     private static ArrayList<Integer> supersetHelper(int seed, int n) {
         int k = Integer.bitCount(n);
         if (k == 0) {
-            return new ArrayList<>(Collections.singletonList(seed));
+            return new ArrayList<>(List.of(seed));
         } else {
             int upper_bits = n & (n - 1);
             int lowest_bit = n - upper_bits;

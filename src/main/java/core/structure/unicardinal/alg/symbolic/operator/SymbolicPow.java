@@ -2,10 +2,8 @@ package core.structure.unicardinal.alg.symbolic.operator;
 
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
-import core.structure.unicardinal.alg.structure.Real;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.structure.*;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
 import core.util.*;
 
 import java.util.*;
@@ -57,22 +55,22 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
                         SymbolicScale.create(Math.pow(scaleExpr.coefficient, this.coefficient),
                                 (SymbolicExpression) SymbolicPow.create((SymbolicExpression) scaleExpr.expression, this.coefficient).expand());
                 case Add addExpr && this.coefficient >= 1 && this.coefficient % 1 == 0 ->
-                    SymbolicAdd.create(this.expandHelper(Utils.cast(addExpr.inputs.get(Reduction.TERMS)), (int) this.coefficient));
+                    SymbolicAdd.create(this.expandHelper(List.copyOf(Utils.cast(addExpr.getInputs(Reduction.TERMS))), (int) this.coefficient));
                 default -> this;
             };
         }
         return this.expansion;
     }
 
-    private ArrayList<SymbolicExpression> expandHelper(ArrayList<SymbolicExpression> terms, int n) {
+    private List<SymbolicExpression> expandHelper(List<SymbolicExpression> terms, int n) {
         if (n == 1) {
             return terms;
         } else {
-            ArrayList<SymbolicExpression> sqrt = expandHelper(terms, n / 2);
+            List<SymbolicExpression> sqrt = expandHelper(terms, n / 2);
             ArrayList<SymbolicExpression> result = new ArrayList<>();
             for (int i = 0; i < sqrt.size(); i++) {
                 for (int j = 0; j < i; j++) {
-                    result.add(SymbolicScale.create(2, SymbolicMul.create(List.of(sqrt.get(i), sqrt.get(j)))));
+                    result.add(SymbolicScale.create(2, SymbolicMul.create(sqrt.get(i), sqrt.get(j))));
                 }
                 result.add(SymbolicPow.create(sqrt.get(i), 2));
             }
@@ -81,7 +79,7 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
             } else {
                 ArrayList<SymbolicExpression> newResult = new ArrayList<>();
                 for (SymbolicExpression term : terms) {
-                    result.forEach(arg -> newResult.add(SymbolicMul.create(List.of(term, arg))));
+                    result.forEach(arg -> newResult.add(SymbolicMul.create(term, arg)));
                 }
                 return newResult;
             }
@@ -93,12 +91,16 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
     }
 
     /** SUBSECTION: Accumulation ==================================================================================== */
-    protected Real identity() {
-        return SymbolicReal.create(1);
+    protected int identity() {
+        return 1;
     }
 
-    protected Constant evaluateConstant(double c, Constant e) {
-        return e.pow(c);
+    protected Constant evaluateConstant(double coefficient, Constant expression) {
+        return expression.pow(coefficient);
+    }
+
+    protected Accumulation createRawAccumulation(double coefficient, Expression expression) {
+        return new SymbolicPow((SymbolicExpression) expression, coefficient);
     }
 }
 

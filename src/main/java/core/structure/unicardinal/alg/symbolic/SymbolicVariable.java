@@ -1,11 +1,12 @@
 package core.structure.unicardinal.alg.symbolic;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.Variable;
 
 public class SymbolicVariable extends Variable implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
     public static SymbolicVariable create(String n, double v) {
-        return new SymbolicVariable(n, v);
+        return (SymbolicVariable) new SymbolicVariable(n, v).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */

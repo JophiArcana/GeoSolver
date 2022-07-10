@@ -1,6 +1,8 @@
 package core.structure.unicardinal.alg.directed.operator;
 
+import core.structure.unicardinal.alg.Expression;
 import core.structure.unicardinal.alg.directed.*;
+import core.structure.unicardinal.alg.structure.Accumulation;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.structure.Scale;
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
@@ -27,7 +29,7 @@ public class DirectedScale extends Scale implements DirectedExpression {
             int n = (int) this.coefficient;
             int k = Math.abs(n);
             SymbolicExpression t = this.expression.symbolic().get(0);
-            ArrayList<SymbolicExpression> numeratorTerms = new ArrayList<>();
+            ArrayList<SymbolicExpression> numeratorTerms = new ArrayList<>(n << 1 + 1);
             ArrayList<SymbolicExpression> denominatorTerms = new ArrayList<>(List.of(SymbolicReal.create(1)));
             for (int i = 1; i <= k; i++) {
                 SymbolicExpression expr = SymbolicScale.create(Utils.binomial(k, i), SymbolicPow.create(t, i));
@@ -50,5 +52,10 @@ public class DirectedScale extends Scale implements DirectedExpression {
         } else {
             return null;
         }
+    }
+
+    /** SUBSECTION: Accumulation ==================================================================================== */
+    protected Accumulation createRawAccumulation(double coefficient, Expression expression) {
+        return new DirectedScale(coefficient, (DirectedExpression) expression);
     }
 }

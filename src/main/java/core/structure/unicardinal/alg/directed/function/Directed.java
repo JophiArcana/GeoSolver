@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.directed.function;
 
+import core.Diagram;
 import core.structure.multicardinal.geo.line.structure.Line;
 import core.structure.unicardinal.alg.DefinedExpression;
 import core.structure.unicardinal.alg.directed.DirectedExpression;
@@ -20,7 +21,7 @@ public class Directed extends DefinedExpression implements DirectedExpression {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static Directed create(Line line) {
-        return new Directed(line);
+        return (Directed) new Directed(line).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -51,7 +52,7 @@ public class Directed extends DefinedExpression implements DirectedExpression {
     }
 
     public DirectedExpression close() {
-        return this;
+        return Diagram.retrieve(this);
     }
 
     public int getDegree() {

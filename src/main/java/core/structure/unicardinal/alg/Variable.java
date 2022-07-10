@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg;
 
+import core.Diagram;
 import core.structure.Mutable;
 import core.structure.unicardinal.Unicardinal;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -12,7 +13,7 @@ public abstract class Variable extends Mutable implements Expression {
 
     /** SECTION: Instance Variables ================================================================================= */
     public SimpleDoubleProperty value;
-    public HashSet<Unicardinal> reverseSymbolicDependencies = new HashSet<>();
+    public HashSet<Unicardinal> reverseComputationalDependencies = new HashSet<>();
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Variable(String n, double value) {
@@ -29,8 +30,8 @@ public abstract class Variable extends Mutable implements Expression {
     public void computeValue() {
     }
 
-    public HashSet<Unicardinal> reverseSymbolicDependencies() {
-        return this.reverseSymbolicDependencies;
+    public HashSet<Unicardinal> reverseComputationalDependencies() {
+        return this.reverseComputationalDependencies;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
@@ -39,7 +40,7 @@ public abstract class Variable extends Mutable implements Expression {
     }
 
     public Expression close() {
-        return this;
+        return Diagram.retrieve(this);
     }
 
     public int getNaturalDegreesOfFreedom() {

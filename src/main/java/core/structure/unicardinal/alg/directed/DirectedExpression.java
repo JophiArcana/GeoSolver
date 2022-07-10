@@ -1,10 +1,13 @@
 package core.structure.unicardinal.alg.directed;
 
 import core.structure.unicardinal.alg.directed.operator.DirectedAdd;
+import core.structure.unicardinal.alg.structure.Add;
 import core.structure.unicardinal.alg.structure.Real;
 import core.structure.unicardinal.alg.Expression;
 import core.structure.unicardinal.alg.directed.constant.DirectedReal;
 import core.structure.unicardinal.alg.directed.operator.DirectedScale;
+
+import java.util.Collection;
 
 public interface DirectedExpression extends Expression {
     /** SECTION: Implementation ===================================================================================== */
@@ -14,8 +17,8 @@ public interface DirectedExpression extends Expression {
         return DirectedReal.create(value);
     }
 
-    default Expression createAdd(Iterable<? extends Expression> args) {
-        return DirectedAdd.create((Iterable<DirectedExpression>) args);
+    default Expression createAdd(Collection<? extends Expression> args) {
+        return DirectedAdd.create((Collection<DirectedExpression>) args);
     }
 
     default Expression createScale(double coefficient, Expression expr) {

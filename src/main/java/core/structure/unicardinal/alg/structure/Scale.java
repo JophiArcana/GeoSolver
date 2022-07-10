@@ -37,12 +37,12 @@ public abstract class Scale extends Accumulation {
     }
 
     /** SUBSECTION: Accumulation ==================================================================================== */
-    protected Real identity() {
-        return this.createReal(0);
+    protected int identity() {
+        return 0;
     }
 
-    protected Constant evaluateConstant(double c, Constant e) {
-        return e.mul(this.createReal(c));
+    protected Constant evaluateConstant(double coefficient, Constant expression) {
+        return expression.mul(this.createReal(coefficient));
     }
 }
 

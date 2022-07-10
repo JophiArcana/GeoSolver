@@ -4,11 +4,11 @@ import core.structure.unicardinal.alg.structure.Add;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.Expression;
 
-import java.util.List;
+import java.util.*;
 
 public class SymbolicAdd extends Add implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static SymbolicExpression create(Iterable<SymbolicExpression> args) {
+    public static SymbolicExpression create(Collection<SymbolicExpression> args) {
         return (SymbolicExpression) new SymbolicAdd(args).close();
     }
 
@@ -17,13 +17,13 @@ public class SymbolicAdd extends Add implements SymbolicExpression {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicAdd(Iterable<SymbolicExpression> args) {
+    protected SymbolicAdd(Collection<SymbolicExpression> args) {
         super(args);
     }
 
     /** SECTION: Implementation ===================================================================================== */
-    /** SUBSECTION: Reduction ======================================================================================= */
-    public Expression createAccumulation(double coefficient, Expression expr) {
-        return SymbolicScale.create(coefficient, (SymbolicExpression) expr);
+    /** SUBSECTION: Add ============================================================================================= */
+    protected Add createRawAdd(Collection<? extends Expression> args) {
+        return new SymbolicAdd((Collection<SymbolicExpression>) args);
     }
 }

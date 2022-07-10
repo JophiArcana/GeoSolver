@@ -11,7 +11,7 @@ import java.util.*;
 public class DirectedReal extends Real implements DirectedExpression {
     /** SECTION: Factory Methods ==================================================================================== */
     public static DirectedReal create(double value) {
-        return new DirectedReal(value);
+        return (DirectedReal) new DirectedReal(value).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */

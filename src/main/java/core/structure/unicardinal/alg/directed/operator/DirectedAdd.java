@@ -13,7 +13,7 @@ import java.util.*;
 
 public class DirectedAdd extends Add implements DirectedExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static DirectedExpression create(Iterable<DirectedExpression> args) {
+    public static DirectedExpression create(Collection<DirectedExpression> args) {
         return (DirectedExpression) new DirectedAdd(args).close();
     }
 
@@ -22,14 +22,14 @@ public class DirectedAdd extends Add implements DirectedExpression {
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected DirectedAdd(Iterable<DirectedExpression> args) {
+    protected DirectedAdd(Collection<DirectedExpression> args) {
         super(args);
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     public List<SymbolicExpression> symbolic() {
-        ArrayList<DirectedExpression> terms = Utils.cast(this.getInputs(Reduction.TERMS));
+        List<DirectedExpression> terms = List.copyOf(Utils.cast(this.getInputs(Reduction.TERMS)));
         ArrayList<List<HashSet<DirectedExpression>>> subsets = Utils.sortedSubsets(terms);
 
         ArrayList<SymbolicExpression> numeratorTerms = new ArrayList<>();
@@ -56,8 +56,8 @@ public class DirectedAdd extends Add implements DirectedExpression {
         ));
     }
 
-    /** SUBSECTION: Reduction ======================================================================================= */
-    public Expression createAccumulation(double coefficient, Expression expr) {
-        return DirectedScale.create(coefficient, (DirectedExpression) expr);
+    /** SUBSECTION: Add ============================================================================================= */
+    protected Add createRawAdd(Collection<? extends Expression> args) {
+        return new DirectedAdd((Collection<DirectedExpression>) args);
     }
 }

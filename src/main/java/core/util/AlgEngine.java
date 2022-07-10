@@ -2,6 +2,7 @@ package core.util;
 
 import java.util.*;
 
+import com.google.common.collect.TreeMultiset;
 import core.structure.unicardinal.alg.Constant;
 import core.structure.unicardinal.alg.Expression;
 import core.structure.unicardinal.alg.Variable;
@@ -19,7 +20,7 @@ public class AlgEngine {
     public double numberOfOperations(Expression expr) {
         switch (expr) {
             case Reduction reduction:
-                ArrayList<Expression> terms = Utils.cast(reduction.inputs.get(Reduction.TERMS));
+                TreeMultiset<Expression> terms = reduction.getInputs(Reduction.TERMS);
                 double operations = (double) terms.size() - 1;
                 for (Expression term : terms) {
                     operations += this.numberOfOperations(term);
@@ -83,7 +84,7 @@ public class AlgEngine {
     }
 
     /** SECTION: Basic operations =================================================================================== */
-    public <T extends Expression> T add(Iterable<T> args) {
+    public <T extends Expression> T add(Collection<T> args) {
         return (T) args.iterator().next().createAdd(args);
     }
 
@@ -95,7 +96,7 @@ public class AlgEngine {
         return (T) arg1.createAdd(List.of(arg1, arg2.createScale(-1, arg2)));
     }
 
-    public SymbolicExpression mul(Iterable<SymbolicExpression> args) {
+    public SymbolicExpression mul(Collection<SymbolicExpression> args) {
         return SymbolicMul.create(args);
     }
 

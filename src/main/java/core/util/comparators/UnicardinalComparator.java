@@ -1,12 +1,14 @@
 package core.util.comparators;
 
+import core.structure.unicardinal.Unicardinal;
 import core.structure.unicardinal.alg.*;
 import core.util.Utils;
 
 import java.util.Comparator;
 
-public class UnicardinalComparator implements Comparator<Expression> {
-    public int compare(Expression expr1, Expression expr2) {
+public class UnicardinalComparator implements Comparator<Unicardinal> {
+    public int compare(Unicardinal u1, Unicardinal u2) {
+        Expression expr1 = (Expression) u1, expr2 = (Expression) u2;
         if (expr1 instanceof Constant c1 && expr2 instanceof Constant c2) {
             return Constant.compare(c1, c2);
         } else if (expr1.getDegree() != expr2.getDegree()) {

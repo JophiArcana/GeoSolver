@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.symbolic.constant;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.structure.Real;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.*;
@@ -14,7 +15,7 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static SymbolicInfinity create() {
-        return new SymbolicInfinity(1, 1);
+        return (SymbolicInfinity) new SymbolicInfinity(1, 1).close();
     }
 
     public static Constant create(double coefficient, double degree) {
@@ -34,15 +35,15 @@ public class SymbolicInfinity extends Constant implements SymbolicExpression {
     }
 
     /** SECTION: Implementation ===================================================================================== */
-
-
     /** SUBSECTION: Expression ====================================================================================== */
     public Expression close() {
+        Expression result;
         if (this.degree == 0 || this.coefficient == 0) {
-            return new SymbolicReal(this.coefficient);
+            result = new SymbolicReal(this.coefficient);
         } else {
-            return this;
+            result = this;
         }
+        return Diagram.retrieve(result);
     }
 
     /** SECTION: Basic Operations =================================================================================== */

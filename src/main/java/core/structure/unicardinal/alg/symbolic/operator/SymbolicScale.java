@@ -1,5 +1,7 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
+import core.structure.unicardinal.alg.Expression;
+import core.structure.unicardinal.alg.structure.Accumulation;
 import core.structure.unicardinal.alg.structure.Scale;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 
@@ -18,5 +20,10 @@ public class SymbolicScale extends Scale implements SymbolicExpression {
     /** SUBSECTION: Expression ====================================================================================== */
     public int getDegree() {
         return this.expression.getDegree();
+    }
+
+    /** SUBSECTION: Accumulation ==================================================================================== */
+    protected Accumulation createRawAccumulation(double coefficient, Expression expression) {
+        return new SymbolicScale(coefficient, (SymbolicExpression) expression);
     }
 }

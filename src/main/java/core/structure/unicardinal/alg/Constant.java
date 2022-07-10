@@ -54,7 +54,7 @@ public abstract class Constant extends Immutable implements Expression {
     }
 
     @Override
-    public HashSet<Unicardinal> reverseSymbolicDependencies() {
+    public HashSet<Unicardinal> reverseComputationalDependencies() {
         return null;
     }
 

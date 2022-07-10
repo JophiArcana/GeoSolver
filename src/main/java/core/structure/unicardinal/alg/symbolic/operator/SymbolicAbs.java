@@ -1,5 +1,6 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
+import core.Diagram;
 import core.structure.unicardinal.alg.*;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.util.Utils;
@@ -24,7 +25,7 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
     protected SymbolicAbs(SymbolicExpression expression) {
         super();
         this.expression = expression;
-        expression.reverseSymbolicDependencies().add(this);
+        expression.reverseComputationalDependencies().add(this);
         this.computeValue();
     }
 
@@ -50,13 +51,15 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
     }
 
     public Expression close() {
+        Expression result;
         if (this.expression instanceof SymbolicPow powExpr && powExpr.coefficient % 2 == 0) {
-            return powExpr.expression;
+            result = powExpr.expression;
         } else if (this.expression instanceof SymbolicScale scaleExpr) {
-            return SymbolicScale.create(Math.abs(scaleExpr.coefficient), SymbolicAbs.create((SymbolicExpression) scaleExpr.expression));
+            result = SymbolicScale.create(Math.abs(scaleExpr.coefficient), SymbolicAbs.create((SymbolicExpression) scaleExpr.expression));
         } else {
-            return this;
+            result = this;
         }
+        return Diagram.retrieve(result);
     }
 
     public int getDegree() {
