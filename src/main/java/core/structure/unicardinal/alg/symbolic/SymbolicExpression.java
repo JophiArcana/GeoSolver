@@ -1,29 +1,30 @@
 package core.structure.unicardinal.alg.symbolic;
 
-import core.structure.unicardinal.alg.structure.Add;
-import core.structure.unicardinal.alg.structure.Real;
-import core.structure.unicardinal.alg.symbolic.operator.*;
+import core.structure.equalitypivot.EqualityPivot;
+import core.structure.equalitypivot.LockedEqualityPivot;
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
-import core.structure.unicardinal.alg.Expression;
+import core.structure.unicardinal.Unicardinal;
+import core.structure.unicardinal.alg.symbolic.operator.SymbolicAdd;
+import core.structure.unicardinal.alg.symbolic.operator.SymbolicScale;
 
 import java.util.*;
 
-public interface SymbolicExpression extends Expression {
+public interface SymbolicExpression extends Unicardinal {
     /** SECTION: Implementation ===================================================================================== */
-    default List<SymbolicExpression> symbolic() {
-        return List.of(this);
+    default List<EqualityPivot<SymbolicExpression>> symbolic() {
+        return List.of((EqualityPivot<SymbolicExpression>) this.getEqualityPivot());
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    default Real createReal(double value) {
+    default LockedEqualityPivot<SymbolicExpression, SymbolicReal> createReal(double value) {
         return SymbolicReal.create(value);
     }
 
-    default Expression createAdd(Collection<? extends Expression> args) {
-        return SymbolicAdd.create((Collection<SymbolicExpression>) args);
+    default EqualityPivot<SymbolicExpression> createAdd(Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
+        return SymbolicAdd.create((Collection<EqualityPivot<SymbolicExpression>>) args);
     }
 
-    default Expression createScale(double coefficient, Expression expr) {
-        return SymbolicScale.create(coefficient, (SymbolicExpression) expr);
+    default EqualityPivot<SymbolicExpression> createScale(double coefficient, EqualityPivot<? extends Unicardinal> expr) {
+        return SymbolicScale.create(coefficient, (EqualityPivot<SymbolicExpression>) expr);
     }
 }

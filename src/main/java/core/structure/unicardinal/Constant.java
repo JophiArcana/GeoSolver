@@ -1,13 +1,13 @@
-package core.structure.unicardinal.alg;
+package core.structure.unicardinal;
 
-import core.structure.unicardinal.Unicardinal;
-import core.structure.unicardinal.alg.symbolic.constant.*;
+import core.structure.equalitypivot.EqualityPivot;
 import core.structure.*;
+import core.structure.unicardinal.alg.symbolic.constant.SymbolicInfinity;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.*;
 
-public abstract class Constant extends Immutable implements Expression {
+public abstract class Constant extends Immutable implements Unicardinal {
     /** SECTION: Static Data ======================================================================================== */
     public static final List<InputType<?>> inputTypes = null;
 
@@ -29,6 +29,7 @@ public abstract class Constant extends Immutable implements Expression {
 
     /** SECTION: Instance Variables ================================================================================= */
     public final double value;
+    public final HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies = new HashSet<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
     protected Constant(double value) {
@@ -36,51 +37,38 @@ public abstract class Constant extends Immutable implements Expression {
         this.value = value;
     }
 
+    /** SECTION: Print Format ======================================================================================= */
+    public String toString() {
+        return "" + this.value;
+    }
+
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    @Override
     public List<InputType<?>> getInputTypes() {
         return Constant.inputTypes;
     }
 
     /** SUBSECTION: Unicardinal ===================================================================================== */
-    @Override
     public SimpleDoubleProperty valueProperty() {
         return new SimpleDoubleProperty(this.value);
     }
 
-    @Override
     public void computeValue() {
     }
 
-    @Override
-    public HashSet<Unicardinal> reverseComputationalDependencies() {
-        return null;
+    public HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies() {
+        return this.computationalDependencies;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    @Override
-    public Expression expand() {
-        return this;
+    public EqualityPivot<? extends Unicardinal> expand() {
+        return (EqualityPivot<? extends Unicardinal>) this.equalityPivot;
     }
 
-    @Override
     public int getDegree() {
         return 0;
     }
-
-    /** SECTION: Basic Operations =================================================================================== */
-    public abstract Constant add(Constant x);
-
-    public abstract Constant sub(Constant x);
-
-    public abstract Constant mul(Constant x);
-
-    public abstract Constant div(Constant x);
-
-    public abstract Constant negate();
-
-    public abstract Constant invert();
-
-    public abstract Constant pow(double x);
 }
+
+
+

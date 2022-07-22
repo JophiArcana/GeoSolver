@@ -1,13 +1,12 @@
 package core.structure.unicardinal.alg.structure;
 
-import core.structure.unicardinal.alg.Constant;
-import core.structure.unicardinal.alg.Expression;
+import core.structure.equalitypivot.*;
+import core.structure.unicardinal.*;
 import core.util.*;
-import com.google.common.collect.TreeMultiset;
 
 public abstract class Scale extends Accumulation {
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Scale(double coefficient, Expression expr) {
+    protected Scale(double coefficient, EqualityPivot<? extends Unicardinal> expr) {
         super(coefficient, expr);
     }
 
@@ -23,14 +22,14 @@ public abstract class Scale extends Accumulation {
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public Expression expand() {
+    public EqualityPivot<? extends Unicardinal> expand() {
         if (this.expansion == null) {
-            Expression expr = this.expression.expand();
-            if (expr instanceof Add addExpr) {
-                this.expansion = this.createAdd(Utils.map((TreeMultiset<Expression>) addExpr.inputs.get(Reduction.TERMS),
+            EqualityPivot<? extends Unicardinal> expressionExpansion = this.expression.simplestElement.expand();
+            if (expressionExpansion.simplestElement instanceof Add addExpr) {
+                this.expansion = this.createAdd(Utils.map(addExpr.getInputs(Reduction.TERMS),
                         arg -> this.createScale(this.coefficient, arg)));
             } else {
-                this.expansion = this.createScale(this.coefficient, expr);
+                this.expansion = this.createScale(this.coefficient, expressionExpansion);
             }
         }
         return this.expansion;
@@ -41,8 +40,8 @@ public abstract class Scale extends Accumulation {
         return 0;
     }
 
-    protected Constant evaluateConstant(double coefficient, Constant expression) {
-        return expression.mul(this.createReal(coefficient));
+    protected LockedEqualityPivot<? extends Unicardinal, ? extends Constant> evaluateConstant(double coefficient, Constant expression) {
+        return this.createReal(coefficient * expression.value);
     }
 }
 

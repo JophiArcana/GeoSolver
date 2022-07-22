@@ -3,7 +3,7 @@ import core.alg.UnicardinalStructure.*;
 import core.alg.UnicardinalRings.*;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.multicardinal.geo.point.structure.PointVariable;
-import core.structure.unicardinal.alg.Variable;
+import core.structure.unicardinal.Variable;
 import core.util.*;
 
 import static core.util.GeoEngine.*;

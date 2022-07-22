@@ -5,8 +5,10 @@ import core.structure.multicardinal.geo.circle.structure.*;
 import core.structure.multicardinal.geo.line.structure.*;
 import core.structure.multicardinal.geo.point.structure.*;
 import core.Propositions.PropositionStructure.*;
-import core.structure.unicardinal.alg.directed.*;
-import core.structure.unicardinal.alg.symbolic.*;
+import core.structure.unicardinal.alg.directed.DirectedExpression;
+import core.structure.unicardinal.alg.directed.DirectedVariable;
+import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
 import core.util.Utils;
 
 import java.util.*;

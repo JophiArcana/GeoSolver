@@ -1,7 +1,7 @@
 
 import core.alg.UnicardinalStructure.*;
-import core.structure.unicardinal.alg.Expression;
-import core.structure.unicardinal.alg.Variable;
+import core.structure.unicardinal.Unicardinal;
+import core.structure.unicardinal.Variable;
 import core.util.AlgEngine;
 import core.util.Utils;
 
@@ -12,7 +12,7 @@ public class DivisionTest {
         AlgEngine<Symbolic> e1 = Utils.getEngine(Symbolic.class);
         Variable<Symbolic> x = Variable.create("x", Symbolic.class);
         Variable<Symbolic> y = Variable.create("y", Symbolic.class);
-        Expression<Symbolic> expr = e1.mul(List.of(x, y, e1.sub(x, y)));
+        Unicardinal<Symbolic> expr = e1.mul(List.of(x, y, e1.sub(x, y)));
         System.out.println(expr);
         System.out.println(e1.numberOfOperations(y));
     }

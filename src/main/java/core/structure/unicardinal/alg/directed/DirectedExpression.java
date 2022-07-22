@@ -1,28 +1,25 @@
 package core.structure.unicardinal.alg.directed;
 
-import core.structure.unicardinal.alg.directed.operator.DirectedAdd;
-import core.structure.unicardinal.alg.structure.Add;
-import core.structure.unicardinal.alg.structure.Real;
-import core.structure.unicardinal.alg.Expression;
+import core.structure.equalitypivot.*;
 import core.structure.unicardinal.alg.directed.constant.DirectedReal;
-import core.structure.unicardinal.alg.directed.operator.DirectedScale;
+import core.structure.unicardinal.alg.directed.operator.*;
+import core.structure.unicardinal.Unicardinal;
 
 import java.util.Collection;
 
-public interface DirectedExpression extends Expression {
+public interface DirectedExpression extends Unicardinal {
     /** SECTION: Implementation ===================================================================================== */
-
     /** SUBSECTION: Expression ====================================================================================== */
-    default Real createReal(double value) {
+    default LockedEqualityPivot<DirectedExpression, DirectedReal> createReal(double value) {
         return DirectedReal.create(value);
     }
 
-    default Expression createAdd(Collection<? extends Expression> args) {
-        return DirectedAdd.create((Collection<DirectedExpression>) args);
+    default EqualityPivot<DirectedExpression> createAdd(Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
+        return DirectedAdd.create((Collection<EqualityPivot<DirectedExpression>>) args);
     }
 
-    default Expression createScale(double coefficient, Expression expr) {
-        return DirectedScale.create(coefficient, (DirectedExpression) expr);
+    default EqualityPivot<DirectedExpression> createScale(double coefficient, EqualityPivot<? extends Unicardinal> expr) {
+        return DirectedScale.create(coefficient, (EqualityPivot<DirectedExpression>) expr);
     }
 
     default int getDegree() {

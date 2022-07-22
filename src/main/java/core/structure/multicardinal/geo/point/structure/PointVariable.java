@@ -1,8 +1,8 @@
 package core.structure.multicardinal.geo.point.structure;
 
 import core.structure.multicardinal.*;
-import core.structure.unicardinal.Unicardinal;
-import core.structure.unicardinal.alg.symbolic.*;
+import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
 import javafx.scene.Cursor;
 
 import java.util.*;

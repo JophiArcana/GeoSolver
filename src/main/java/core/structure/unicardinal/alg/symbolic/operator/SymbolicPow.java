@@ -1,21 +1,27 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
-import core.structure.unicardinal.alg.Constant;
-import core.structure.unicardinal.alg.Expression;
+import core.structure.equalitypivot.EqualityPivot;
+import core.structure.equalitypivot.LockedEqualityPivot;
+import core.structure.unicardinal.Constant;
+import core.structure.unicardinal.Unicardinal;
+import core.structure.unicardinal.alg.structure.Accumulation;
+import core.structure.unicardinal.alg.structure.Add;
+import core.structure.unicardinal.alg.structure.Reduction;
+import core.structure.unicardinal.alg.symbolic.SymbolicConstant;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.structure.unicardinal.alg.structure.*;
+import core.structure.unicardinal.alg.symbolic.constant.*;
 import core.util.*;
 
 import java.util.*;
 
 public class SymbolicPow extends Accumulation implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static SymbolicExpression create(SymbolicExpression base, double exponent) {
-        return (SymbolicExpression) new SymbolicPow(base, exponent).close();
+    public static EqualityPivot<SymbolicExpression> create(EqualityPivot<SymbolicExpression> base, double exponent) {
+        return (EqualityPivot<SymbolicExpression>) new SymbolicPow(base, exponent).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicPow(SymbolicExpression base, double exponent) {
+    protected SymbolicPow(EqualityPivot<SymbolicExpression> base, double exponent) {
         super(exponent, base);
     }
 
@@ -35,39 +41,42 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
+        double base = this.expression.doubleValue();
         if (this.coefficient == -1) {
-            this.value.set(1.0 / this.expression.doubleValue());
+            this.value.set(1 / base);
         } else if (this.coefficient == 2) {
-            this.value.set(this.expression.doubleValue() * this.expression.doubleValue());
+            this.value.set(base * base);
         } else {
-            this.value.set(Math.pow(this.expression.doubleValue(), this.coefficient));
+            this.value.set(Math.pow(base, this.coefficient));
         }
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public Expression expand() {
+    public EqualityPivot<SymbolicExpression> expand() {
         if (this.expansion == null) {
-            this.expansion = switch (this.expression) {
-                case SymbolicMul mulExpr ->
-                        SymbolicMul.create(Utils.map(mulExpr.getInputs(Reduction.TERMS),
-                                arg -> SymbolicPow.create((SymbolicExpression) arg, this.coefficient))).expand();
-                case SymbolicScale scaleExpr ->
-                        SymbolicScale.create(Math.pow(scaleExpr.coefficient, this.coefficient),
-                                (SymbolicExpression) SymbolicPow.create((SymbolicExpression) scaleExpr.expression, this.coefficient).expand());
+            this.expansion = switch (this.expression.simplestElement) {
+                case SymbolicMul mulExpr -> SymbolicMul.create(Utils.map(mulExpr.getInputs(Reduction.TERMS),
+                            arg -> SymbolicPow.create((EqualityPivot<SymbolicExpression>) arg, this.coefficient))).simplestElement.expand();
+                case SymbolicScale scaleExpr -> {
+                    double newCoefficient = Math.pow(scaleExpr.coefficient, this.coefficient);
+                    EqualityPivot<SymbolicExpression> newExpression = (EqualityPivot<SymbolicExpression>) SymbolicPow.create(
+                            (EqualityPivot<SymbolicExpression>) scaleExpr.expression, this.coefficient).simplestElement.expand();
+                    yield SymbolicScale.create(newCoefficient, newExpression);
+                }
                 case Add addExpr && this.coefficient >= 1 && this.coefficient % 1 == 0 ->
                     SymbolicAdd.create(this.expandHelper(List.copyOf(Utils.cast(addExpr.getInputs(Reduction.TERMS))), (int) this.coefficient));
-                default -> this;
+                default -> (EqualityPivot<? extends Unicardinal>) this.equalityPivot;
             };
         }
-        return this.expansion;
+        return (EqualityPivot<SymbolicExpression>) this.expansion;
     }
 
-    private List<SymbolicExpression> expandHelper(List<SymbolicExpression> terms, int n) {
+    private List<EqualityPivot<SymbolicExpression>> expandHelper(List<EqualityPivot<SymbolicExpression>> terms, int n) {
         if (n == 1) {
             return terms;
         } else {
-            List<SymbolicExpression> sqrt = expandHelper(terms, n / 2);
-            ArrayList<SymbolicExpression> result = new ArrayList<>();
+            List<EqualityPivot<SymbolicExpression>> sqrt = expandHelper(terms, n / 2);
+            ArrayList<EqualityPivot<SymbolicExpression>> result = new ArrayList<>();
             for (int i = 0; i < sqrt.size(); i++) {
                 for (int j = 0; j < i; j++) {
                     result.add(SymbolicScale.create(2, SymbolicMul.create(sqrt.get(i), sqrt.get(j))));
@@ -77,8 +86,8 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
             if (n % 2 == 0) {
                 return result;
             } else {
-                ArrayList<SymbolicExpression> newResult = new ArrayList<>();
-                for (SymbolicExpression term : terms) {
+                ArrayList<EqualityPivot<SymbolicExpression>> newResult = new ArrayList<>();
+                for (EqualityPivot<SymbolicExpression> term : terms) {
                     result.forEach(arg -> newResult.add(SymbolicMul.create(term, arg)));
                 }
                 return newResult;
@@ -87,7 +96,7 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
     }
 
     public int getDegree() {
-        return (int) (this.coefficient * this.expression.getDegree());
+        return (int) (this.coefficient * this.expression.simplestElement.getDegree());
     }
 
     /** SUBSECTION: Accumulation ==================================================================================== */
@@ -95,12 +104,16 @@ public class SymbolicPow extends Accumulation implements SymbolicExpression {
         return 1;
     }
 
-    protected Constant evaluateConstant(double coefficient, Constant expression) {
-        return expression.pow(coefficient);
+    protected LockedEqualityPivot<SymbolicExpression, ? extends SymbolicConstant> evaluateConstant(double coefficient, Constant expression) {
+        return switch (expression) {
+            case SymbolicInfinity inf -> SymbolicInfinity.create(Math.pow(inf.coefficient, coefficient), inf.degree * coefficient);
+            case SymbolicReal re -> SymbolicReal.create(Math.pow(re.value, coefficient));
+            default -> null;
+        };
     }
 
-    protected Accumulation createRawAccumulation(double coefficient, Expression expression) {
-        return new SymbolicPow((SymbolicExpression) expression, coefficient);
+    protected Accumulation createRawAccumulation(double coefficient, EqualityPivot<? extends Unicardinal> expression) {
+        return new SymbolicPow((EqualityPivot<SymbolicExpression>) expression, coefficient);
     }
 }
 

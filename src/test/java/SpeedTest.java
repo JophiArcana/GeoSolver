@@ -6,7 +6,7 @@ import core.structure.unicardinal.alg.structure.Scale;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicMul;
 import core.structure.unicardinal.alg.structure.Reduction;
 import core.alg.UnicardinalRings.*;
-import core.structure.unicardinal.alg.Expression;
+import core.structure.unicardinal.Unicardinal;
 import core.util.*;
 
 import java.util.*;
@@ -22,9 +22,9 @@ public class SpeedTest {
         PointVariable r = PointVariable.create("R");
         Point o = circumcenter("O", p, q, r);
 
-        Expression<Symbolic> expr = (Expression<Symbolic>) o.expression(Point.PointExpressionType.X);
+        Unicardinal<Symbolic> expr = (Unicardinal<Symbolic>) o.expression(Point.PointExpressionType.X);
         expr = Scale.create(2, expr, Symbolic.class);
-        ArrayList<Expression<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(SymbolicMul.Parameter.TERMS));
+        ArrayList<Unicardinal<Symbolic>> exprInputs = Utils.cast(expr.getInputs().get(SymbolicMul.Parameter.TERMS));
         exprInputs = Utils.cast(exprInputs.get(0).getInputs().get(Reduction.Parameter.TERMS));
 
         int cycles = 100000;

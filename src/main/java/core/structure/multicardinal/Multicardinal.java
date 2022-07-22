@@ -1,7 +1,6 @@
 package core.structure.multicardinal;
 
 import core.structure.Entity;
-import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.effect.Glow;

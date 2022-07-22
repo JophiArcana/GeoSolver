@@ -3,10 +3,8 @@ package core.structure.multicardinal.geo.circle.structure;
 import core.structure.multicardinal.geo.Locus;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
 
 public interface Circle extends Locus {
     /** SECTION: Static Data ======================================================================================== */

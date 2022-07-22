@@ -1,18 +1,16 @@
 package core.structure.multicardinal.geo.circle.structure;
 
 import core.structure.multicardinal.geo.point.structure.*;
-import core.structure.unicardinal.alg.Constant;
 import core.structure.multicardinal.MultiConstant;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
-import core.util.Utils;
 
 import java.util.*;
 
 public class Disc extends MultiConstant implements Circle {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Coordinate> CENTER = new InputType<>(Coordinate.class, Utils.MULTICARDINAL_COMPARATOR);
-    public static final InputType<SymbolicReal> RADIUS = new InputType<>(SymbolicReal.class, Constant::compare);
+    public static final InputType<Coordinate> CENTER = new InputType<>();
+    public static final InputType<SymbolicReal> RADIUS = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Disc.CENTER, Disc.RADIUS);
 

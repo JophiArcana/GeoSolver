@@ -2,7 +2,8 @@ package core.structure.multicardinal.geo.circle.structure;
 
 import core.structure.multicardinal.MultiVariable;
 import core.structure.multicardinal.geo.point.structure.*;
-import core.structure.unicardinal.alg.symbolic.*;
+import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
 import javafx.scene.Cursor;
 
 import java.util.*;

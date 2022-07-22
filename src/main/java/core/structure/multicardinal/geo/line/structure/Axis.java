@@ -2,13 +2,12 @@ package core.structure.multicardinal.geo.line.structure;
 
 import core.structure.multicardinal.MultiConstant;
 import core.structure.multicardinal.geo.point.structure.*;
-import core.util.Utils;
 
 import java.util.List;
 
 public class Axis extends MultiConstant implements Line {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Coordinate> COORDINATE = new InputType<>(Coordinate.class, Utils.MULTICARDINAL_COMPARATOR);
+    public static final InputType<Coordinate> COORDINATE = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Axis.COORDINATE);
 

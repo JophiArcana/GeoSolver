@@ -1,32 +1,34 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
 import core.Diagram;
-import core.structure.unicardinal.alg.*;
+import core.structure.equalitypivot.EqualityPivot;
+import core.structure.unicardinal.DefinedUnicardinal;
+import core.structure.unicardinal.Unicardinal;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.util.Utils;
 
 import java.util.*;
 
-public class SymbolicAbs extends DefinedExpression implements SymbolicExpression {
+public class SymbolicAbs extends DefinedUnicardinal implements SymbolicExpression {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<SymbolicExpression> EXPRESSION = new InputType<>(SymbolicExpression.class, Utils.UNICARDINAL_COMPARATOR);
+    public static final InputType<SymbolicExpression> EXPRESSION = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(SymbolicAbs.EXPRESSION);
 
     /** SECTION: Instance Variables ================================================================================= */
-    public SymbolicExpression expression;
+    public EqualityPivot<SymbolicExpression> expression;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static SymbolicExpression create(SymbolicExpression expression) {
-        return (SymbolicExpression) new SymbolicAbs(expression).close();
+    public static EqualityPivot<SymbolicExpression> create(EqualityPivot<SymbolicExpression> expression) {
+        return (EqualityPivot<SymbolicExpression>) new SymbolicAbs(expression).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicAbs(SymbolicExpression expression) {
+    protected SymbolicAbs(EqualityPivot<SymbolicExpression> expression) {
         super();
         this.expression = expression;
-        expression.reverseComputationalDependencies().add(this);
-        this.computeValue();
+
+        Unicardinal.createComputationalEdge(this, this.expression);
+        this.expression.reverseDependencies.add(this);
     }
 
     /** SECTION: Print Format ======================================================================================= */
@@ -36,6 +38,10 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
+    public void updateLocalVariables(EqualityPivot<?> consumedPivot, EqualityPivot<?> consumerPivot) {
+        this.expression = (EqualityPivot<SymbolicExpression>) consumerPivot; // Only one local variable that can possibly hold consumedPivot
+    }
+
     public List<InputType<?>> getInputTypes() {
         return SymbolicAbs.inputTypes;
     }
@@ -46,23 +52,23 @@ public class SymbolicAbs extends DefinedExpression implements SymbolicExpression
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public Expression expand() {
-        return SymbolicAbs.create((SymbolicExpression) this.expression.expand());
+    public EqualityPivot<? extends Unicardinal> expand() {
+        return SymbolicAbs.create((EqualityPivot<SymbolicExpression>) this.expression.simplestElement.expand());
     }
 
-    public Expression close() {
-        Expression result;
-        if (this.expression instanceof SymbolicPow powExpr && powExpr.coefficient % 2 == 0) {
-            result = powExpr.expression;
-        } else if (this.expression instanceof SymbolicScale scaleExpr) {
-            result = SymbolicScale.create(Math.abs(scaleExpr.coefficient), SymbolicAbs.create((SymbolicExpression) scaleExpr.expression));
+    public EqualityPivot<? extends Unicardinal> close() {
+        EqualityPivot<?> result;
+        if (this.expression.simplestElement instanceof SymbolicPow powExpr && powExpr.coefficient % 2 == 0) {
+            result = this.expression;
+        } else if (this.expression.simplestElement instanceof SymbolicScale scaleExpr) {
+            result = SymbolicScale.create(Math.abs(scaleExpr.coefficient), SymbolicAbs.create((EqualityPivot<SymbolicExpression>) scaleExpr.expression));
         } else {
-            result = this;
+            result = Diagram.retrieve(this);
         }
-        return Diagram.retrieve(result);
+        return (EqualityPivot<? extends Unicardinal>) this.mergeResult(result);
     }
 
     public int getDegree() {
-        return this.expression.getDegree();
+        return this.expression.simplestElement.getDegree();
     }
 }

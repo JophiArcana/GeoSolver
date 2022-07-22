@@ -1,19 +1,20 @@
-package core.structure.unicardinal.alg;
+package core.structure.unicardinal;
 
 import core.structure.*;
-import core.structure.unicardinal.Unicardinal;
+import core.structure.equalitypivot.EqualityPivot;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.HashSet;
 
-public abstract class DefinedExpression extends DefinedEntity implements Expression {
+public abstract class DefinedUnicardinal extends DefinedEntity implements Unicardinal {
     /** SECTION: Instance Variables ================================================================================= */
-    public Expression expansion;
-    public SimpleDoubleProperty value = new SimpleDoubleProperty();
-    public HashSet<Unicardinal> reverseComputationalDependencies = new HashSet<>();
+    public EqualityPivot<? extends Unicardinal> expansion;
+    public final SimpleDoubleProperty value = new SimpleDoubleProperty();
+
+    public final HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies = new HashSet<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected DefinedExpression() {
+    protected DefinedUnicardinal() {
         super();
     }
 
@@ -23,7 +24,7 @@ public abstract class DefinedExpression extends DefinedEntity implements Express
         return this.value;
     }
 
-    public HashSet<Unicardinal> reverseComputationalDependencies() {
-        return this.reverseComputationalDependencies;
+    public HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies() {
+        return this.computationalDependencies;
     }
 }

@@ -7,7 +7,7 @@ import java.util.*;
 
 public abstract class DefinedPoint extends DefinedMulticardinal implements Point {
     /** SECTION: Instance Variables ================================================================================= */
-    public List<SymbolicExpression> symbolic;
+    public List<UnicardinalPivot<SymbolicExpression>> symbolic;
 
     /** SECTION: Abstract Constructor =============================================================================== */
     public DefinedPoint(String n, boolean anon) {
@@ -16,7 +16,7 @@ public abstract class DefinedPoint extends DefinedMulticardinal implements Point
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ===================================================================================== */
-    public List<SymbolicExpression> symbolic() {
+    public List<UnicardinalPivot<SymbolicExpression>> symbolic() {
         return this.symbolic;
     }
 

@@ -1,6 +1,7 @@
 package core.structure.multicardinal;
 
 import core.structure.*;
+import core.structure.equalitypivot.EqualityPivot;
 import core.util.Utils;
 import javafx.scene.Node;
 
@@ -23,8 +24,8 @@ public abstract class DefinedMulticardinal extends DefinedEntity implements Mult
     public String toString() {
         ArrayList<String> allInputs = new ArrayList<>();
         for (InputType<?> inputType : this.getInputTypes()) {
-            for (Entity ent : this.getInputs().get(inputType)) {
-                allInputs.add(ent.toString());
+            for (EqualityPivot<?> pivot : this.getInputs().get(inputType)) {
+                allInputs.add(pivot.toString());
             }
         }
         return Utils.className(this) + "(" + String.join(", ", allInputs.toArray(new String[0])) + ")";

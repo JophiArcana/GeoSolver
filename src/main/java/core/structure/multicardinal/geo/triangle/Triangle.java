@@ -64,6 +64,7 @@ public class Triangle extends DefinedMulticardinal implements Triangulate {
                     Triangle.this.B.symbolic(),
                     Triangle.this.C.symbolic()
             ), arg -> Utils.ENGINE.norm2(arg.get(0), arg.get(1)));
+
             SymbolicExpression xNum = SymbolicAdd.create(
                     SymbolicMul.create(n2Vector.get(0), Triangle.this.vectorBC()[1]),
                     SymbolicMul.create(n2Vector.get(1), Triangle.this.vectorCA()[1]),

@@ -12,7 +12,7 @@ import java.util.*;
 
 public class Connect extends DefinedMulticardinal implements Line {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Point> POINTS = new InputType<>(Point.class, Utils.MULTICARDINAL_COMPARATOR);
+    public static final InputType<Point> POINTS = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Connect.POINTS);
 

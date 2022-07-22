@@ -4,31 +4,30 @@ import core.structure.multicardinal.geo.point.structure.DefinedPoint;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicAdd;
 import core.structure.unicardinal.alg.symbolic.operator.SymbolicScale;
-import core.util.Utils;
 
 import java.util.List;
 
 public class Midpoint extends DefinedPoint {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Point> POINTS = new InputType<>(Point.class, Utils.MULTICARDINAL_COMPARATOR);
+    public static final InputType<Point> POINTS = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Midpoint.POINTS);
 
 
     /** SECTION: Instance Variables ================================================================================= */
-    public Point A, B;
+    public MulticardinalPivot<Point> A, B;
 
     /** SECTION: Factory Methods ==================================================================================== */
-    public static Midpoint create(String n, Point A, Point B) {
+    public static Midpoint create(String n, MulticardinalPivot<Point> A, MulticardinalPivot<Point> B) {
         return new Midpoint(n, A, B, true);
     }
 
-    public static Midpoint create(String n, Point A, Point B, boolean anon) {
+    public static Midpoint create(String n, MulticardinalPivot<Point> A, MulticardinalPivot<Point> B, boolean anon) {
         return new Midpoint(n, A, B, anon);
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Midpoint(String n, Point A, Point B, boolean anon) {
+    protected Midpoint(String n, MulticardinalPivot<Point> A, MulticardinalPivot<Point> B, boolean anon) {
         super(n, anon);
         this.A = A;
         this.B = B;

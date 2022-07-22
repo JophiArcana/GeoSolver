@@ -1,19 +1,19 @@
-package core.structure.unicardinal.alg;
+package core.structure.unicardinal;
 
 import core.Diagram;
 import core.structure.Mutable;
-import core.structure.unicardinal.Unicardinal;
+import core.structure.equalitypivot.EqualityPivot;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.HashSet;
 
-public abstract class Variable extends Mutable implements Expression {
+public abstract class Variable extends Mutable implements Unicardinal {
     /** SECTION: Static Data ======================================================================================== */
     public static final int naturalDegreesOfFreedom = 1;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public SimpleDoubleProperty value;
-    public HashSet<Unicardinal> reverseComputationalDependencies = new HashSet<>();
+    public final SimpleDoubleProperty value;
+    public final HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies = new HashSet<>();
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Variable(String n, double value) {
@@ -30,16 +30,16 @@ public abstract class Variable extends Mutable implements Expression {
     public void computeValue() {
     }
 
-    public HashSet<Unicardinal> reverseComputationalDependencies() {
-        return this.reverseComputationalDependencies;
+    public HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies() {
+        return this.computationalDependencies;
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public Expression expand() {
-        return this;
+    public EqualityPivot<? extends Unicardinal> expand() {
+        return Diagram.retrieve(this);
     }
 
-    public Expression close() {
+    public EqualityPivot<? extends Unicardinal> close() {
         return Diagram.retrieve(this);
     }
 

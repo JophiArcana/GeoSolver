@@ -12,7 +12,7 @@ public interface Line extends Locus {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    default List<SymbolicExpression> symbolic() {
+    default List<UnicardinalPivot<SymbolicExpression>> symbolic() {
         return this.pointDual().symbolic();
     }
 

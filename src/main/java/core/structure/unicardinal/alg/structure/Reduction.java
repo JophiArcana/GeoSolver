@@ -1,13 +1,14 @@
 package core.structure.unicardinal.alg.structure;
 
-import core.structure.unicardinal.alg.*;
-import core.util.Utils;
+import core.structure.equalitypivot.EqualityPivot;
+import core.structure.unicardinal.DefinedUnicardinal;
+import core.structure.unicardinal.Unicardinal;
 
 import java.util.*;
 
-public abstract class Reduction extends DefinedExpression {
+public abstract class Reduction extends DefinedUnicardinal {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Expression> TERMS = new InputType<>(Expression.class, Utils.UNICARDINAL_COMPARATOR);
+    public static final InputType<Unicardinal> TERMS = new InputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Reduction.TERMS);
 
@@ -15,18 +16,25 @@ public abstract class Reduction extends DefinedExpression {
     public int degree = 0;
 
     /** SECTION: Abstract Constructor =============================================================================== */
-    protected Reduction(Collection<? extends Expression> args) {
+    protected Reduction(Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
         super();
         this.getInputs(Reduction.TERMS).addAll(args);
-
-        args.forEach(arg -> arg.reverseComputationalDependencies().add(this));
+        args.forEach(arg -> {
+            Unicardinal.createComputationalEdge(this, arg);
+            arg.reverseDependencies.add(this);
+        });
     }
 
     /** SECTION: Interface ========================================================================================== */
     protected abstract int identity();
 
     /** SECTION: Implementation ===================================================================================== */
+    public void updateLocalVariables(EqualityPivot<?> consumedPivot, EqualityPivot<?> consumerPivot) {
+    }
+
     /** SUBSECTION: Entity ========================================================================================== */
+
+
     public List<InputType<?>> getInputTypes() {
         return Reduction.inputTypes;
     }
