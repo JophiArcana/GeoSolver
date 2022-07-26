@@ -1,12 +1,12 @@
 package core.structure.unicardinal.alg.structure;
 
-import core.structure.equalitypivot.*;
+import core.Propositions.equalitypivot.unicardinal.*;
 import core.structure.unicardinal.*;
 import core.util.*;
 
 public abstract class Scale extends Accumulation {
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Scale(double coefficient, EqualityPivot<? extends Unicardinal> expr) {
+    protected Scale(double coefficient, UnicardinalPivot<?> expr) {
         super(coefficient, expr);
     }
 
@@ -22,10 +22,10 @@ public abstract class Scale extends Accumulation {
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public EqualityPivot<? extends Unicardinal> expand() {
+    public UnicardinalPivot<?> expand() {
         if (this.expansion == null) {
-            EqualityPivot<? extends Unicardinal> expressionExpansion = this.expression.simplestElement.expand();
-            if (expressionExpansion.simplestElement instanceof Add addExpr) {
+            UnicardinalPivot<?> expressionExpansion = this.expression.element().expand();
+            if (expressionExpansion.element() instanceof Add addExpr) {
                 this.expansion = this.createAdd(Utils.map(addExpr.getInputs(Reduction.TERMS),
                         arg -> this.createScale(this.coefficient, arg)));
             } else {
@@ -40,8 +40,8 @@ public abstract class Scale extends Accumulation {
         return 0;
     }
 
-    protected LockedEqualityPivot<? extends Unicardinal, ? extends Constant> evaluateConstant(double coefficient, Constant expression) {
-        return this.createReal(coefficient * expression.value);
+    protected LockedUnicardinalPivot<?, ? extends Constant> evaluateConstant(double coefficient, Constant expression) {
+        return this.createConstant(coefficient * expression.value);
     }
 }
 

@@ -1,12 +1,12 @@
 package core.structure.unicardinal.alg.symbolic;
 
-import core.structure.equalitypivot.LockedEqualityPivot;
+import core.Propositions.equalitypivot.unicardinal.LockedUnicardinalPivot;
 import core.structure.unicardinal.Variable;
 
 public class SymbolicVariable extends Variable implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static LockedEqualityPivot<SymbolicExpression, SymbolicVariable> create(String n, double v) {
-        return (LockedEqualityPivot<SymbolicExpression, SymbolicVariable>) new SymbolicVariable(n, v).close();
+    public static LockedUnicardinalPivot<SymbolicExpression, SymbolicVariable> create(String n, double v) {
+        return (LockedUnicardinalPivot<SymbolicExpression, SymbolicVariable>) new SymbolicVariable(n, v).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */

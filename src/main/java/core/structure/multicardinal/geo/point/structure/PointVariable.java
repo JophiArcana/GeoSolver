@@ -1,5 +1,7 @@
 package core.structure.multicardinal.geo.point.structure;
 
+import core.Propositions.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.LockedPivot;
 import core.structure.multicardinal.*;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
 import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
@@ -33,7 +35,7 @@ public class PointVariable extends MultiVariable implements Point {
     }
 
     /** SECTION: Instance Variables ================================================================================= */
-    public SymbolicVariable var_x, var_y;
+    public LockedPivot<SymbolicExpression, SymbolicVariable> var_x, var_y;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static PointVariable create(String n, double... args) {
@@ -56,7 +58,7 @@ public class PointVariable extends MultiVariable implements Point {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public List<SymbolicExpression> symbolic() {
+    public List<EqualityPivot<SymbolicExpression>> symbolic() {
         return List.of(this.var_x, this.var_y);
     }
 }

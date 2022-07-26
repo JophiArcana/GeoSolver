@@ -16,7 +16,7 @@ public class AlgEngine {
 
     /** SECTION: Simplification Optimization ======================================================================== */
     public double numberOfOperations(UnicardinalPivot<?> expr) {
-        switch (expr.simplestElement) {
+        switch (expr.element()) {
             case Reduction reduction:
                 Collection<UnicardinalPivot<?>> terms = Utils.cast(reduction.getInputs(Reduction.TERMS));
                 double operations = (double) terms.size() - 1;

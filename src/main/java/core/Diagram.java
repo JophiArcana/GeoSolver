@@ -1,17 +1,14 @@
 package core;
 
-import core.structure.Immutable;
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.equalitypivot.LockedEqualityPivot;
-import core.structure.multicardinal.MultiConstant;
-import core.structure.multicardinal.MultiVariable;
-import core.structure.multicardinal.Multicardinal;
+import core.Propositions.equalitypivot.multicardinal.*;
+import core.Propositions.equalitypivot.unicardinal.*;
+import core.structure.multicardinal.*;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.multicardinal.geo.point.structure.PointVariable;
 import core.structure.multicardinal.geo.triangle.Triangle;
-import core.structure.unicardinal.Constant;
 import core.structure.unicardinal.Unicardinal;
-import core.structure.unicardinal.Variable;
+import core.structure.unicardinal.alg.symbolic.*;
+import core.structure.unicardinal.alg.directed.*;
 import core.util.Utils;
 import javafx.scene.layout.Pane;
 
@@ -22,36 +19,38 @@ public class Diagram {
     public static Diagram currentDiagram;
 
     /** SECTION: Metadata =========================================================================================== */
-    private final TreeMap<Unicardinal, EqualityPivot<? extends Unicardinal>> UNICARDINAL_SET = new TreeMap<>(Utils.UNICARDINAL_COMPARATOR);
-    private final TreeMap<Multicardinal, EqualityPivot<? extends Multicardinal>> MULTICARDINAL_SET = new TreeMap<>(Utils.MULTICARDINAL_COMPARATOR);
+    private final TreeMap<Unicardinal, UnicardinalPivot<?>> UNICARDINAL_SET = new TreeMap<>(Utils.UNICARDINAL_COMPARATOR);
+    private final TreeMap<Multicardinal, MulticardinalPivot<?>> MULTICARDINAL_SET = new TreeMap<>(Utils.MULTICARDINAL_COMPARATOR);
 
     public final HashSet<String> nameSet = new HashSet<>();
 
     public final Pane root = new Pane();
 
     /** SECTION: Data Validation ==================================================================================== */
-    public static <T extends Unicardinal> EqualityPivot<T> retrieve(T query) {
-        EqualityPivot<T> result = (EqualityPivot<T>) Diagram.currentDiagram.UNICARDINAL_SET.getOrDefault(query, null);
+    public static <T extends Unicardinal> UnicardinalPivot<T> retrieve(T query) {
+        UnicardinalPivot<?> result = Diagram.currentDiagram.UNICARDINAL_SET.getOrDefault(query, null);
         if (result == null) {
-            if (query instanceof Constant || query instanceof Variable) {
-                result = LockedEqualityPivot.of(query);
-            } else {
-                result = EqualityPivot.of(query);
-            }
+            result = switch (query) {
+                case SymbolicConstant sc -> LockedUnicardinalPivot.<SymbolicExpression, SymbolicConstant>of(sc);
+                case SymbolicVariable sv -> LockedUnicardinalPivot.<SymbolicExpression, SymbolicVariable>of(sv);
+                case DirectedConstant dc -> LockedUnicardinalPivot.<DirectedExpression, DirectedConstant>of(dc);
+                case DirectedVariable dv -> LockedUnicardinalPivot.<DirectedExpression, DirectedVariable>of(dv);
+                default -> UnlockedUnicardinalPivot.of(query);
+            };
             Diagram.currentDiagram.UNICARDINAL_SET.put(query, result);
             query.setEqualityPivot(result);
             query.computeValue();   // A query has not been computed yet if and only if it is unregistered
         }
-        return result;
+        return (UnicardinalPivot<T>) result;
     }
 
-    public static <T extends Multicardinal> EqualityPivot<T> retrieve(T query) {
-        EqualityPivot<T> result = (EqualityPivot<T>) Diagram.currentDiagram.MULTICARDINAL_SET.getOrDefault(query, null);
+    public static <T extends Multicardinal> MulticardinalPivot<T> retrieve(T query) {
+        MulticardinalPivot<T> result = (MulticardinalPivot<T>) Diagram.currentDiagram.MULTICARDINAL_SET.getOrDefault(query, null);
         if (result == null) {
             if (query instanceof MultiConstant || query instanceof MultiVariable) {
-                result = LockedEqualityPivot.of(query);
+                result = LockedMulticardinalPivot.of(query);
             } else {
-                result = EqualityPivot.of(query);
+                result = UnlockedMulticardinalPivot.of(query);
             }
             Diagram.currentDiagram.MULTICARDINAL_SET.put(query, result);
             query.setEqualityPivot(result);

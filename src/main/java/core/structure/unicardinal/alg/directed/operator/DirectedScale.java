@@ -1,11 +1,9 @@
 package core.structure.unicardinal.alg.directed.operator;
 
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.unicardinal.Unicardinal;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
 import core.structure.unicardinal.alg.directed.DirectedExpression;
-import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
+import core.structure.unicardinal.alg.symbolic.*;
 import core.structure.unicardinal.alg.structure.*;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
 import core.structure.unicardinal.alg.symbolic.operator.*;
 import core.util.Utils;
 
@@ -13,26 +11,26 @@ import java.util.*;
 
 public class DirectedScale extends Scale implements DirectedExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static EqualityPivot<DirectedExpression> create(double c, EqualityPivot<DirectedExpression> expr) {
-        return (EqualityPivot<DirectedExpression>) new DirectedScale(c, expr).close();
+    public static UnicardinalPivot<DirectedExpression> create(double c, UnicardinalPivot<DirectedExpression> expr) {
+        return (UnicardinalPivot<DirectedExpression>) new DirectedScale(c, expr).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected DirectedScale(double coefficient, EqualityPivot<DirectedExpression> expr) {
+    protected DirectedScale(double coefficient, UnicardinalPivot<DirectedExpression> expr) {
         super(coefficient, expr);
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public List<EqualityPivot<SymbolicExpression>> symbolic() {
+    public List<UnicardinalPivot<SymbolicExpression>> symbolic() {
         if (this.coefficient % 1 == 0) {
             int n = (int) this.coefficient;
             int k = Math.abs(n);
-            EqualityPivot<SymbolicExpression> t = this.expression.simplestElement.symbolic().get(0);
-            ArrayList<EqualityPivot<SymbolicExpression>> numeratorTerms = new ArrayList<>(n << 1 + 1);
-            ArrayList<EqualityPivot<SymbolicExpression>> denominatorTerms = new ArrayList<>(List.of(SymbolicReal.ONE));
+            UnicardinalPivot<SymbolicExpression> t = this.expression.element().symbolic().get(0);
+            ArrayList<UnicardinalPivot<SymbolicExpression>> numeratorTerms = new ArrayList<>(n << 1 + 1);
+            ArrayList<UnicardinalPivot<SymbolicExpression>> denominatorTerms = new ArrayList<>(List.of(SymbolicConstant.ONE));
             for (int i = 1; i <= k; i++) {
-                EqualityPivot<SymbolicExpression> expr = SymbolicScale.create(Utils.binomial(k, i), SymbolicPow.create(t, i));
+                UnicardinalPivot<SymbolicExpression> expr = SymbolicScale.create(Utils.binomial(k, i), SymbolicPow.create(t, i));
                 switch (i % 4) {
                     case 0:
                         denominatorTerms.add(expr);
@@ -44,7 +42,7 @@ public class DirectedScale extends Scale implements DirectedExpression {
                         numeratorTerms.add(SymbolicScale.create(-1, expr));
                 }
             }
-            EqualityPivot<SymbolicExpression> result = SymbolicMul.create(
+            UnicardinalPivot<SymbolicExpression> result = SymbolicMul.create(
                     SymbolicAdd.create(numeratorTerms),
                     SymbolicPow.create(SymbolicAdd.create(denominatorTerms), -1)
             );
@@ -55,7 +53,7 @@ public class DirectedScale extends Scale implements DirectedExpression {
     }
 
     /** SUBSECTION: Accumulation ==================================================================================== */
-    protected Accumulation createRawAccumulation(double coefficient, EqualityPivot<? extends Unicardinal> expression) {
-        return new DirectedScale(coefficient, (EqualityPivot<DirectedExpression>) expression);
+    protected Accumulation createRawAccumulation(double coefficient, UnicardinalPivot<?> expression) {
+        return new DirectedScale(coefficient, (UnicardinalPivot<DirectedExpression>) expression);
     }
 }

@@ -1,11 +1,9 @@
 package core.structure;
 
-import core.Diagram;
-import core.Propositions.PropositionStructure.Proposition;
+import core.Propositions.Proposition;
 import com.google.common.collect.TreeMultiset;
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.equalitypivot.LockedEqualityPivot;
-import core.structure.unicardinal.Unicardinal;
+import core.Propositions.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.LockedPivot;
 
 import java.util.*;
 
@@ -14,11 +12,11 @@ public abstract class Immutable implements Entity {
     public static final int naturalDegreesOfFreedom = 0;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public LockedEqualityPivot<?, ? extends Immutable> equalityPivot;
+    public LockedPivot<?, ? extends Immutable> equalityPivot;
 
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
-    public HashMap<InputType<?>, TreeMultiset<EqualityPivot<?>>> inputs = new HashMap<>();
+    public HashMap<InputType<?>, TreeMultiset<? extends EqualityPivot<?>>> inputs = new HashMap<>();
 
     /** SECTION: Abstract Constructor =============================================================================== */
     public Immutable() {
@@ -28,6 +26,9 @@ public abstract class Immutable implements Entity {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
+    public void deleteSymbolic() {
+    }
+
     public void updateLocalVariables(EqualityPivot<?> consumedPivot, EqualityPivot<?> consumerPivot) {
     }
 
@@ -50,7 +51,7 @@ public abstract class Immutable implements Entity {
         return this.constraints;
     }
 
-    public HashMap<InputType<?>, TreeMultiset<EqualityPivot<?>>> getInputs() {
+    public HashMap<InputType<?>, TreeMultiset<? extends EqualityPivot<?>>> getInputs() {
         return this.inputs;
     }
 }

@@ -1,9 +1,9 @@
 package core.structure;
 
-import core.Propositions.PropositionStructure.Proposition;
+import core.Propositions.Proposition;
 import com.google.common.collect.TreeMultiset;
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.equalitypivot.LockedEqualityPivot;
+import core.Propositions.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.LockedPivot;
 
 import java.util.*;
 
@@ -12,11 +12,11 @@ public abstract class Mutable implements Entity {
     public static final List<InputType<?>> inputTypes = null;
 
     /** SECTION: Instance Variables ================================================================================= */
-    public LockedEqualityPivot<?, ? extends Mutable> equalityPivot;
+    public LockedPivot<?, ? extends Mutable> equalityPivot;
 
     public int constrainedDegreesOfFreedom;
     public HashSet<Proposition> constraints = new HashSet<>();
-    public HashMap<InputType<?>, TreeMultiset<EqualityPivot<?>>> inputs = new HashMap<>();
+    public HashMap<InputType<?>, TreeMultiset<? extends EqualityPivot<?>>> inputs = new HashMap<>();
     public String name;
 
     /** SECTION: Abstract Constructor =============================================================================== */
@@ -33,6 +33,9 @@ public abstract class Mutable implements Entity {
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
+    public void deleteSymbolic() {
+    }
+
     public void updateLocalVariables(EqualityPivot<?> consumedPivot, EqualityPivot<?> consumerPivot) {
     }
 
@@ -41,7 +44,7 @@ public abstract class Mutable implements Entity {
     }
 
     public void setEqualityPivot(EqualityPivot<?> pivot) {
-        this.equalityPivot = (LockedEqualityPivot<?, ? extends Mutable>) pivot;
+        this.equalityPivot = (LockedPivot<?, ? extends Mutable>) pivot;
     }
 
     public int getConstrainedDegreesOfFreedom() {
@@ -52,7 +55,7 @@ public abstract class Mutable implements Entity {
         return this.constraints;
     }
 
-    public HashMap<InputType<?>, TreeMultiset<EqualityPivot<?>>> getInputs() {
+    public HashMap<InputType<?>, TreeMultiset<? extends EqualityPivot<?>>> getInputs() {
         return this.inputs;
     }
 

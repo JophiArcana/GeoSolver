@@ -1,7 +1,8 @@
 package core.structure.unicardinal.alg.structure;
 
 import core.Diagram;
-import core.structure.equalitypivot.*;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
+import core.structure.unicardinal.Constant;
 import core.structure.unicardinal.Unicardinal;
 import core.util.*;
 
@@ -9,40 +10,40 @@ import java.util.*;
 
 public abstract class Add extends Reduction {
     /** SECTION: Protected Constructors ============================================================================= */
-    protected Add(Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
+    protected Add(Collection<? extends UnicardinalPivot<?>> args) {
         super(args);
     }
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
-        return String.join(" + ", Utils.map(this.getInputs(TERMS), arg -> arg.simplestElement.toString()));
+        return String.join(" + ", Utils.map(this.getInputs(Reduction.TERMS), Object::toString));
     }
 
     /** SECTION: Interface ========================================================================================== */
-    protected abstract Add createRawAdd(Collection<? extends EqualityPivot<? extends Unicardinal>> args);
+    protected abstract Add createRawAdd(Collection<? extends UnicardinalPivot<?>> args);
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
         double result = 0;
-        for (EqualityPivot<? extends Unicardinal> expr : this.getInputs(TERMS)) {
+        for (UnicardinalPivot<?> expr : this.getInputs(Reduction.TERMS)) {
             result += expr.doubleValue();
         }
         this.value.set(result);
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public EqualityPivot<? extends Unicardinal> expand() {
+    public UnicardinalPivot<?> expand() {
         if (this.expansion == null) {
-            this.expansion = this.createAdd(Utils.map(Utils.cast(this.getInputs(TERMS)), Unicardinal::expand));
+            this.expansion = this.createAdd(Utils.map(Utils.cast(this.getInputs(Reduction.TERMS)), Unicardinal::expand));
         }
         return this.expansion;
     }
 
-    public EqualityPivot<? extends Unicardinal> close() {
-        TreeMap<EqualityPivot<? extends Unicardinal>, Double> termMap = new TreeMap<>();
-        this.closeHelper(termMap, this.getInputs(TERMS));
-        ArrayList<EqualityPivot<? extends Unicardinal>> resultTerms = new ArrayList<>(termMap.size());
+    public UnicardinalPivot<?> close() {
+        TreeMap<UnicardinalPivot<?>, Double> termMap = new TreeMap<>();
+        this.closeHelper(termMap, this.getInputs(Reduction.TERMS));
+        ArrayList<UnicardinalPivot<?>> resultTerms = new ArrayList<>(termMap.size());
         termMap.forEach((expr, coefficient) -> {
             if (coefficient == 1) {
                 resultTerms.add(expr);
@@ -50,21 +51,21 @@ public abstract class Add extends Reduction {
                 resultTerms.add(this.createScale(coefficient, expr));
             }
         });
-        EqualityPivot<? extends Unicardinal> result = switch (resultTerms.size()) {
-            case 0 -> this.createReal(0);
+        UnicardinalPivot<?> result = switch (resultTerms.size()) {
+            case 0 -> this.createConstant(0);
             case 1 -> resultTerms.get(0);
             default -> Diagram.retrieve(this.createRawAdd(resultTerms));
         };
-        return (EqualityPivot<? extends Unicardinal>) this.mergeResult(result);
+        return result.merge((UnicardinalPivot<?>) this.equalityPivot);
     }
 
-     private void closeHelper(TreeMap<EqualityPivot<? extends Unicardinal>, Double> map, Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
-        for (EqualityPivot<? extends Unicardinal> arg : args) {
-            this.degree = Math.max(this.degree, arg.simplestElement.getDegree());
-            switch (arg.simplestElement) {
-                case Add addExpr -> this.closeHelper(map, addExpr.getInputs(TERMS));
+     private void closeHelper(TreeMap<UnicardinalPivot<?>, Double> map, Collection<? extends UnicardinalPivot<?>> args) {
+        for (UnicardinalPivot<?> arg : args) {
+            this.degree = Math.max(this.degree, arg.element().getDegree());
+            switch (arg.element()) {
+                case Add addExpr -> this.closeHelper(map, addExpr.getInputs(Reduction.TERMS));
                 case Scale sc -> Utils.addToMultiset(map, sc.expression, sc.coefficient);
-                case Real re -> Utils.addToMultiset(map, this.createReal(1), re.value);
+                case Constant c -> Utils.addToMultiset(map, this.createConstant(1), c.value);
                 default -> Utils.addToMultiset(map, arg, 1);
             }
         }

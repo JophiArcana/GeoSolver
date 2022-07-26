@@ -1,10 +1,8 @@
 package core.structure.unicardinal;
 
+import core.Propositions.equalitypivot.unicardinal.LockedUnicardinalPivot;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
 import core.structure.Entity;
-import core.structure.Immutable;
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.equalitypivot.LockedEqualityPivot;
-import core.structure.unicardinal.alg.structure.Real;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.*;
@@ -18,18 +16,17 @@ public interface Unicardinal extends Entity {
 
     /** SECTION: GUI Value Computation ============================================================================== */
     void computeValue();
-    HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies();
+    HashSet<UnicardinalPivot<?>> computationalDependencies();
+    void deleteComputationalDependencies();
 
-    static void createComputationalEdge(Unicardinal u, EqualityPivot<? extends Unicardinal> p) {
+    static void createComputationalEdge(Unicardinal u, UnicardinalPivot<?> p) {
         u.computationalDependencies().add(p);
-        p.reverseComputationalDependencies.add(u);
+        p.reverseComputationalDependencies().add(u);
     }
 
-    default void removeComputationalEdges() {
-        for (EqualityPivot<?> p : this.computationalDependencies()) {
-            p.reverseComputationalDependencies.remove(this);
-        }
-        this.computationalDependencies().clear();
+    default void deleteComputationalEdges() {
+        this.computationalDependencies().forEach(arg -> arg.reverseComputationalDependencies().remove(this));
+        this.deleteComputationalDependencies();
     }
 
     /**
@@ -60,12 +57,12 @@ public interface Unicardinal extends Entity {
      */
 
     /** SECTION: Algebra ========================================================================================== */
-    EqualityPivot<? extends Unicardinal> expand();
-    EqualityPivot<? extends Unicardinal> close();    // Returning EqualityPivot containing the result of close makes it easier to merge
+    UnicardinalPivot<?> expand();
+    UnicardinalPivot<?> close();    // Returning EqualityPivot containing the result of close makes it easier to merge
 
-    LockedEqualityPivot<? extends Unicardinal, ? extends Real> createReal(double value);
-    EqualityPivot<? extends Unicardinal> createAdd(Collection<? extends EqualityPivot<? extends Unicardinal>> args);
-    EqualityPivot<? extends Unicardinal> createScale(double coefficient, EqualityPivot<? extends Unicardinal> expr);
+    LockedUnicardinalPivot<?, ? extends Constant> createConstant(double value);
+    UnicardinalPivot<?> createAdd(Collection<? extends UnicardinalPivot<?>> args);
+    UnicardinalPivot<?> createScale(double coefficient, UnicardinalPivot<?> expr);
 
     int getDegree();
 

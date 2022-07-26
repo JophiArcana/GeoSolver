@@ -1,5 +1,6 @@
 package core.structure.multicardinal.geo.line.structure;
 
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
 import core.structure.multicardinal.geo.Locus;
 import core.structure.multicardinal.geo.point.structure.Point;
 import core.structure.unicardinal.alg.symbolic.SymbolicExpression;

@@ -1,4 +1,4 @@
-package core.Propositions.PropositionStructure;
+package core.Propositions;
 
 import core.structure.Entity;
 

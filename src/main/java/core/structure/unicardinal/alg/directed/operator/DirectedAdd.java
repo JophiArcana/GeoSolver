@@ -1,11 +1,9 @@
 package core.structure.unicardinal.alg.directed.operator;
 
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.unicardinal.Unicardinal;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
 import core.structure.unicardinal.alg.directed.DirectedExpression;
 import core.structure.unicardinal.alg.structure.*;
-import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
+import core.structure.unicardinal.alg.symbolic.*;
 import core.structure.unicardinal.alg.symbolic.operator.*;
 import core.util.Utils;
 
@@ -13,33 +11,33 @@ import java.util.*;
 
 public class DirectedAdd extends Add implements DirectedExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static EqualityPivot<DirectedExpression> create(Collection<EqualityPivot<DirectedExpression>> args) {
-        return (EqualityPivot<DirectedExpression>) new DirectedAdd(args).close();
+    public static UnicardinalPivot<DirectedExpression> create(Collection<UnicardinalPivot<DirectedExpression>> args) {
+        return (UnicardinalPivot<DirectedExpression>) new DirectedAdd(args).close();
     }
 
     @SafeVarargs
-    public static EqualityPivot<DirectedExpression> create(EqualityPivot<DirectedExpression>... args) {
-        return (EqualityPivot<DirectedExpression>) new DirectedAdd(List.of(args)).close();
+    public static UnicardinalPivot<DirectedExpression> create(UnicardinalPivot<DirectedExpression>... args) {
+        return (UnicardinalPivot<DirectedExpression>) new DirectedAdd(List.of(args)).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected DirectedAdd(Collection<EqualityPivot<DirectedExpression>> args) {
+    protected DirectedAdd(Collection<UnicardinalPivot<DirectedExpression>> args) {
         super(args);
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
-    public List<EqualityPivot<SymbolicExpression>> symbolic() {
-        List<EqualityPivot<DirectedExpression>> terms = List.copyOf(Utils.cast(this.getInputs(Reduction.TERMS)));
-        ArrayList<List<HashSet<EqualityPivot<DirectedExpression>>>> subsets = Utils.sortedSubsets(terms);
+    public List<UnicardinalPivot<SymbolicExpression>> symbolic() {
+        List<UnicardinalPivot<DirectedExpression>> terms = List.copyOf(Utils.cast(this.getInputs(Reduction.TERMS)));
+        ArrayList<List<HashSet<UnicardinalPivot<DirectedExpression>>>> subsets = Utils.sortedSubsets(terms);
 
-        ArrayList<EqualityPivot<SymbolicExpression>> numeratorTerms = new ArrayList<>();
-        ArrayList<EqualityPivot<SymbolicExpression>> denominatorTerms = new ArrayList<>(List.of(SymbolicReal.ONE));
+        ArrayList<UnicardinalPivot<SymbolicExpression>> numeratorTerms = new ArrayList<>();
+        ArrayList<UnicardinalPivot<SymbolicExpression>> denominatorTerms = new ArrayList<>(List.of(SymbolicConstant.ONE));
 
         for (int i = 1; i < subsets.size(); i++) {
-            List<EqualityPivot<SymbolicExpression>> symbolics = Utils.map(subsets.get(i),
-                    subset -> SymbolicMul.create(Utils.map(subset, arg -> arg.simplestElement.symbolic().get(0))));
-            EqualityPivot<SymbolicExpression> symmetricSum = SymbolicAdd.create(symbolics);
+            List<UnicardinalPivot<SymbolicExpression>> symbolics = Utils.map(subsets.get(i),
+                    subset -> SymbolicMul.create(Utils.map(subset, arg -> arg.element().symbolic().get(0))));
+            UnicardinalPivot<SymbolicExpression> symmetricSum = SymbolicAdd.create(symbolics);
             switch (i % 4) {
                 case 0:
                     denominatorTerms.add(symmetricSum);
@@ -58,7 +56,7 @@ public class DirectedAdd extends Add implements DirectedExpression {
     }
 
     /** SUBSECTION: Add ============================================================================================= */
-    protected Add createRawAdd(Collection<? extends EqualityPivot<? extends Unicardinal>> args) {
-        return new DirectedAdd((Collection<EqualityPivot<DirectedExpression>>) args);
+    protected Add createRawAdd(Collection<? extends UnicardinalPivot<?>> args) {
+        return new DirectedAdd((Collection<UnicardinalPivot<DirectedExpression>>) args);
     }
 }

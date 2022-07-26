@@ -1,39 +1,36 @@
 package core.structure.unicardinal.alg.symbolic.operator;
 
 import core.Diagram;
-import core.structure.equalitypivot.EqualityPivot;
-import core.structure.unicardinal.Unicardinal;
-import core.structure.unicardinal.alg.symbolic.SymbolicExpression;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
-import core.structure.unicardinal.alg.structure.Add;
-import core.structure.unicardinal.alg.structure.Real;
-import core.structure.unicardinal.alg.structure.Reduction;
-import core.structure.unicardinal.alg.structure.Scale;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
+import core.structure.unicardinal.*;
+import core.structure.unicardinal.alg.symbolic.*;
+import core.structure.unicardinal.alg.structure.*;
+import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
 import core.util.*;
 
 import java.util.*;
 
 public class SymbolicMul extends Reduction implements SymbolicExpression {
     /** SECTION: Factory Methods ==================================================================================== */
-    public static EqualityPivot<SymbolicExpression> create(Collection<EqualityPivot<SymbolicExpression>> args) {
-        return (EqualityPivot<SymbolicExpression>) new SymbolicMul(args).close();
+    public static UnicardinalPivot<SymbolicExpression> create(Collection<UnicardinalPivot<SymbolicExpression>> args) {
+        return new SymbolicMul(args).close();
     }
 
     @SafeVarargs
-    public static EqualityPivot<SymbolicExpression> create(EqualityPivot<SymbolicExpression>... args) {
-        return (EqualityPivot<SymbolicExpression>) new SymbolicMul(List.of(args)).close();
+    public static UnicardinalPivot<SymbolicExpression> create(UnicardinalPivot<SymbolicExpression>... args) {
+        return new SymbolicMul(List.of(args)).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
-    protected SymbolicMul(Collection<EqualityPivot<SymbolicExpression>> args) {
+    protected SymbolicMul(Collection<UnicardinalPivot<SymbolicExpression>> args) {
         super(args);
     }
 
     /** SECTION: Print Format ======================================================================================= */
     public String toString() {
         ArrayList<String> stringTerms = new ArrayList<>();
-        for (EqualityPivot<?> ent : this.getInputs(Reduction.TERMS)) {
-            if (Utils.CLOSED_FORM.contains(ent.simplestElement.getClass())) {
+        for (UnicardinalPivot<?> ent : this.getInputs(Reduction.TERMS)) {
+            if (ent.element() instanceof SymbolicVariable) {
                 stringTerms.add(ent.toString());
             } else {
                 stringTerms.add("(" + ent + ")");
@@ -46,40 +43,40 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
         double result = 1;
-        for (EqualityPivot<? extends Unicardinal> expr : this.getInputs(Reduction.TERMS)) {
+        for (UnicardinalPivot<?> expr : this.getInputs(Reduction.TERMS)) {
             result *= expr.doubleValue();
         }
         this.value.set(result);
     }
 
     /** SUBSECTION: Expression ====================================================================================== */
-    public EqualityPivot<? extends Unicardinal> expand() {
+    public UnicardinalPivot<SymbolicExpression> expand() {
         if (this.expansion == null) {
-            List<EqualityPivot<SymbolicExpression>> expansions = Utils.map(this.getInputs(Reduction.TERMS), arg -> (EqualityPivot<SymbolicExpression>) arg.simplestElement.expand());
-            ArrayList<EqualityPivot<SymbolicExpression>> singletons = new ArrayList<>();
-            ArrayList<EqualityPivot<SymbolicExpression>> expandedTerms = new ArrayList<>(List.of(SymbolicReal.ONE));
-            for (EqualityPivot<SymbolicExpression> expr : expansions) {
-                if (expr.simplestElement instanceof Add addExpr) {
-                    ArrayList<EqualityPivot<SymbolicExpression>> newExpandedTerms = new ArrayList<>();
-                    for (EqualityPivot<? extends Unicardinal> term : addExpr.getInputs(Reduction.TERMS)) {
-                        expandedTerms.forEach(arg -> newExpandedTerms.add(SymbolicMul.create(arg, (EqualityPivot<SymbolicExpression>) term)));
+            List<UnicardinalPivot<SymbolicExpression>> expansions = Utils.map(this.getInputs(Reduction.TERMS), arg -> (UnicardinalPivot<SymbolicExpression>) arg.element().expand());
+            ArrayList<UnicardinalPivot<SymbolicExpression>> singletons = new ArrayList<>();
+            ArrayList<UnicardinalPivot<SymbolicExpression>> expandedTerms = new ArrayList<>(List.of(SymbolicConstant.ONE));
+            for (UnicardinalPivot<SymbolicExpression> expr : expansions) {
+                if (expr.element() instanceof Add addExpr) {
+                    ArrayList<UnicardinalPivot<SymbolicExpression>> newExpandedTerms = new ArrayList<>();
+                    for (UnicardinalPivot<? extends Unicardinal> term : addExpr.getInputs(Reduction.TERMS)) {
+                        expandedTerms.forEach(arg -> newExpandedTerms.add(SymbolicMul.create(arg, (UnicardinalPivot<SymbolicExpression>) term)));
                     }
                     expandedTerms = newExpandedTerms;
                 } else {
                     singletons.add(expr);
                 }
             }
-            EqualityPivot<SymbolicExpression> singleton = SymbolicMul.create(singletons);
+            UnicardinalPivot<SymbolicExpression> singleton = SymbolicMul.create(singletons);
             this.expansion = SymbolicAdd.create(Utils.map(expandedTerms, arg -> SymbolicMul.create(arg, singleton)));
         }
-        return this.expansion;
+        return (UnicardinalPivot<SymbolicExpression>) this.expansion;
     }
 
-    public EqualityPivot<? extends Unicardinal> close() {
-        TreeMap<EqualityPivot<SymbolicExpression>, Double> termMap = new TreeMap<>();
+    public UnicardinalPivot<SymbolicExpression> close() {
+        TreeMap<UnicardinalPivot<SymbolicExpression>, Double> termMap = new TreeMap<>();
         double[] coefficient = {1};
         this.closeHelper(termMap, coefficient, Utils.cast(this.getInputs(Reduction.TERMS)));
-        ArrayList<EqualityPivot<SymbolicExpression>> resultTerms = new ArrayList<>(termMap.size());
+        ArrayList<UnicardinalPivot<SymbolicExpression>> resultTerms = new ArrayList<>(termMap.size());
         termMap.forEach((expr, power) -> {
             if (power == 1) {
                 resultTerms.add(expr);
@@ -87,27 +84,27 @@ public class SymbolicMul extends Reduction implements SymbolicExpression {
                 resultTerms.add(SymbolicPow.create(expr, power));
             }
         });
-        EqualityPivot<? extends Unicardinal> result = switch (resultTerms.size()) {
-            case 0 -> SymbolicReal.create(coefficient[0]);
+        UnicardinalPivot<? extends Unicardinal> result = switch (resultTerms.size()) {
+            case 0 -> SymbolicConstant.create(coefficient[0]);
             case 1 -> SymbolicScale.create(coefficient[0], resultTerms.get(0));
             default -> SymbolicScale.create(coefficient[0], Diagram.retrieve(new SymbolicMul(resultTerms)));
         };
-        return (EqualityPivot<? extends Unicardinal>) this.mergeResult(result);
+        return (UnicardinalPivot<SymbolicExpression>) result.merge((UnicardinalPivot<?>) this.equalityPivot);
     }
 
-    private void closeHelper(TreeMap<EqualityPivot<SymbolicExpression>, Double> map, double[] coefficient, Collection<EqualityPivot<SymbolicExpression>> args) {
-        for (EqualityPivot<SymbolicExpression> arg : args) {
-            if (arg.simplestElement instanceof SymbolicMul m) {
+    private void closeHelper(TreeMap<UnicardinalPivot<SymbolicExpression>, Double> map, double[] coefficient, Collection<UnicardinalPivot<SymbolicExpression>> args) {
+        for (UnicardinalPivot<SymbolicExpression> arg : args) {
+            if (arg.element() instanceof SymbolicMul m) {
                 this.closeHelper(map, coefficient, Utils.cast(m.getInputs(Reduction.TERMS)));
             } else {
-                this.degree += arg.simplestElement.getDegree();
-                switch (arg.simplestElement) {
+                this.degree += arg.element().getDegree();
+                switch (arg.element()) {
                     case Scale sc -> {
                         coefficient[0] *= sc.coefficient;
-                        Utils.addToMultiset(map, (EqualityPivot<SymbolicExpression>) sc.expression, 1);
+                        Utils.addToMultiset(map, (UnicardinalPivot<SymbolicExpression>) sc.expression, 1);
                     }
-                    case SymbolicPow p -> Utils.addToMultiset(map, (EqualityPivot<SymbolicExpression>) p.expression, p.coefficient);
-                    case Real re -> coefficient[0] *= re.value;
+                    case SymbolicPow p -> Utils.addToMultiset(map, (UnicardinalPivot<SymbolicExpression>) p.expression, p.coefficient);
+                    case Constant c -> coefficient[0] *= c.value;
                     default -> Utils.addToMultiset(map, arg, 1);
                 }
             }

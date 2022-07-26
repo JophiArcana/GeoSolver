@@ -1,7 +1,7 @@
 package core.structure.multicardinal;
 
 import core.structure.*;
-import core.structure.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.EqualityPivot;
 import core.util.Utils;
 import javafx.scene.Node;
 

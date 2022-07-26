@@ -1,29 +1,26 @@
 package core.util;
 
 import com.google.common.collect.Multiset;
-import core.structure.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
+import core.structure.Mutable;
+import core.structure.equalitypivot.*;
+import core.structure.multicardinal.*;
 import core.structure.multicardinal.geo.circle.structure.*;
 import core.structure.multicardinal.geo.line.function.*;
 import core.structure.multicardinal.geo.line.structure.*;
 import core.structure.multicardinal.geo.point.structure.*;
 import core.structure.multicardinal.geo.point.function.*;
 import core.structure.multicardinal.geo.triangle.Triangle;
-import core.structure.unicardinal.Unicardinal;
-import core.structure.unicardinal.Variable;
+import core.structure.unicardinal.*;
 import core.structure.Entity;
 import com.google.common.collect.TreeMultiset;
 import com.google.common.hash.Hashing;
-import core.structure.unicardinal.alg.directed.DirectedVariable;
-import core.structure.unicardinal.alg.directed.constant.DirectedReal;
+import core.structure.unicardinal.alg.directed.*;
 import core.structure.unicardinal.alg.directed.function.Directed;
-import core.structure.unicardinal.alg.directed.operator.DirectedAdd;
-import core.structure.unicardinal.alg.directed.operator.DirectedScale;
-import core.structure.unicardinal.alg.symbolic.SymbolicVariable;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicInfinity;
-import core.structure.unicardinal.alg.symbolic.constant.SymbolicReal;
+import core.structure.unicardinal.alg.directed.operator.*;
+import core.structure.unicardinal.alg.symbolic.*;
 import core.structure.unicardinal.alg.symbolic.operator.*;
-import core.util.comparators.MulticardinalComparator;
-import core.util.comparators.UnicardinalComparator;
 
 import java.util.*;
 import java.util.function.Function;
@@ -31,20 +28,63 @@ import java.util.function.Function;
 public class Utils {
     public static final AlgEngine ENGINE = new AlgEngine();
 
-    public static final UnicardinalComparator UNICARDINAL_COMPARATOR = new UnicardinalComparator();
-    public static final MulticardinalComparator MULTICARDINAL_COMPARATOR = new MulticardinalComparator();
+    /** SECTION: Entity Comparison ================================================================================== */
+    public static final Comparator<Unicardinal> UNICARDINAL_COMPARATOR = (u1, u2) -> {
+        if (u1 == u2) {
+            return 0;
+        } else if (u1 instanceof Constant c1 && u2 instanceof Constant c2) {
+            return Double.compare(c1.value, c2.value);
+        } else if (u1.getDegree() != u2.getDegree()) {
+            return -(u1.getDegree() - u2.getDegree());
+        } else {
+            return Utils.compareEntities(u1, u2);
+        }
+    };
+
+    public static final Comparator<Multicardinal> MULTICARDINAL_COMPARATOR = (m1, m2) -> {
+        if (m1 == m2) {
+            return 0;
+        } else {
+            return Utils.compareEntities(m1, m2);
+        }
+    };
+
+    public static int compareEntities(Entity e1, Entity e2) {
+        if (e1.getClass() != e2.getClass()) {
+            return -(Utils.classCode(e1) - Utils.classCode(e2));
+        } else if (e1 instanceof Mutable var1 && e2 instanceof Mutable var2) {
+            return var1.name.compareTo(var2.name);
+        } else {
+            return Utils.compareInputs(e1, e2);
+        }
+    }
+
+    public static int compareInputs(Entity e1, Entity e2) {
+        assert e1.getClass() == e2.getClass(): "Classes must be identical.";
+        for (Entity.InputType<? extends Entity> inputType : e1.getInputTypes()) {
+            int comparison = 0;
+            if (inputType instanceof Entity.UnicardinalInputType<?> unicardinalInputType) {
+                comparison = unicardinalInputType.compare(e1.getInputs(unicardinalInputType), e2.getInputs(unicardinalInputType));
+            } else if (inputType instanceof Entity.MulticardinalInputType<?> multicardinalInputType) {
+                comparison = multicardinalInputType.compare(e1.getInputs(multicardinalInputType), e2.getInputs(multicardinalInputType));
+            }
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    }
 
     public static final ArrayList<Class<? extends Entity>> CLASS_IDS = new ArrayList<>(Arrays.asList(
-        /** SECTION: Directed Expression ============================================================================ */
-            DirectedReal.class,
+        /** SUBSECTION: Directed Expression ========================================================================= */
+            DirectedConstant.class,
             DirectedVariable.class,
             DirectedScale.class,
             DirectedAdd.class,
             Directed.class,
 
-        /** SECTION: Symbolic Expression ============================================================================ */
-            SymbolicReal.class,
-            SymbolicInfinity.class,
+        /** SUBSECTION: Symbolic Expression ========================================================================= */
+            SymbolicConstant.class,
             SymbolicVariable.class,
             SymbolicAbs.class,
             SymbolicScale.class,
@@ -52,7 +92,7 @@ public class Utils {
             SymbolicPow.class,
             SymbolicMul.class,
 
-        /** SECTION: Points ========================================================================================= */
+        /** SUBSECTION: Points ====================================================================================== */
             Coordinate.class,
             PointVariable.class,
             Midpoint.class,
@@ -62,12 +102,12 @@ public class Utils {
             Triangle.Incenter.class,
             Triangle.Circumcircle.class,
 
-        /** SECTION: Lines ========================================================================================== */
+        /** SUBSECTION: Lines ======================================================================================= */
             Axis.class,
             LineVariable.class,
             Connect.class,
 
-        /** SECTION: Circles ======================================================================================== */
+        /** SUBSECTION: Circles ===================================================================================== */
             Disc.class,
             CircleVariable.class,
             Triangle.Incircle.class,
@@ -80,11 +120,6 @@ public class Utils {
         }
     }};
 
-    public static final HashSet<Class<? extends Unicardinal>> CLOSED_FORM = new HashSet<>(List.of(
-            SymbolicInfinity.class,
-            Variable.class
-    ));
-
     public static String className(Object o) {
         Class<?> cls = o.getClass();
         if (cls.getEnclosingClass() != null) {
@@ -96,30 +131,6 @@ public class Utils {
 
     public static int classCode(Object o) {
         return Utils.CLASS_ID_MAP.get(o.getClass());
-    }
-
-    public static int compareInputs(Entity e1, Entity e2) {
-        assert e1.getClass() == e2.getClass(): "Classes must be identical.";
-        HashMap<Entity.InputType<?>, TreeMultiset<EqualityPivot<?>>>
-                inputs1 = e1.getInputs(),
-                inputs2 = e2.getInputs();
-        for (Entity.InputType<? extends Entity> inputType : e1.getInputTypes()) {
-            Iterator<Multiset.Entry<EqualityPivot<? extends Entity>>>
-                    iter1 = inputs1.get(inputType).entrySet().iterator(),
-                    iter2 = inputs2.get(inputType).entrySet().iterator();
-            while (iter1.hasNext()) {
-                Multiset.Entry<EqualityPivot<? extends Entity>>
-                        entry1 = iter1.next(),
-                        entry2 = iter2.next();
-                int elementComparison = ((EqualityPivot) entry1.getElement()).compareTo(entry2.getElement());
-                if (elementComparison != 0) {
-                    return elementComparison;
-                } else if (entry1.getCount() != entry2.getCount()) {
-                    return -(entry1.getCount() - entry2.getCount());
-                }
-            }
-        }
-        return 0;
     }
 
     public static <T, S> List<S> map(Collection<T> list, Function<T, S> function) {

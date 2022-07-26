@@ -1,7 +1,9 @@
 package core.structure.unicardinal.alg.directed.function;
 
 import core.Diagram;
-import core.structure.equalitypivot.*;
+import core.Propositions.equalitypivot.EqualityPivot;
+import core.Propositions.equalitypivot.multicardinal.MulticardinalPivot;
+import core.Propositions.equalitypivot.unicardinal.UnicardinalPivot;
 import core.structure.multicardinal.geo.line.structure.Line;
 import core.structure.unicardinal.DefinedUnicardinal;
 import core.structure.unicardinal.Unicardinal;
@@ -13,16 +15,16 @@ import java.util.*;
 
 public class Directed extends DefinedUnicardinal implements DirectedExpression {
     /** SECTION: Static Data ======================================================================================== */
-    public static final InputType<Line> LINE = new InputType<>();
+    public static final MulticardinalInputType<Line> LINE = new MulticardinalInputType<>();
 
     public static final List<InputType<?>> inputTypes = List.of(Directed.LINE);
 
     /** SECTION: Instance Variables ================================================================================= */
-    public EqualityPivot<Line> line;
+    public MulticardinalPivot<Line> line;
 
     /** SECTION: Factory Methods ==================================================================================== */
     public static UnicardinalPivot<DirectedExpression> create(MulticardinalPivot<Line> line) {
-        return (UnicardinalPivot<DirectedExpression>) new Directed(line).close();
+        return new Directed(line).close();
     }
 
     /** SECTION: Protected Constructors ============================================================================= */
@@ -31,14 +33,14 @@ public class Directed extends DefinedUnicardinal implements DirectedExpression {
         this.line = line;
         this.getInputs(Directed.LINE).add(this.line);
 
-        this.line.simplestElement.symbolic().forEach(arg -> Unicardinal.createComputationalEdge(this, arg));
-        line.reverseDependencies.add(this);
+        this.line.element().symbolic().forEach(arg -> Unicardinal.createComputationalEdge(this, arg));
+        line.reverseDependencies().add(this);
     }
 
     /** SECTION: Implementation ===================================================================================== */
     /** SUBSECTION: Entity ========================================================================================== */
     public List<UnicardinalPivot<SymbolicExpression>> symbolic() {
-        List<UnicardinalPivot<SymbolicExpression>> dualExpression = this.line.simplestElement.pointDual().symbolic();
+        List<UnicardinalPivot<SymbolicExpression>> dualExpression = this.line.element().pointDual().symbolic();
         return List.of(SymbolicScale.create(-1, SymbolicMul.create(
                 dualExpression.get(0),
                 SymbolicPow.create(dualExpression.get(1), -1)
@@ -46,7 +48,7 @@ public class Directed extends DefinedUnicardinal implements DirectedExpression {
     }
 
     public void updateLocalVariables(EqualityPivot<?> consumedPivot, EqualityPivot<?> consumerPivot) {
-        this.line = (MulticardinalPivot<Line>) consumerPivot;   // Only one local variable that can possibly hold consumedPivot
+        this.line = (MulticardinalPivot<Line>) consumerPivot;    // Only one local variable that can possibly hold consumedPivot
     }
 
     public List<InputType<?>> getInputTypes() {
@@ -55,20 +57,16 @@ public class Directed extends DefinedUnicardinal implements DirectedExpression {
 
     /** SUBSECTION: Unicardinal ===================================================================================== */
     public void computeValue() {
-        List<UnicardinalPivot<SymbolicExpression>> lineExpression = this.line.simplestElement.symbolic();
+        List<UnicardinalPivot<SymbolicExpression>> lineExpression = this.line.element().symbolic();
         this.value.set(Math.atan2(lineExpression.get(1).doubleValue(), lineExpression.get(0).doubleValue()));
     }
 
-    public UnicardinalPivot<?> expand() {
-        return (UnicardinalPivot<?>) this.equalityPivot;
+    public UnicardinalPivot<DirectedExpression> expand() {
+        return (UnicardinalPivot<DirectedExpression>) this.equalityPivot;
     }
 
-    public UnicardinalPivot<?> close() {
-        if (this.equalityPivot == null) {
-            return Diagram.retrieve(this);
-        } else {
-            return (UnicardinalPivot<?>) this.equalityPivot;
-        }
+    public UnicardinalPivot<DirectedExpression> close() {
+        return Diagram.retrieve(this);
     }
 
     public int getDegree() {

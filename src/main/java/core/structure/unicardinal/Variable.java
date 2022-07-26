@@ -1,8 +1,8 @@
 package core.structure.unicardinal;
 
 import core.Diagram;
+import core.Propositions.equalitypivot.unicardinal.*;
 import core.structure.Mutable;
-import core.structure.equalitypivot.EqualityPivot;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.util.HashSet;
@@ -13,7 +13,7 @@ public abstract class Variable extends Mutable implements Unicardinal {
 
     /** SECTION: Instance Variables ================================================================================= */
     public final SimpleDoubleProperty value;
-    public final HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies = new HashSet<>();
+    public HashSet<UnicardinalPivot<?>> computationalDependencies = new HashSet<>();
 
     /** SECTION: Protected Constructors ============================================================================= */
     protected Variable(String n, double value) {
@@ -30,17 +30,21 @@ public abstract class Variable extends Mutable implements Unicardinal {
     public void computeValue() {
     }
 
-    public HashSet<EqualityPivot<? extends Unicardinal>> computationalDependencies() {
+    public HashSet<UnicardinalPivot<?>> computationalDependencies() {
         return this.computationalDependencies;
     }
 
-    /** SUBSECTION: Expression ====================================================================================== */
-    public EqualityPivot<? extends Unicardinal> expand() {
-        return Diagram.retrieve(this);
+    public void deleteComputationalDependencies() {
+        this.computationalDependencies = null;
     }
 
-    public EqualityPivot<? extends Unicardinal> close() {
-        return Diagram.retrieve(this);
+    /** SUBSECTION: Expression ====================================================================================== */
+    public LockedUnicardinalPivot<?, ? extends Variable> expand() {
+        return (LockedUnicardinalPivot<?, ? extends Variable>) this.equalityPivot;
+    }
+
+    public LockedUnicardinalPivot<?, ? extends Variable> close() {
+        return (LockedUnicardinalPivot<?, ? extends Variable>) Diagram.retrieve(this);
     }
 
     public int getNaturalDegreesOfFreedom() {
